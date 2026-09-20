@@ -52,3 +52,16 @@ def test_manifest_rows_that_are_not_dicts_are_dropped(project: Path):
     assert store.load_manifest(cdir, src) == {"https://x/2": {"hash": "h"}}
     assert store.needs_refresh("junk", None, "h") is True
     assert store.needs_refresh(["a"], "2026-01-01", None) is True
+
+
+def test_pending_entry_without_kind_or_severity_is_unreadable(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    good = pending.add(cdir, "date-passed", "major", "good", now="2026-10-01")
+    with (cdir / "pending.jsonl").open("a") as fh:
+        fh.write(json.dumps({"id": "chg-0002"}) + "\n")
+        fh.write(json.dumps({"id": "chg-0003", "kind": 7, "severity": "major"}) + "\n")
+        fh.write(json.dumps({"id": "chg-0004", "kind": "date-passed", "severity": None}) + "\n")
+    assert [e["id"] for e in pending.list_open(cdir)] == [good["id"]]
+    assert pending.unreadable(cdir) == 3
+    code, out, err = run(["pending"], project)
+    assert code == 0 and "chg-0001" in out

@@ -33,11 +33,16 @@ def _read(path: Path) -> tuple[list[dict], int]:
             entry = json.loads(line)
         except ValueError:
             entry = None
-        if isinstance(entry, dict) and entry.get("id"):
+        if isinstance(entry, dict) and entry.get("id") and (path.name != PENDING or _shaped(entry)):
             out.append(entry)
         else:
             unreadable += 1
     return out, unreadable
+
+
+def _shaped(entry: dict) -> bool:
+    """check, fetch and the CLI index on kind and severity — a pending row without them is unreadable."""
+    return isinstance(entry.get("kind"), str) and isinstance(entry.get("severity"), str)
 
 
 def unreadable(cdir: Path) -> int:
