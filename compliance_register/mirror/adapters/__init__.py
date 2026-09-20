@@ -43,7 +43,11 @@ def prefetch(chosen, client_factory, *, today: str) -> dict:
     basket = [s for s in chosen if s.adapter == "eurlex" and s.tier != "refuse"]
     if not basket:
         return {}
-    return {"eurlex": {"resolved": eurlex.prefetch(basket, client_factory(basket[0]), today=today)}}
+    try:
+        return {"eurlex": {"resolved": eurlex.prefetch(basket, client_factory(basket[0]), today=today)}}
+    except Exception as exc:  # the one guard for check/fetch: a bad CSV or client must not abort the run before sources.json is saved
+        celexes = {s.config.get("celex") for s in basket if isinstance(s.config, dict)}
+        return {"eurlex": {"resolved": {c: exc for c in celexes}}}
 
 
 def parse_xml(body: bytes) -> ET.Element:

@@ -100,7 +100,7 @@ class Http:
                     self._robots[host] = rp
                 else:
                     self._robots[host] = None
-            except (urllib.error.URLError, OSError):
+            except Exception:  # unreadable robots.txt (network, bad status line, odd port) counts as no robots file
                 self._robots[host] = None
         rp = self._robots[host]
         return True if rp is None else rp.can_fetch(self.ua, url)

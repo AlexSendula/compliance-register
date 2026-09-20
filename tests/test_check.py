@@ -142,3 +142,35 @@ def test_unreachable_source_exits_1(project: Path):
     bad = lambda source: http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=FakeOpener({"https://reg.test/robots.txt": (404, {}, ""), "https://reg.test/sitemap.xml": (503, {}, "")}))
     assert check.run(cdir, ids=None, today="2026-09-20", client_factory=bad)["exit"] == 1
     assert check.run(cdir, ids=None, today="2026-09-20", client_factory=good)["exit"] == 0  # moved is still 0
+
+
+def _eurlex_project(project: Path, routes: dict):
+    from tests.test_adapter_eurlex import src
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    sources.save(cdir, [src()])
+    opener = FakeOpener(routes)
+    return cdir, lambda source: http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=opener)
+
+
+def test_oversized_csv_field_in_resolve_is_unreachable_and_run_completes(project: Path):
+    from compliance_register.mirror.adapters import eurlex
+    from compliance_register import fetch
+    csv_text = '"baseCelex","consolCelex","consolDate"\n"32011L0083","' + "x" * 200_000 + '","2022-05-28"\n'
+    cdir, factory = _eurlex_project(project, {"https://publications.europa.eu/robots.txt": (404, {}, ""),
+                                              eurlex.SPARQL + "*": (200, {"Content-Type": "text/csv"}, csv_text)})
+    rep = check.run(cdir, ids=None, today="2026-09-20", client_factory=factory)
+    assert rep["unreachable"] == 1 and "Error" in rep["details"]["eu-eurlex-32011L0083"]
+    assert sources.load(cdir)[0].last_checked == "2026-09-20" and (cdir / ".last-check").is_file()
+    rep = fetch.run(cdir, ids=None, force=False, today="2026-09-20", client_factory=factory)
+    assert rep["exit"] == 1 and "Error" in str(rep["details"]["eu-eurlex-32011L0083"])
+
+
+def test_robots_opener_raising_is_no_robots_file_and_run_completes(project: Path):
+    from tests.test_adapter_eurlex import sparql_route
+    from compliance_register.mirror.adapters import eurlex
+    def boom(request):
+        raise ValueError("Port could not be cast to integer value")
+    cdir, factory = _eurlex_project(project, {"https://publications.europa.eu/robots.txt": boom, eurlex.SPARQL + "*": sparql_route})
+    rep = check.run(cdir, ids=None, today="2026-09-20", client_factory=factory)
+    assert rep["moved"] == 1 and rep["unreachable"] == 0
+    assert sources.load(cdir)[0].last_checked == "2026-09-20" and (cdir / ".last-check").is_file()
