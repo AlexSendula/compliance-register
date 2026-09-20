@@ -24,6 +24,6 @@ class FetchResult:
 
 
 def get(name: str):
-    from . import bwb, eurlex, feed, pagehash, sitemap  # noqa: F401
-    registry = {"eurlex": eurlex, "bwb": bwb, "sitemap": sitemap, "feed": feed, "pagehash": pagehash}
+    from . import eurlex, feed, pagehash, sitemap  # noqa: F401
+    registry = {"eurlex": eurlex, "sitemap": sitemap, "feed": feed, "pagehash": pagehash}
     return registry[name]

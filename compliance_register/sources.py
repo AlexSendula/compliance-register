@@ -66,7 +66,7 @@ def validate(s: Source) -> list[str]:
     if s.tier not in TIERS:
         p.append(f"{s.id}: tier must be one of {TIERS}")
     if s.tier == "api" and not s.adapter:
-        p.append(f"{s.id}: api tier needs an explicit adapter (eurlex, bwb)")
+        p.append(f"{s.id}: api tier needs an explicit adapter (eurlex)")
     if s.kind not in KINDS:
         p.append(f"{s.id}: kind must be one of {KINDS}")
     if s.robots not in ROBOTS:

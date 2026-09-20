@@ -49,3 +49,10 @@ def test_allowed_hosts_defaults_to_url_host():
 def test_get_unknown(project: Path):
     with pytest.raises(KeyError):
         sources.get([], "nope")
+
+
+def test_adapter_registry_has_no_bwb():
+    from compliance_register.mirror import adapters
+    with pytest.raises(KeyError):
+        adapters.get("bwb")
+    assert "bwb" not in " ".join(sources.validate(sources.Source.from_dict(dict(EURLEX, adapter=None))))
