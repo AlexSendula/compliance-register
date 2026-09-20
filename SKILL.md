@@ -66,7 +66,16 @@ work around it.
 | `rescan` | profile changed since the last rescan? Writes `regime-gone` / `regime-new` entries. Edits nothing |
 
 Exit codes: `0` done · `1` failure · `2` refused (not in a project with
-`knowledge-base/`, missing dependency, licence forbids, drift not knowable).
+`knowledge-base/`, missing dependency). For the watch commands precisely:
+
+- `check` → `0` ran, every source fresh or moved · `1` ran, but at least one
+  source was unreachable (drift not knowable there) · `2` nothing to check, or
+  validation failed — no request was made.
+- `fetch` → `0` done · `1` a guard or HTTP refused something (a
+  `source-unreachable` entry names it) · `2` a `refuse`-tier source was asked
+  for, validation failed, or a named source is not confirmed — no request was
+  made.
+- `rescan` → `0` done · `1` no profile · `2` the profile does not validate.
 
 ## Rules
 

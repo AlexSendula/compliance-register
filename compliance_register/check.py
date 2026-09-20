@@ -70,6 +70,8 @@ def run(cdir: Path, *, ids: list[str] | None, today: str, client_factory=default
             s.next_version = r.next_version
         s.last_checked = today
         s.last_status = r.status
+    if rep["unreachable"]:
+        rep["exit"] = 1  # ran, but at least one source could not be told
     srcmod.save(cdir, srcs)
     _date_passed(cdir, today)
     (cdir / LAST_CHECK).write_text(f"{today}T{dt.datetime.now(dt.timezone.utc).strftime('%H:%M:%SZ')}\n", encoding="utf-8")

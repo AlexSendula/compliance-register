@@ -50,3 +50,20 @@ def test_named_unconfirmed_source_is_refused(project: Path):
     rep = fetch.run(cdir, ids=["nl-reg"], force=False, today="2026-09-20", client_factory=factory)
     assert rep["exit"] == 2 and "required confirmation missing" in rep["details"]["nl-reg"] and opener.requests == []
     assert rep["written"] == 0
+
+
+def test_guard_refusal_writes_one_source_unreachable_and_exits_1(project: Path):
+    from compliance_register import pending
+    cdir, _ = setup(project)
+    from compliance_register.mirror import http
+    from tests.fakehttp import FakeOpener
+    sm = '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://reg.test/a</loc><lastmod>2026-01-10</lastmod></url></urlset>'
+    routes = {"https://reg.test/robots.txt": (404, {}, ""), "https://reg.test/sitemap.xml": (200, {"Content-Type": "application/xml"}, sm),
+              "https://reg.test/a": (200, {"Content-Type": "application/pdf"}, "%PDF-1.4 not html")}
+    factory = lambda source: http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=FakeOpener(routes))
+    rep = fetch.run(cdir, ids=None, force=False, today="2026-09-20", client_factory=factory)
+    assert rep["exit"] == 1 and rep["written"] == 0
+    fetch.run(cdir, ids=None, force=False, today="2026-09-21", client_factory=factory)
+    entries = [e for e in pending.list_open(cdir) if e["kind"] == "source-unreachable"]
+    assert len(entries) == 1 and entries[0]["source"] == "nl-reg" and "https://reg.test/a" in entries[0]["summary"]
+    assert entries[0]["severity"] == "info" and entries[0]["affects"] == ["COOKIES"]

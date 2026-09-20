@@ -135,3 +135,10 @@ def test_affects_skips_ruled_out_and_no_longer_applies(project: Path):
     write(cdir, dict(META, id="RULED", status="ruled-out", sources=[{"id": "nl-reg", "version": None, "retrieved": "2026-01-01"}]))
     write(cdir, dict(META, id="GONE", status="no-longer-applies", sources=[{"id": "nl-reg", "version": None, "retrieved": "2026-01-01"}]))
     assert check._affects(cdir, "nl-reg") == ["COOKIES"]
+
+
+def test_unreachable_source_exits_1(project: Path):
+    cdir, good = setup(project)
+    bad = lambda source: http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=FakeOpener({"https://reg.test/robots.txt": (404, {}, ""), "https://reg.test/sitemap.xml": (503, {}, "")}))
+    assert check.run(cdir, ids=None, today="2026-09-20", client_factory=bad)["exit"] == 1
+    assert check.run(cdir, ids=None, today="2026-09-20", client_factory=good)["exit"] == 0  # moved is still 0

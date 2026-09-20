@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from . import sources as srcmod
+from . import pending, sources as srcmod
 from .mirror import adapters, http as _http
 
 
@@ -24,6 +24,8 @@ def run(cdir: Path, *, ids: list[str] | None, force: bool, today: str, client_fa
         rep["refused"].extend(refused)
         rep["exit"] = 2
         return rep
+    from .check import _affects  # check imports default_client from here; keep the cycle lazy
+    open_unreachable = {(e["kind"], e.get("source")) for e in pending.list_open(cdir) if e["kind"] == "source-unreachable"}
     for s in chosen:
         if s.tier == "refuse":
             rep["refused"].append(s.id)
@@ -39,6 +41,11 @@ def run(cdir: Path, *, ids: list[str] | None, force: bool, today: str, client_fa
         rep["skipped"] += r.skipped
         if r.refused:
             rep["details"][s.id] = r.refused
+            rep["exit"] = max(rep["exit"], 1)  # a guard or HTTP refused something
+            if ("source-unreachable", s.id) not in open_unreachable:
+                pending.add(cdir, "source-unreachable", "info", "fetch refused: " + "; ".join(r.refused),
+                            source=s.id, affects=_affects(cdir, s.id), now=today)
+                open_unreachable.add(("source-unreachable", s.id))
         if r.written:
             s.last_fetched = today
             if r.version:
