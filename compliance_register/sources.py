@@ -82,6 +82,13 @@ def validate(s: Source) -> list[str]:
     for h in s.allowed_hosts:
         if _is_private_host(h):
             p.append(f"{s.id}: allowed_hosts must not include local or private addresses ({h})")
+    if s.adapter == "eurlex":
+        from .mirror.adapters import eurlex  # adapters import Source; keep the cycle lazy
+        cfg = s.config if isinstance(s.config, dict) else {}
+        if not eurlex.CELEX.fullmatch(str(cfg.get("celex") or "")):
+            p.append(f"{s.id}: config.celex must be a base CELEX number (e.g. 32016R0679)")
+        if "language" in cfg and cfg["language"] not in eurlex.LANG3:
+            p.append(f"{s.id}: config.language must be one of {sorted(eurlex.LANG3)}")
     return p
 
 

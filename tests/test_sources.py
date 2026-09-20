@@ -80,3 +80,17 @@ def test_validate_allows_public_ip_and_names():
 def test_validate_requires_https():
     s = sources.Source.from_dict(dict(EURLEX, url="http://eur-lex.europa.eu/eli/reg/2016/679/oj"))
     assert any("https" in p for p in sources.validate(s))
+
+
+def test_validate_eurlex_celex_and_language_shape():
+    ok = sources.Source.from_dict(EURLEX)
+    assert sources.validate(ok) == []
+    for celex in ("../x", "02011L0083-20220528", "3201L0083", "32011l0083", ""):
+        s = sources.Source.from_dict(dict(EURLEX, config={"celex": celex, "language": "EN"}))
+        assert any("celex" in p for p in sources.validate(s)), celex
+    s = sources.Source.from_dict(dict(EURLEX, config={"celex": "32011L0083", "language": "XX"}))
+    assert any("language" in p for p in sources.validate(s))
+    s = sources.Source.from_dict(dict(EURLEX, config={"celex": "32011L0083"}))
+    assert sources.validate(s) == []
+    s = sources.Source.from_dict(dict(EURLEX, config={}))
+    assert any("celex" in p for p in sources.validate(s))

@@ -96,3 +96,26 @@ def test_check_with_missing_config_is_unreachable_not_raised(project: Path):
     s = src(); s.config = {}
     r = eurlex.check(s, client(), today="2026-09-20", cdir=cdir)
     assert r.status == "unreachable" and "celex" in r.detail
+
+
+def csv_client(csv_text):
+    c = client()
+    c.opener = FakeOpener({"https://publications.europa.eu/robots.txt": (404, {}, ""),
+                           eurlex.SPARQL + "*": (200, {"Content-Type": "text/csv"}, csv_text)})
+    return c
+
+
+def test_resolve_drops_malformed_rows_and_never_splits_them():
+    bad = ('"baseCelex","consolCelex","consolDate"\n'
+           '"32011L0083","../../etc/passwd","2024-01-01"\n'         # no dash-date suffix, path-shaped
+           '"32011L0083","02011L0083-20220528","28.05.2022"\n'       # date not ISO
+           '"32011L0083","02011L0083-20180701","2018-07-01"\n')
+    r = eurlex.resolve(csv_client(bad), ["32011L0083"], today="2026-09-20")
+    assert r["32011L0083"]["current"] == "02011L0083-20180701" and r["32011L0083"]["next"] is None
+
+
+def test_resolve_all_rows_malformed_is_unreachable():
+    bad = '"baseCelex","consolCelex","consolDate"\n"32011L0083","garbage","2024-01-01"\n'
+    import pytest
+    with pytest.raises(http.HttpUnreachable):
+        eurlex.resolve(csv_client(bad), ["32011L0083"], today="2026-09-20")

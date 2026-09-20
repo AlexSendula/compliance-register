@@ -19,7 +19,11 @@ SPARQL = "https://publications.europa.eu/webapi/rdf/sparql"
 LANG3 = {"BG": "BUL", "CS": "CES", "DA": "DAN", "DE": "DEU", "EL": "ELL", "EN": "ENG", "ES": "SPA", "ET": "EST", "FI": "FIN", "FR": "FRA", "GA": "GLE", "HR": "HRV", "HU": "HUN", "IT": "ITA", "LT": "LIT", "LV": "LAV", "MT": "MLT", "NL": "NLD", "PL": "POL", "PT": "POR", "RO": "RON", "SK": "SLK", "SL": "SLV", "SV": "SWE"}
 MARKER = "This text is meant purely as a documentation tool and has no legal effect"
 # the <p class="reference"> line: consolidated CELEX (sector 0) — LANG — DD.MM.YYYY. The <title> repeats it with the base CELEX, so anchor on the leading 0.
-_HEADER = re.compile(r"(0\d{4}[A-Z]\d{4}) — ([A-Z]{2}) — (\d{2})\.(\d{2})\.(\d{4})")
+_HEADER = re.compile(r"(?<!\d)(0\d{4}[A-Z]{1,2}\d{4}) — ([A-Z]{2}) — (\d{2})\.(\d{2})\.(\d{4})")
+# server-supplied strings become directory names, URL parameters and sources.json values: shape-check before use
+CELEX = re.compile(r"\d{5}[A-Z]{1,2}\d{4}")
+_CONSOL = re.compile(r"0\d{4}[A-Z]{1,2}\d{4}-\d{8}")
+_ISO = re.compile(r"\d{4}-\d{2}-\d{2}")
 _ANCHOR = re.compile(r'id="art_(\d+)"')
 _TEMPLATE = Path(__file__).resolve().parents[3] / "references" / "eurlex-resolve.sparql"
 
@@ -36,9 +40,12 @@ def resolve(client: _http.Http, celexes: list[str], *, today: str) -> dict:
     resp = client.get(url, allowed_hosts=["publications.europa.eu"])
     if resp.status != 200:
         raise _http.HttpUnreachable(f"SPARQL HTTP {resp.status}")
-    rows = list(csv.DictReader(io.StringIO(resp.body.decode("utf-8", "replace"))))
-    if not rows:
+    raw = list(csv.DictReader(io.StringIO(resp.body.decode("utf-8", "replace"))))
+    if not raw:
         raise _http.HttpUnreachable("SPARQL returned no rows for a non-empty basket (typed-literal trap?)")
+    rows = [r for r in raw if _CONSOL.fullmatch(r.get("consolCelex") or "") and _ISO.fullmatch(r.get("consolDate") or "")]
+    if not rows:
+        raise _http.HttpUnreachable(f"SPARQL returned {len(raw)} rows, none well-formed")
     out: dict = {}
     for c in celexes:
         mine = sorted((r for r in rows if r.get("baseCelex") == c), key=lambda r: r["consolDate"], reverse=True)
