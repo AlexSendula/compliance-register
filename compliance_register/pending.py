@@ -61,9 +61,10 @@ def add(cdir: Path, kind: str, severity: str, summary: str, *, source: str | Non
         raise ValueError(f"kind must be one of {KINDS}")
     if severity not in SEVERITIES:
         raise ValueError(f"severity must be one of {SEVERITIES}")
-    existing, skipped = _read(cdir / PENDING)
+    seen = _read(cdir / PENDING)[0] + _read(cdir / RESOLUTIONS)[0]
+    ids = [int(e["id"][4:]) for e in seen if isinstance(e["id"], str) and e["id"].startswith("chg-") and e["id"][4:].isdigit()]
     entry = {
-        "id": f"chg-{len(existing) + skipped + 1:04d}",
+        "id": f"chg-{max(ids, default=0) + 1:04d}",
         "detected": _today(now),
         "kind": kind,
         "severity": severity,

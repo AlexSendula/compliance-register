@@ -37,3 +37,14 @@ def test_unknown_kind_rejected(project: Path):
     cdir = paths.compliance_dir(project); cdir.mkdir()
     with pytest.raises(ValueError):
         pending.add(cdir, "nonsense", "major", "x")
+
+
+def test_ids_continue_from_max_id_not_line_count(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    a = pending.add(cdir, "regime-new", "info", "a", now="2026-10-01")
+    b = pending.add(cdir, "regime-new", "info", "b", now="2026-10-01")
+    pending.resolve(cdir, b["id"], "dismissed", by="A", now="2026-10-02")
+    # a hand-deleted resolved line must not free its id: the next entry would be born resolved
+    (cdir / "pending.jsonl").write_text(json.dumps(a) + "\n")
+    c = pending.add(cdir, "regime-new", "info", "c", now="2026-10-03")
+    assert c["id"] == "chg-0003" and [e["id"] for e in pending.list_open(cdir)] == ["chg-0001", "chg-0003"]
