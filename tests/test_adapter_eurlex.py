@@ -167,3 +167,17 @@ def test_check_run_issues_one_sparql_query_for_all_eurlex_sources(project: Path)
     rep = fetch.run(cdir, ids=None, force=False, today="2026-09-20", client_factory=lambda s: c)
     assert rep["written"] == 3  # 32016R0679's page has no fixture route → refused, no traceback
     assert len([r for r in c.opener.requests if r.full_url.startswith(eurlex.SPARQL)]) == 2
+
+
+def test_g4_needs_the_consolidated_reference_line_not_the_title(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    real = FIX.joinpath("eurlex-consolidated.html").read_text()
+    assert "<title>Consolidated TEXT: 32011L0083 — EN — 28.05.2022</title>" in real
+    assert '<p class="reference">02011L0083 — EN — 28.05.2022' in real
+    assert eurlex.fetch(src(), client(real), cdir, today="2026-09-20").refused == []
+    title_only = real.replace('<p class="reference">02011L0083 — EN — 28.05.2022 — 002.001</p>', "")
+    f = eurlex.fetch(src(), client(title_only), cdir, today="2026-09-20")
+    assert f.written == [] and f.refused == ["G4: header does not match requested CELEX/language/date"]
+    # a base CELEX glued to a leading digit is not the sector-0 form either
+    glued = title_only.replace("32011L0083 — EN", "302011L0083 — EN")
+    assert eurlex.fetch(src(), client(glued), cdir, today="2026-09-20").refused[0].startswith("G4")
