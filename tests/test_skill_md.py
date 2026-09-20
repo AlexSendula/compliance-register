@@ -68,3 +68,16 @@ def test_regime_template_ships_placeholders_not_law():
     assert not re.search(r"\bArt\. \d", text)
     assert "## Obligations" in text and "Rules:" in text
 
+
+
+def test_method_discover_sources_names_every_source_field():
+    from compliance_register import sources
+    text = (ROOT / "references" / "method-discover-sources.md").read_text()
+    agent_written = [f for f in sources.Source.__dataclass_fields__ if not f.startswith(("last_", "next_"))]
+    for name in agent_written:
+        assert f"`{name}`" in text, name
+    for value in sources.KINDS + sources.TIERS + sources.STATUSES:
+        assert f"`{value}`" in text, value
+    for key in ("celex", "language", "urls", "include", "user_agent", "default", "neutral", "browser"):
+        assert f"`{key}`" in text, key
+    assert "robots.txt" in text and "always honoured" in text
