@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 from ..http import HttpRefused
 
 LISTING_MAX_BYTES = 5_000_000  # a sitemap or feed larger than this is not a listing we want
+NAMES = ("eurlex", "sitemap", "feed", "pagehash")  # the registry; sources.validate refuses any other adapter
 
 
 @dataclass
@@ -30,7 +31,7 @@ class FetchResult:
 
 def get(name: str):
     from . import eurlex, feed, pagehash, sitemap  # noqa: F401
-    registry = {"eurlex": eurlex, "sitemap": sitemap, "feed": feed, "pagehash": pagehash}
+    registry = dict(zip(NAMES, (eurlex, sitemap, feed, pagehash)))
     return registry[name]
 
 

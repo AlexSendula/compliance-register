@@ -94,3 +94,18 @@ def test_validate_eurlex_celex_and_language_shape():
     assert sources.validate(s) == []
     s = sources.Source.from_dict(dict(EURLEX, config={}))
     assert any("celex" in p for p in sources.validate(s))
+
+
+def test_allowed_hosts_string_is_wrapped_and_bad_shapes_refused():
+    s = sources.Source.from_dict(dict(EURLEX, allowed_hosts="eur-lex.europa.eu"))
+    assert s.allowed_hosts == ["eur-lex.europa.eu"] and sources.validate(s) == []
+    for bad in ({"a": 1}, ["eur-lex.europa.eu", 3], [""], 7):
+        s = sources.Source.from_dict(EURLEX); s.allowed_hosts = bad
+        assert any("allowed_hosts must be a list" in p for p in sources.validate(s)), bad
+
+
+def test_validate_refuses_unknown_adapter():
+    s = sources.Source.from_dict(dict(EURLEX, adapter="bwb"))
+    assert any("adapter" in p and "bwb" in p for p in sources.validate(s))
+    for name in ("eurlex", "sitemap", "feed", "pagehash"):
+        assert not any("unknown adapter" in p for p in sources.validate(sources.Source.from_dict(dict(EURLEX, adapter=name))))

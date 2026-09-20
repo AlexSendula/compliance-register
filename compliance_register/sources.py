@@ -11,6 +11,8 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from .mirror.adapters import NAMES as ADAPTERS  # the adapter modules import Source; the registry names do not
+
 FILENAME = "sources.json"
 TIERS = ("api", "sitemap", "feed", "page-hash", "refuse")
 KINDS = ("legislation", "gazette", "regulator", "contract", "standard")
@@ -52,6 +54,8 @@ class Source:
         s = cls(**known)
         if not s.adapter:
             s.adapter = _DEFAULT_ADAPTER.get(s.tier)
+        if isinstance(s.allowed_hosts, str):  # one host typed bare: a string would make the redirect check a substring test
+            s.allowed_hosts = [s.allowed_hosts]
         if not s.allowed_hosts:
             host = urlsplit(s.url).hostname
             s.allowed_hosts = [host] if host else []
@@ -71,6 +75,8 @@ def validate(s: Source) -> list[str]:
         p.append(f"{s.id}: tier must be one of {TIERS}")
     if s.tier == "api" and not s.adapter:
         p.append(f"{s.id}: api tier needs an explicit adapter (eurlex)")
+    elif s.adapter and s.adapter not in ADAPTERS:
+        p.append(f"{s.id}: unknown adapter {s.adapter!r}; must be one of {ADAPTERS}")
     if s.kind not in KINDS:
         p.append(f"{s.id}: kind must be one of {KINDS}")
     if s.status not in STATUSES:
@@ -79,9 +85,12 @@ def validate(s: Source) -> list[str]:
         p.append(f"{s.id}: licence.redistribute must be true or false")
     if urlsplit(s.url).scheme != "https":
         p.append(f"{s.id}: url must be https")
-    for h in s.allowed_hosts:
-        if _is_private_host(h):
-            p.append(f"{s.id}: allowed_hosts must not include local or private addresses ({h})")
+    if not isinstance(s.allowed_hosts, list) or not all(isinstance(h, str) and h for h in s.allowed_hosts):
+        p.append(f"{s.id}: allowed_hosts must be a list of hostnames")
+    else:
+        for h in s.allowed_hosts:
+            if _is_private_host(h):
+                p.append(f"{s.id}: allowed_hosts must not include local or private addresses ({h})")
     if s.adapter == "eurlex":
         from .mirror.adapters import eurlex  # adapters import Source; keep the cycle lazy
         cfg = s.config if isinstance(s.config, dict) else {}
