@@ -133,3 +133,11 @@ def test_profile_diff_ref_is_never_a_git_option(project: Path, monkeypatch):
     code, _, err = run(["profile", "diff", "--against=--output=/tmp/x"], project)
     assert code == 1 and "bad revision" in err
     assert seen["cmd"][:3] == ["git", "show", "--end-of-options"] and seen["cmd"][3].startswith("--output=/tmp/x:")
+
+
+def test_today_must_be_an_iso_date(project: Path):
+    run(["init"], project)
+    for cmd in (["check"], ["fetch"], ["rescan"]):
+        code, _, err = run([*cmd, "--today", "tomorrow"], project)
+        assert code == 1 and "YYYY-MM-DD" in err, cmd
+    assert run(["rescan", "--today", "2026-13-40"], project)[0] == 1

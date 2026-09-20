@@ -32,3 +32,11 @@ def test_report_full(project: Path):
     assert "compliant" not in text.lower()
     assert "GDPR-002" not in text  # unclear obligations are counted, not listed
     assert "1 open" in text
+
+
+def test_non_iso_confirmed_at_is_no_age_not_a_traceback(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    meta = profile.empty(); meta["confirmed_at"] = "soon"
+    fm.save(cdir / "profile.md", meta, "")
+    rep = status.report(cdir, today="2026-09-20")
+    assert rep["profile"]["age_days"] is None and "not yet confirmed" in status.render(rep)

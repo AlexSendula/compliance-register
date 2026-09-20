@@ -15,7 +15,10 @@ def _age_days(iso: str | None, today: str | None) -> int | None:
     if not iso:
         return None
     t = dt.date.fromisoformat(today) if today else dt.date.today()
-    return (t - dt.date.fromisoformat(str(iso)[:10])).days
+    try:
+        return (t - dt.date.fromisoformat(str(iso)[:10])).days
+    except ValueError:  # a hand-written confirmed_at that is not a date: no age, not a traceback
+        return None
 
 
 def report(cdir: Path, today: str | None = None) -> dict:

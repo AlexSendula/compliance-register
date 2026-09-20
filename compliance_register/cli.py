@@ -173,6 +173,15 @@ def _today() -> str:
     return dt.date.today().isoformat()
 
 
+def _iso_date(s: str) -> str:
+    """--today is written into sources.json, .last-check and pending entries and compared as a string: YYYY-MM-DD only."""
+    import datetime as dt
+    try:
+        return dt.date.fromisoformat(s).isoformat()
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"{s!r} is not a date (YYYY-MM-DD)")
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="compliance-register")
     p.add_argument("--version", action="version", version=f"compliance-register {__version__}")
@@ -204,17 +213,20 @@ def build_parser() -> argparse.ArgumentParser:
     so.add_parser("validate").set_defaults(fn=cmd_sources_validate)
 
     s = sub.add_parser("fetch", help="acquire or refresh confirmed sources into the mirror")
-    s.add_argument("--source", action="append"); s.add_argument("--force", action="store_true"); s.add_argument("--today"); s.set_defaults(fn=cmd_fetch)
+    s.add_argument("--source", action="append"); s.add_argument("--force", action="store_true"); s.add_argument("--today", type=_iso_date); s.set_defaults(fn=cmd_fetch)
     s = sub.add_parser("check", help="did any source move? writes pending entries")
-    s.add_argument("--source", action="append"); s.add_argument("--json", action="store_true"); s.add_argument("--today"); s.set_defaults(fn=cmd_check)
+    s.add_argument("--source", action="append"); s.add_argument("--json", action="store_true"); s.add_argument("--today", type=_iso_date); s.set_defaults(fn=cmd_check)
     s = sub.add_parser("rescan", help="profile changed? which regimes does it touch")
-    s.add_argument("--today"); s.set_defaults(fn=cmd_rescan)
+    s.add_argument("--today", type=_iso_date); s.set_defaults(fn=cmd_rescan)
     return p
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
-    args = parser.parse_args(argv)
+    try:
+        args = parser.parse_args(argv)
+    except SystemExit as exc:  # argparse exits 2 on a bad argument; bad input is exit 1 here
+        return 1 if exc.code else 0
     if args.command is None:
         parser.print_help(sys.stderr)
         return 1
