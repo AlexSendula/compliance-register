@@ -123,3 +123,15 @@ def test_readme_matches_the_cli_and_lists_engine_files():
         assert f"compliance-register {name}" in text, name
     for path in (".last-check", "profile.snapshot.json", "mirror/.private/", ".search-index.json", "MANIFEST.json"):
         assert path in text, path
+
+
+def test_shipped_docs_carry_no_law_fact_or_source_address():
+    """No CELEX, ISO date, article citation or URL outside the checklist's
+    provenance lines. Trigger words in the SKILL.md description are names,
+    not facts, and no pattern here matches them."""
+    for path in SHIPPED:
+        for n, line in enumerate(path.read_text().splitlines(), 1):
+            if path.name == "dimensions-checklist.md" and "**Found in**" in line:
+                continue
+            for pat in (_CELEX, _ISO_DATE, _ARTICLE, _URL):
+                assert not pat.search(line), f"{path.name}:{n}: {line.strip()}"
