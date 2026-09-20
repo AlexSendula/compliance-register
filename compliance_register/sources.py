@@ -84,6 +84,20 @@ def validate(s: Source) -> list[str]:
     return p
 
 
+def refusals(chosen: list[Source], ids: list[str] | None) -> dict[str, str]:
+    """{source id: why it must not be touched} — validation problems, and a
+    source named on the command line that no human has confirmed. Empty means
+    every chosen source may go to the network."""
+    out: dict[str, str] = {}
+    for s in chosen:
+        problems = validate(s)
+        if ids and s.status != "confirmed":
+            problems.append(f"{s.id}: required confirmation missing (status {s.status})")
+        if problems:
+            out[s.id] = "; ".join(problems)
+    return out
+
+
 def _is_private_host(host: str) -> bool:
     if host.lower() == "localhost":
         return True

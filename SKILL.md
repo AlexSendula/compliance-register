@@ -57,6 +57,7 @@ work around it.
 | `profile validate` | exit 1 with the list of unanswered or null answers |
 | `profile diff --against <file or git ref>` | dimensions whose value changed |
 | `regimes validate` | exit 1 with problems per regime file |
+| `sources validate` | exit 1 with problems per source (`check` and `fetch` run this first and make no request while it fails) |
 | `pending [--json]` | open detected changes |
 | `resolve <id> --action applied\|dismissed\|deferred --by <name> [--note]` | record what a human did |
 | `search "<query>" [-k N] [--kind regime\|mirror\|profile]` | ranked keyword search |

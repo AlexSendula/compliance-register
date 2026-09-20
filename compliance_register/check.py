@@ -25,6 +25,11 @@ def run(cdir: Path, *, ids: list[str] | None, today: str, client_factory=default
         rep["exit"] = 2
         rep["details"]["_"] = "nothing to check — no confirmed sources"
         return rep
+    refused = srcmod.refusals(chosen, ids)
+    if refused:  # validation before network: no request is made
+        rep["details"].update(refused)
+        rep["exit"] = 2
+        return rep
     any_moved = False
     open_kinds = {(e["kind"], e.get("source")) for e in pending.list_open(cdir)}
     for s in chosen:

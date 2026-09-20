@@ -18,6 +18,12 @@ def run(cdir: Path, *, ids: list[str] | None, force: bool, today: str, client_fa
     srcs = srcmod.load(cdir)
     chosen = [s for s in srcs if (ids is None and s.status == "confirmed") or (ids and s.id in ids)]
     rep = {"written": 0, "skipped": 0, "refused": [], "details": {}, "exit": 0}
+    refused = srcmod.refusals(chosen, ids)
+    if refused:  # validation before network: no request is made
+        rep["details"].update(refused)
+        rep["refused"].extend(refused)
+        rep["exit"] = 2
+        return rep
     for s in chosen:
         if s.tier == "refuse":
             rep["refused"].append(s.id)

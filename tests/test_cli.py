@@ -103,3 +103,15 @@ def test_pending_output_escapes_terminal_controls(project: Path):
     pending.add(paths.compliance_dir(project), "source-moved", "major", "moved to \x1b[2Jhttps://evil", now="2026-10-01")
     code, out, _ = run(["pending"], project)
     assert code == 0 and "\x1b" not in out and "\\x1b[2J" in out
+
+
+def test_sources_validate_cli(project: Path):
+    run(["init"], project)
+    cdir = paths.compliance_dir(project)
+    code, out, _ = run(["sources", "validate"], project)
+    assert code == 0
+    from compliance_register import sources
+    s = sources.Source.from_dict({"id": "x", "jurisdiction": "NL", "kind": "regulator", "url": "http://x.test/", "tier": "api"})
+    sources.save(cdir, [s])
+    code, out, _ = run(["sources", "validate"], project)
+    assert code == 1 and "https" in out and "adapter" in out

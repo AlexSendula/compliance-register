@@ -69,3 +69,22 @@ def test_adapter_exception_is_unreachable_and_run_continues(project: Path, monke
     assert rep["unreachable"] == 1 and "RuntimeError: adapter bug" in rep["details"]["nl-reg"]
     assert rep["moved"] == 1  # the second source was still checked
     assert (cdir / ".last-check").is_file()
+
+
+def test_validation_problem_exits_2_before_any_request(project: Path):
+    cdir, _ = setup(project)
+    srcs = sources.load(cdir); srcs[0].url = "http://reg.test/sitemap.xml"; sources.save(cdir, srcs)
+    opener = FakeOpener({})
+    factory = lambda source: http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=opener)
+    rep = check.run(cdir, ids=None, today="2026-09-20", client_factory=factory)
+    assert rep["exit"] == 2 and "https" in rep["details"]["nl-reg"] and opener.requests == []
+    assert pending.list_open(cdir) == [] and not (cdir / ".last-check").exists()
+
+
+def test_named_unconfirmed_source_is_refused(project: Path):
+    cdir, _ = setup(project)
+    srcs = sources.load(cdir); srcs[0].status = "proposed"; sources.save(cdir, srcs)
+    opener = FakeOpener({})
+    factory = lambda source: http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=opener)
+    rep = check.run(cdir, ids=["nl-reg"], today="2026-09-20", client_factory=factory)
+    assert rep["exit"] == 2 and "required confirmation missing" in rep["details"]["nl-reg"] and opener.requests == []

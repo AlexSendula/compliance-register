@@ -27,3 +27,26 @@ def test_adapter_exception_is_refused_and_run_continues(project: Path, monkeypat
     rep = fetch.run(cdir, ids=None, force=False, today="2026-09-20", client_factory=factory)
     assert rep["written"] == 0 and "RuntimeError: adapter bug" in str(rep["details"]["nl-reg"])
     assert sources.load(cdir)[0].last_fetched is None
+
+
+def test_validation_problem_exits_2_before_any_request(project: Path):
+    cdir, _ = setup(project)
+    srcs = sources.load(cdir); srcs[0].url = "http://reg.test/sitemap.xml"; sources.save(cdir, srcs)
+    from compliance_register.mirror import http
+    from tests.fakehttp import FakeOpener
+    opener = FakeOpener({})
+    factory = lambda source: http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=opener)
+    rep = fetch.run(cdir, ids=None, force=False, today="2026-09-20", client_factory=factory)
+    assert rep["exit"] == 2 and "https" in rep["details"]["nl-reg"] and opener.requests == []
+
+
+def test_named_unconfirmed_source_is_refused(project: Path):
+    cdir, _ = setup(project)
+    srcs = sources.load(cdir); srcs[0].status = "proposed"; sources.save(cdir, srcs)
+    from compliance_register.mirror import http
+    from tests.fakehttp import FakeOpener
+    opener = FakeOpener({})
+    factory = lambda source: http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=opener)
+    rep = fetch.run(cdir, ids=["nl-reg"], force=False, today="2026-09-20", client_factory=factory)
+    assert rep["exit"] == 2 and "required confirmation missing" in rep["details"]["nl-reg"] and opener.requests == []
+    assert rep["written"] == 0

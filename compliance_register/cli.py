@@ -132,6 +132,13 @@ def cmd_regimes_validate(args) -> int:
     return 1 if problems else 0
 
 
+def cmd_sources_validate(args) -> int:
+    problems = [x for s in sources.load(_cdir()) for x in sources.validate(s)]
+    for x in problems:
+        print(printable(x))
+    return 1 if problems else 0
+
+
 def cmd_fetch(args) -> int:
     rep = fetchmod.run(_cdir(), ids=args.source or None, force=args.force, today=args.today or _today())
     print(f"written {rep['written']} · skipped {rep['skipped']} · refused {len(rep['refused'])}")
@@ -192,6 +199,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     rg = sub.add_parser("regimes", help="regime file helpers").add_subparsers(dest="sub", required=True)
     rg.add_parser("validate").set_defaults(fn=cmd_regimes_validate)
+
+    so = sub.add_parser("sources", help="sources.json helpers").add_subparsers(dest="sub", required=True)
+    so.add_parser("validate").set_defaults(fn=cmd_sources_validate)
 
     s = sub.add_parser("fetch", help="acquire or refresh confirmed sources into the mirror")
     s.add_argument("--source", action="append"); s.add_argument("--force", action="store_true"); s.add_argument("--today"); s.set_defaults(fn=cmd_fetch)
