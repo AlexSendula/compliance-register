@@ -30,9 +30,9 @@ Search the web (spawn one subagent per jurisdiction if you can) for:
 - `licence`: `{redistribute: true|false, attribution: "<text or null>"}` —
   read the site's reuse terms; when you cannot find them, `redistribute:
   false` until a human says otherwise
-- `robots`: `honour | allowlist` — `allowlist` only for a documented API
-  host whose robots.txt says `Disallow: /` but whose own docs invite use;
-  say why
+- read the host's robots.txt for the path you would fetch. It is always
+  honoured — there is no allowlist. If it disallows the path, the source
+  is `tier: refuse` (cited by URL, never fetched); say so in `evidence`
 - `headers`: any quirk you found (a browser User-Agent needed, or forbidden)
 - `evidence`: the URLs you read to establish the above
 - `status`: `proposed`
@@ -47,5 +47,5 @@ mirror exists, cite these URLs directly in regime files.
 - A jurisdiction with no official legislative database you can find: record
   it as `status: unresolved` with what you searched. Do not substitute a
   commercial aggregator.
-- A source whose terms forbid automated access: record it with
-  `tier: refuse`. It can still be cited by URL.
+- A source whose terms or robots.txt forbid automated access: record it
+  with `tier: refuse`. It can still be cited by URL.

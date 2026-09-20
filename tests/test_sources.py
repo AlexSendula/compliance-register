@@ -36,7 +36,7 @@ def test_validate_rules():
 
 
 def test_no_robots_field_or_posture():
-    s = sources.Source.from_dict(dict(EURLEX, robots="allowlist"))
+    s = sources.Source.from_dict(dict(EURLEX, robots="ignore"))
     assert "robots" not in s.to_dict() and not hasattr(sources, "ROBOTS")
     assert sources.validate(s) == []
 
@@ -56,11 +56,14 @@ def test_get_unknown(project: Path):
         sources.get([], "nope")
 
 
-def test_adapter_registry_has_no_bwb():
+def test_api_tier_adapter_is_eurlex_only():
     from compliance_register.mirror import adapters
+    for name in ("eurlex", "sitemap", "feed", "pagehash"):
+        adapters.get(name)
     with pytest.raises(KeyError):
-        adapters.get("bwb")
-    assert "bwb" not in " ".join(sources.validate(sources.Source.from_dict(dict(EURLEX, adapter=None))))
+        adapters.get("nl-statute")
+    msg = " ".join(sources.validate(sources.Source.from_dict(dict(EURLEX, adapter=None))))
+    assert "(eurlex)" in msg
 
 
 @pytest.mark.parametrize("host", ["localhost", "127.0.0.1", "::1", "10.0.0.5", "192.168.1.1", "169.254.169.254", "0.0.0.0", "fe80::1"])

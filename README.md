@@ -53,6 +53,9 @@ knowledge-base/compliance/
 Sources whose licence forbids redistribution go under `mirror/.private/`, which
 `init` gitignores; everything else is committed.
 
+The mirror always honours robots.txt. A source it disallows is recorded as
+`tier: refuse` and cited by URL instead of fetched; there is no allowlist.
+
 ## Design
 
 `design/` in the companion repo `compliance-devkit` holds the workflow,

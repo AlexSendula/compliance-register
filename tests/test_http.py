@@ -62,9 +62,9 @@ def test_robots_disallow_refuses():
         c.get("https://a.test/private/x", allowed_hosts=["a.test"])
 
 
-def test_robots_has_no_allowlist():
-    with pytest.raises(TypeError):
-        client({}, robots_allowlist=True)
+def test_robots_has_no_bypass_switch():
+    import inspect
+    assert not [n for n in inspect.signature(http.Http).parameters if "robots" in n]
 
 
 def test_robots_url_from_hostname_and_port_not_netloc():

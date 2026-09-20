@@ -90,11 +90,16 @@ Exit codes: `0` done · `1` failure · `2` refused (not in a project with
 ## The mirror
 
 `sources.json` lists each source with its tier and change signal. Tiers, in
-the order the engine prefers them: `api` (a dated version id — EUR-Lex,
-wetten.overheid.nl), `sitemap` (per-page lastmod), `feed`, `page-hash`,
-`refuse`. The mirrored text is markdown with provenance frontmatter under
+the order the engine prefers them: `api` (a dated version id — EUR-Lex),
+`sitemap` (per-page lastmod), `feed`, `page-hash`, `refuse`. The mirrored
+text is markdown with provenance frontmatter under
 `mirror/<jurisdiction>/<source-id>/`. A source whose licence forbids
 redistribution is written under `mirror/.private/`, which is gitignored.
+
+robots.txt is always honoured, on every host and every hop. A source whose
+robots.txt disallows the path is recorded as `tier: refuse`; the regime is
+still discovered and cites it by URL, and its `review_by` is the only
+signal. There is no allowlist.
 
 Read the mirror before fetching a page from the web: if the source is in
 `sources.json` and the article is under `mirror/`, quote the local file —
