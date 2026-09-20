@@ -1,0 +1,10 @@
+PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?baseCelex ?consolCelex ?consolDate WHERE {
+  VALUES ?baseCelex { {{VALUES}} }
+  ?base cdm:resource_legal_id_celex ?baseCelex .
+  ?c cdm:act_consolidated_consolidates_resource_legal ?base ;
+     cdm:resource_legal_id_celex ?consolCelex ;
+     cdm:act_consolidated_date ?consolDate .
+  FILTER( STRSTARTS(STR(?consolCelex), CONCAT("0", SUBSTR(STR(?baseCelex),2,9))) )
+} ORDER BY ?baseCelex DESC(?consolDate)

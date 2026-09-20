@@ -1,0 +1,14 @@
+{
+  "name": "compliance-register",
+  "owner": { "name": "Alex", "email": "github@alexsendula.com" },
+  "description": "compliance-register — regulatory obligations register for software projects",
+  "plugins": [
+    {
+      "name": "compliance-register",
+      "source": ".",
+      "description": "Register of the laws, guidance, licences and contracts that apply to a software project.",
+      "category": "development",
+      "tags": ["compliance", "regulation", "obligations"]
+    }
+  ]
+}

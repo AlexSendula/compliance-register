@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+"""compliance-register launcher. No install step: the repo directory is put on
+sys.path so the package imports from wherever this file lives (a git clone,
+~/.agents/skills/<name>, a plugin cache). Resolve symlinks first — skills
+installers symlink this directory."""
+import os
+import sys
+
+if sys.version_info < (3, 12):
+    sys.stderr.write(
+        "compliance-register needs Python 3.12 or newer (found %d.%d).\n"
+        % sys.version_info[:2]
+    )
+    sys.exit(2)
+
+HERE = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, os.path.dirname(HERE))
+
+from compliance_register.preflight import check_prerequisites  # noqa: E402
+
+missing = check_prerequisites()
+if missing:
+    sys.stderr.write("compliance-register cannot start:\n")
+    for line in missing:
+        sys.stderr.write("  - %s\n" % line)
+    sys.exit(2)
+
+from compliance_register.cli import main  # noqa: E402
+
+raise SystemExit(main())

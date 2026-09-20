@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.search-index.json
+
+# behavior-runner coverage capture
+.coverage
+coverage/
