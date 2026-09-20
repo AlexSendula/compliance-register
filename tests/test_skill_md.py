@@ -135,3 +135,18 @@ def test_shipped_docs_carry_no_law_fact_or_source_address():
                 continue
             for pat in (_CELEX, _ISO_DATE, _ARTICLE, _URL):
                 assert not pat.search(line), f"{path.name}:{n}: {line.strip()}"
+
+
+def test_skill_md_documents_pending_kinds_severities_and_the_api_endpoint_rule():
+    from compliance_register import pending
+    text = (ROOT / "SKILL.md").read_text()
+    section = text.split("## Pending entries", 1)[1].split("\n## ", 1)[0]
+    for kind in pending.KINDS:
+        assert f"`{kind}`" in section, kind
+    for sev in pending.SEVERITIES:
+        assert f"`{sev}`" in section, sev
+    assert "resolve" in section
+    mirror = text.split("## The mirror", 1)[1].split("\n## ", 1)[0]
+    assert "carries the endpoint" in mirror and "never ship" in mirror and "sources.json" in mirror
+    regimes_method = (ROOT / "references" / "method-discover-regimes.md").read_text()
+    assert "profile diff" not in regimes_method and "rescan" in regimes_method

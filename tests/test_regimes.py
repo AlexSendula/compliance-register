@@ -7,7 +7,7 @@ META = {
     "title": "General Data Protection Regulation",
     "status": "binds",
     "jurisdiction": "EU",
-    "sources": [{"id": "eurlex-32016R0679", "version": "02016R0679-20160504", "retrieved": "2026-09-20"}],
+    "sources": [{"id": "eu-eurlex-32016R0679", "version": "02016R0679-20160504", "retrieved": "2026-09-20"}],
     "applies": {"quote": "…establishment … in the Union…", "cite": "Art. 3(1)", "triggered_by": [{"establishment": "NL"}]},
     "exempt": {"quote": None, "reason": "no exemption clause applies"},
     "confirmed_by": "Alex",

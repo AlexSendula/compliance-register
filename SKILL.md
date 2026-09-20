@@ -110,11 +110,23 @@ precisely:
   stage 2b for the dimensions its entries name only. Whoever resolves a
   `regime-gone` entry marks the regime `no-longer-applies`; never delete.
 
+## Pending entries
+
+`check` and `rescan` append to `pending.jsonl`; `resolve` records what a
+human did. Kinds: `source-moved`, `source-unreachable`, `source-next` (a
+future consolidation is scheduled), `regime-new`, `regime-gone`,
+`date-passed` (a `review_by` arrived), `profile-stale`. Severity is
+mechanical: `major` for a move or a passed date, `info` otherwise; whether a
+change is explicit, implicit or `minor` is the human's call at `resolve`.
+
 ## The mirror
 
 `sources.json` lists each source with its tier and change signal. Tiers, in
 the order the engine prefers them: `api` (a dated version id — EUR-Lex),
-`sitemap` (per-page lastmod), `feed`, `page-hash`, `refuse`. The mirrored
+`sitemap` (per-page lastmod), `feed`, `page-hash`, `refuse`. An `api`
+adapter carries the endpoint of the API it speaks (EUR-Lex/CELLAR);
+per-instrument addresses never ship — they are discovered into
+`sources.json`. The mirrored
 text is markdown with provenance frontmatter under
 `mirror/<jurisdiction>/<source-id>/`. A source whose licence forbids
 redistribution is written under `mirror/.private/`, which is gitignored.

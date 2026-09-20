@@ -40,4 +40,4 @@ def test_safe_component_rejects(bad):
 
 def test_safe_component_accepts():
     assert paths.safe_component("GDPR") == "GDPR"
-    assert paths.safe_component("eurlex-32016R0679") == "eurlex-32016R0679"
+    assert paths.safe_component("eu-eurlex-32016R0679") == "eu-eurlex-32016R0679"

@@ -7,7 +7,7 @@ DOC = """---
 id: GDPR
 status: binds
 sources:
-  - id: eurlex-32016R0679
+  - id: eu-eurlex-32016R0679
     version: 02016R0679-20160504
 applies:
   cite: Art. 3(1)

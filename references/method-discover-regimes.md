@@ -44,6 +44,6 @@ and `confirmed_at` on each file. Run
 
 ## When re-run after a profile change
 Only revisit regimes whose `applies.triggered_by` or exemption reasoning
-names a dimension in `profile diff`. If a trigger is gone, set
+names a dimension that `rescan` reported changed. If a trigger is gone, set
 `status: no-longer-applies` and write why under `## History`. Never delete
 the file.
