@@ -121,3 +121,15 @@ def test_rescan_cli_exits_2_on_invalid_profile(project: Path):
     run(["init"], project)
     code, out, err = run(["rescan"], project)
     assert code == 2 and "unanswered" in err
+
+
+def test_profile_diff_ref_is_never_a_git_option(project: Path, monkeypatch):
+    run(["init"], project)
+    seen = {}
+    def fake_run(cmd, **kw):
+        seen["cmd"] = cmd
+        raise subprocess.CalledProcessError(128, cmd, stderr="fatal: bad revision")
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    code, _, err = run(["profile", "diff", "--against=--output=/tmp/x"], project)
+    assert code == 1 and "bad revision" in err
+    assert seen["cmd"][:3] == ["git", "show", "--end-of-options"] and seen["cmd"][3].startswith("--output=/tmp/x:")

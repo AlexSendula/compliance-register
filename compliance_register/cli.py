@@ -104,7 +104,7 @@ def _profile_meta_from(ref: str, cdir: Path) -> dict:
     if path.is_file():
         return fm.load(path)[0]
     rel = cdir.relative_to(paths.find_root()) / profile.FILENAME
-    text = subprocess.run(["git", "show", f"{ref}:{rel.as_posix()}"], capture_output=True, text=True, check=True).stdout
+    text = subprocess.run(["git", "show", "--end-of-options", f"{ref}:{rel.as_posix()}"], capture_output=True, text=True, check=True).stdout
     return fm.loads(text)[0]
 
 
