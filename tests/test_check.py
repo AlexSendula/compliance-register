@@ -88,3 +88,24 @@ def test_named_unconfirmed_source_is_refused(project: Path):
     factory = lambda source: http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=opener)
     rep = check.run(cdir, ids=["nl-reg"], today="2026-09-20", client_factory=factory)
     assert rep["exit"] == 2 and "required confirmation missing" in rep["details"]["nl-reg"] and opener.requests == []
+
+
+def test_moved_entry_is_not_duplicated_while_open(project: Path):
+    cdir, factory = setup(project)
+    check.run(cdir, ids=None, today="2026-09-20", client_factory=factory)
+    check.run(cdir, ids=None, today="2026-09-21", client_factory=factory)
+    kinds = [e["kind"] for e in pending.list_open(cdir)]
+    assert kinds.count("source-moved") == 1
+
+
+def test_source_next_recorded_once_and_on_source(project: Path, monkeypatch):
+    cdir, factory = setup(project)
+    from compliance_register.mirror import adapters
+    from compliance_register.mirror.adapters import sitemap
+    monkeypatch.setattr(sitemap, "check", lambda *a, **k: adapters.CheckResult("fresh", "v1", "ok", [], "v2", "2026-12-01"))
+    check.run(cdir, ids=None, today="2026-09-20", client_factory=factory)
+    check.run(cdir, ids=None, today="2026-09-21", client_factory=factory)
+    nxt = [e for e in pending.list_open(cdir) if e["kind"] == "source-next"]
+    assert len(nxt) == 1 and nxt[0]["to"] == "v2"
+    s = sources.load(cdir)[0]
+    assert s.next_version == "v2" and "_next_seen" not in s.config

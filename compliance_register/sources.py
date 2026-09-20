@@ -42,6 +42,7 @@ class Source:
     last_checked: str | None = None
     last_status: str | None = None
     last_version: str | None = None
+    next_version: str | None = None   # a scheduled future consolidation check has already reported
     last_fetched: str | None = None
     evidence: list[str] = field(default_factory=list)
 

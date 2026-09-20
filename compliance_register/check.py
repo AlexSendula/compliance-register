@@ -32,6 +32,7 @@ def run(cdir: Path, *, ids: list[str] | None, today: str, client_factory=default
         return rep
     any_moved = False
     open_kinds = {(e["kind"], e.get("source")) for e in pending.list_open(cdir)}
+    open_to = {(e["kind"], e.get("source"), e.get("to")) for e in pending.list_open(cdir)}  # dedupe key for moved/next
     for s in chosen:
         try:
             r = adapters.get(s.adapter).check(s, client_factory(s), today=today, cdir=cdir)
@@ -42,15 +43,17 @@ def run(cdir: Path, *, ids: list[str] | None, today: str, client_factory=default
         affects = _affects(cdir, s.id)
         if r.status == "moved":
             any_moved = True
-            pending.add(cdir, "source-moved", "major", r.detail, source=s.id, affects=affects,
-                        extra={"from": s.last_version, "to": r.version, "changed": r.changed[:20]}, now=today)
+            if ("source-moved", s.id, r.version) not in open_to:
+                pending.add(cdir, "source-moved", "major", r.detail, source=s.id, affects=affects,
+                            extra={"from": s.last_version, "to": r.version, "changed": r.changed[:20]}, now=today)
         elif r.status == "unreachable":
             if ("source-unreachable", s.id) not in open_kinds:
                 pending.add(cdir, "source-unreachable", "info", r.detail, source=s.id, affects=affects, now=today)
-        if r.next_version and r.next_version != s.config.get("_next_seen"):
+        if r.next_version and r.next_version != s.next_version and ("source-next", s.id, r.next_version) not in open_to:
             pending.add(cdir, "source-next", "info", f"a future consolidation is scheduled: {r.next_version}",
                         source=s.id, affects=affects, extra={"to": r.next_version, "effective": r.next_date}, now=today)
-            s.config["_next_seen"] = r.next_version
+        if r.next_version:
+            s.next_version = r.next_version
         s.last_checked = today
         s.last_status = r.status
     srcmod.save(cdir, srcs)
