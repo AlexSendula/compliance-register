@@ -166,7 +166,8 @@ def fetch(source: Source, client: _http.Http, cdir, *, today: str, force: bool =
         result.refused.append("G5: article anchors not unique and increasing"); return result
     articles = chunk(body)
     manifest = store.load_manifest(cdir, source)
-    banner = f"> {MARKER}. Only the Official Journal is authentic. Source: {url}\n\n"
+    banner = (f"> {MARKER}. This copy was converted from HTML to Markdown and split per article by "
+              f"compliance-register; only the Official Journal is authentic. Source: {url}\n\n")
     iso_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
     try:
         for n in sorted(articles):

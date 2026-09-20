@@ -24,6 +24,13 @@ def test_write_page_adds_provenance(project: Path):
     assert meta["source"] == "eu-eurlex-32016R0679" and meta["article"] == 32
     assert meta["content_hash"] == store.content_hash("## Article 32\ntext\n")
     assert meta["licence"]["redistribute"] is True and body.startswith("## Article 32")
+    assert meta["licence"]["name"] == "CC-BY-4.0" and meta["licence_name"] == "CC-BY-4.0"
+
+
+def test_write_page_licence_name_is_optional(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    p = store.write_page(cdir, src(licence={"redistribute": True, "attribution": "x"}), "a.md", {}, "t\n", retrieved_at="2026-09-20")
+    assert fm.load(p)[0]["licence_name"] is None
 
 
 def test_write_page_refuses_escape(project: Path):

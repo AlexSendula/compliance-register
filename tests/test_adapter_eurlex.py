@@ -66,6 +66,8 @@ def test_fetch_writes_articles_and_sets_version(project: Path):
     meta, body = fm.load(Path(f.written[0]))
     assert meta["consolidated_celex"] == "02011L0083-20220528" and meta["article"] == 1
     assert body.lstrip().startswith("> This text is meant purely as a documentation tool")
+    banner = body.lstrip().splitlines()[0]
+    assert "converted from HTML to Markdown and split per article by compliance-register" in banner  # CC-BY 4.0 §3(a)(1)(B): say it was modified
 
 
 def test_fetch_refuses_site_chrome(project: Path):

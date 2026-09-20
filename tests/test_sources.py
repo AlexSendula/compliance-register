@@ -9,7 +9,7 @@ EURLEX = {
     "url": "https://eur-lex.europa.eu/eli/reg/2016/679/oj", "covers": "GDPR",
     "tier": "api", "adapter": "eurlex", "config": {"celex": "32016R0679", "language": "EN"},
     "change_signal": "consolidated CELEX suffix",
-    "licence": {"redistribute": True, "attribution": "© European Union, 1998-2026, https://eur-lex.europa.eu/"},
+    "licence": {"name": "CC-BY-4.0", "redistribute": True, "attribution": "© European Union, 1998-2026, https://eur-lex.europa.eu/"},
     "allowed_hosts": ["eur-lex.europa.eu", "publications.europa.eu"],
     "headers": {"user_agent": "default"}, "delay_seconds": 10, "status": "confirmed",
     "evidence": ["https://eur-lex.europa.eu/content/legal-notice/legal-notice.html"],

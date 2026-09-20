@@ -27,7 +27,7 @@ Search the web (spawn one subagent per jurisdiction if you can) for:
   evidence (an API doc page, a sitemap you fetched, a feed URL)
 - `change_signal`: what tells you it moved (version id, lastmod, feed entry,
   content hash)
-- `licence`: `{redistribute: true|false, attribution: "<text or null>"}` —
+- `licence`: `{name: "<licence id, e.g. CC-BY-4.0, or null>", redistribute: true|false, attribution: "<text or null>"}` —
   read the site's reuse terms; when you cannot find them, `redistribute:
   false` until a human says otherwise
 - read the host's robots.txt for the path you would fetch. It is always

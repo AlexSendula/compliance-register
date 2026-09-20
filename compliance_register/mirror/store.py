@@ -37,6 +37,7 @@ def write_page(cdir: Path, source: Source, relpath: str, meta: dict, markdown: s
         "retrieved_at": retrieved_at,
         "content_hash": content_hash(markdown),
         "licence": source.licence,
+        "licence_name": source.licence.get("name"),  # e.g. CC-BY-4.0; greppable without opening the dict
         "attribution": source.licence.get("attribution"),
     }
     full.update(meta)
