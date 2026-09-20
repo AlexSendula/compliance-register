@@ -1,8 +1,10 @@
 from pathlib import Path
+
+import pytest
 from urllib.parse import parse_qs, urlsplit
 
-from compliance_register import frontmatter as fm, paths, sources
-from compliance_register.mirror import http, store
+from compliance_register import check, fetch, frontmatter as fm, paths, sources
+from compliance_register.mirror import http
 from compliance_register.mirror.adapters import eurlex
 from tests.fakehttp import FakeOpener
 
@@ -37,6 +39,14 @@ def client(consolidated_html=None):
     }))
 
 
+def csv_client(csv_text):
+    """A client whose SPARQL endpoint answers with exactly this CSV."""
+    return http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=FakeOpener({
+        "https://publications.europa.eu/robots.txt": (404, {}, ""),
+        eurlex.SPARQL + "*": (200, {"Content-Type": "text/csv"}, csv_text),
+    }))
+
+
 def test_sparql_endpoint_is_https():
     c = client()
     eurlex.resolve(c, ["32011L0083"], today="2026-09-20")
@@ -60,8 +70,7 @@ def test_check_moved_then_fresh(project: Path):
 
 def test_header_only_csv_is_unreachable(project: Path):
     cdir = paths.compliance_dir(project); cdir.mkdir()
-    c = client()
-    c.opener = lambda req, t: (200, {"Content-Type": "text/csv"}, __import__("io").BytesIO(b'"baseCelex","consolCelex","consolDate"\n'))
+    c = csv_client('"baseCelex","consolCelex","consolDate"\n')
     assert eurlex.check(src(), c, today="2026-09-20", cdir=cdir).status == "unreachable"
 
 
@@ -98,13 +107,6 @@ def test_check_with_missing_config_is_unreachable_not_raised(project: Path):
     assert r.status == "unreachable" and "celex" in r.detail
 
 
-def csv_client(csv_text):
-    c = client()
-    c.opener = FakeOpener({"https://publications.europa.eu/robots.txt": (404, {}, ""),
-                           eurlex.SPARQL + "*": (200, {"Content-Type": "text/csv"}, csv_text)})
-    return c
-
-
 def test_resolve_drops_malformed_rows_and_never_splits_them():
     bad = ('"baseCelex","consolCelex","consolDate"\n'
            '"32011L0083","../../etc/passwd","2024-01-01"\n'         # no dash-date suffix, path-shaped
@@ -116,7 +118,6 @@ def test_resolve_drops_malformed_rows_and_never_splits_them():
 
 def test_resolve_all_rows_malformed_is_unreachable():
     bad = '"baseCelex","consolCelex","consolDate"\n"32011L0083","garbage","2024-01-01"\n'
-    import pytest
     with pytest.raises(http.HttpUnreachable):
         eurlex.resolve(csv_client(bad), ["32011L0083"], today="2026-09-20")
 
@@ -157,7 +158,6 @@ def test_prefetch_failure_is_unreachable_per_source_not_raised(project: Path):
 
 
 def test_check_run_issues_one_sparql_query_for_all_eurlex_sources(project: Path):
-    from compliance_register import check, fetch
     cdir = paths.compliance_dir(project); cdir.mkdir()
     sources.save(cdir, [src(), src2()])
     c = client()
