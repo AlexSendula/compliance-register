@@ -13,8 +13,21 @@ from .mirror import adapters
 LAST_CHECK = ".last-check"
 
 
+_WATCHED = ("binds", "undetermined")  # ruled-out and no-longer-applies regimes are not watched
+
+
 def _affects(cdir: Path, source_id: str) -> list[str]:
-    return [r.id for r in regimes.load_all(cdir) if any(s.get("id") == source_id for s in (r.meta.get("sources") or []))]
+    return [r.id for r in regimes.load_all(cdir)
+            if r.status in _WATCHED and any(s.get("id") == source_id for s in (r.meta.get("sources") or []))]
+
+
+def _date_passed(cdir: Path, today: str) -> None:
+    """A regime whose review_by has arrived gets one open date-passed entry."""
+    open_for = {a for e in pending.list_open(cdir) if e["kind"] == "date-passed" for a in e.get("affects", [])}
+    for r in regimes.load_all(cdir):
+        review_by = r.meta.get("review_by")
+        if r.status in _WATCHED and isinstance(review_by, str) and review_by <= today and r.id not in open_for:
+            pending.add(cdir, "date-passed", "major", f"{r.id}: review_by {review_by} has passed", affects=[r.id], now=today)
 
 
 def run(cdir: Path, *, ids: list[str] | None, today: str, client_factory=default_client) -> dict:
@@ -24,6 +37,7 @@ def run(cdir: Path, *, ids: list[str] | None, today: str, client_factory=default
     if not chosen:
         rep["exit"] = 2
         rep["details"]["_"] = "nothing to check — no confirmed sources"
+        _date_passed(cdir, today)  # review_by is the only signal for a refuse-tier source
         return rep
     refused = srcmod.refusals(chosen, ids)
     if refused:  # validation before network: no request is made
@@ -57,6 +71,7 @@ def run(cdir: Path, *, ids: list[str] | None, today: str, client_factory=default
         s.last_checked = today
         s.last_status = r.status
     srcmod.save(cdir, srcs)
+    _date_passed(cdir, today)
     (cdir / LAST_CHECK).write_text(f"{today}T{dt.datetime.now(dt.timezone.utc).strftime('%H:%M:%SZ')}\n", encoding="utf-8")
     p = profile.load(cdir)
     if any_moved and p is not None and ("profile-stale", None) not in open_kinds:

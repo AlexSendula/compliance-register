@@ -109,3 +109,29 @@ def test_source_next_recorded_once_and_on_source(project: Path, monkeypatch):
     assert len(nxt) == 1 and nxt[0]["to"] == "v2"
     s = sources.load(cdir)[0]
     assert s.next_version == "v2" and "_next_seen" not in s.config
+
+
+def test_date_passed_for_review_by_once(project: Path):
+    cdir, factory = setup(project)
+    write(cdir, dict(META, id="OLD", review_by="2026-09-01"))
+    write(cdir, dict(META, id="FUTURE", review_by="2027-01-01"))
+    write(cdir, dict(META, id="GONE", status="no-longer-applies", review_by="2026-09-01"))
+    check.run(cdir, ids=None, today="2026-09-20", client_factory=factory)
+    check.run(cdir, ids=None, today="2026-09-21", client_factory=factory)
+    dp = [e for e in pending.list_open(cdir) if e["kind"] == "date-passed"]
+    assert len(dp) == 1 and dp[0]["affects"] == ["OLD"] and dp[0]["severity"] == "major"
+
+
+def test_date_passed_runs_even_with_nothing_to_check(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    sources.save(cdir, [])
+    write(cdir, dict(META, id="OLD", review_by="2026-09-01"))
+    rep = check.run(cdir, ids=None, today="2026-09-20")
+    assert rep["exit"] == 2 and [e["kind"] for e in pending.list_open(cdir)] == ["date-passed"]
+
+
+def test_affects_skips_ruled_out_and_no_longer_applies(project: Path):
+    cdir, factory = setup(project)
+    write(cdir, dict(META, id="RULED", status="ruled-out", sources=[{"id": "nl-reg", "version": None, "retrieved": "2026-01-01"}]))
+    write(cdir, dict(META, id="GONE", status="no-longer-applies", sources=[{"id": "nl-reg", "version": None, "retrieved": "2026-01-01"}]))
+    assert check._affects(cdir, "nl-reg") == ["COOKIES"]
