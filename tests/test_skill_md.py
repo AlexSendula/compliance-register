@@ -81,3 +81,10 @@ def test_method_discover_sources_names_every_source_field():
     for key in ("celex", "language", "urls", "include", "user_agent", "default", "neutral", "browser"):
         assert f"`{key}`" in text, key
     assert "robots.txt" in text and "always honoured" in text
+
+
+def test_method_profile_makes_rescan_the_baseline_and_bars_repo_name_as_evidence():
+    text = (ROOT / "references" / "method-profile.md").read_text()
+    assert "--against HEAD~1" not in text
+    assert "rescan" in text
+    assert "any answer" in text and "indicia" in text

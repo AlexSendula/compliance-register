@@ -16,9 +16,10 @@ Goal: `knowledge-base/compliance/profile.md` with all fifteen answers
   definitions, locale files, environment variable names, SDK imports). Write
   a proposed value and list each piece of evidence as a path plus what it
   showed. Set `status: proposed`.
-- Never use the repository name, README, marketing copy, or a locale file's
-  existence as evidence for questions 1–6. The **Trap** line tells you the
-  inference to avoid.
+- The repository name, README and marketing copy are never evidence for
+  any answer. Locale files, currencies and store listings are indicia to
+  surface under question 2, never a value to assert. The **Trap** line
+  tells you the inference to avoid.
 - Present the proposal to the human as: the question, your proposed value,
   the evidence, and the trap. Ask them to confirm, correct, or answer
   `unknown`.
@@ -37,6 +38,8 @@ are what rules out whole regimes later.
 - Commit `profile.md`.
 
 ## When the profile changes later
-Edit the answer, update `confirmed_at`, commit, then run
-`python3 "$SKILL_DIR/bin/compliance-register" profile diff --against HEAD~1`
-and continue with stage 2 for the dimensions it lists.
+Edit the answer, have the human confirm it, update `confirmed_at`, commit,
+then run `python3 "$SKILL_DIR/bin/compliance-register" rescan`. It diffs
+the confirmed answers against the snapshot the last `rescan` wrote and
+raises a `regime-new` or `regime-gone` pending entry per changed dimension;
+continue with stage 2b for those dimensions only.
