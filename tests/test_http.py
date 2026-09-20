@@ -90,4 +90,6 @@ def test_delay_between_same_host_requests():
 def test_user_agent_strings():
     assert http.user_agent("neutral").startswith("curl/")
     assert "Firefox" in http.user_agent("browser")
-    assert http.user_agent("default").startswith("compliance-register/")
+    from compliance_register import __version__
+    assert http.user_agent("default") == (
+        f"compliance-register/{__version__} (+https://github.com/AlexSendula/compliance-register; contact: github@alexsendula.com)")
