@@ -65,3 +65,22 @@ def test_pending_entry_without_kind_or_severity_is_unreadable(project: Path):
     assert pending.unreadable(cdir) == 3
     code, out, err = run(["pending"], project)
     assert code == 0 and "chg-0001" in out
+
+
+def test_regime_with_wrong_shaped_sources_and_applies_is_reported_not_fatal(project: Path):
+    from compliance_register import check, rescan
+    from tests.test_check import setup
+    from tests.test_rescan import confirmed_profile
+    from compliance_register import frontmatter as fm
+    cdir, factory = setup(project)
+    write(cdir, dict(META, id="ODD", sources=["nl-reg"], applies="text", exempt="no"))
+    rep = status.report(cdir, today="2026-09-20")
+    assert rep["regimes"]["binds"] == 2
+    assert any(p.startswith("ODD: sources:") for p in rep["problems"]) and any(p.startswith("ODD: applies:") for p in rep["problems"])
+    rep = check.run(cdir, ids=None, today="2026-09-20", client_factory=factory)
+    assert rep["moved"] == 1 and (cdir / ".last-check").is_file()
+    assert pending.list_open(cdir)[0]["affects"] == ["COOKIES"]
+    fm.save(cdir / "profile.md", confirmed_profile(automation_ai={"components": ["x"]}), "")
+    rescan.run(cdir, today="2026-09-20")
+    fm.save(cdir / "profile.md", confirmed_profile(automation_ai=False), "")
+    assert rescan.run(cdir, today="2026-10-01")["changed"] == ["automation_ai"]

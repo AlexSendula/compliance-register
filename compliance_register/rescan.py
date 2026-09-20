@@ -18,7 +18,9 @@ def _falsy(v) -> bool:
 
 def _triggers(r: regimes.Regime) -> set[str]:
     out = set()
-    for t in ((r.meta.get("applies") or {}).get("triggered_by") or []):
+    applies = r.meta.get("applies")
+    triggered = applies.get("triggered_by") if isinstance(applies, dict) else None
+    for t in (triggered if isinstance(triggered, list) else []):
         if isinstance(t, dict):
             out.update(t.keys())
         elif isinstance(t, str):

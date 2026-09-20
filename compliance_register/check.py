@@ -18,7 +18,11 @@ _WATCHED = ("binds", "undetermined")  # ruled-out and no-longer-applies regimes 
 
 def _affects(cdir: Path, source_id: str) -> list[str]:
     return [r.id for r in regimes.load_all(cdir)
-            if r.status in _WATCHED and any(s.get("id") == source_id for s in (r.meta.get("sources") or []))]
+            if r.status in _WATCHED and any(isinstance(s, dict) and s.get("id") == source_id for s in _list(r.meta.get("sources")))]
+
+
+def _list(v) -> list:
+    return v if isinstance(v, list) else []
 
 
 def _date_passed(cdir: Path, today: str) -> None:

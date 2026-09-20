@@ -68,13 +68,15 @@ def validate(meta: dict, body: str) -> list[str]:
     if not isinstance(sources, list) or not all(isinstance(s, dict) and s.get("id") for s in sources or []):
         problems.append("sources: must be a list of {id, version, retrieved}")
     obligations = parse_obligations(body)
-    if status == "binds":
-        applies = meta.get("applies") or {}
+    applies, exempt = meta.get("applies") or {}, meta.get("exempt") or {}
+    for key, value in (("applies", applies), ("exempt", exempt)):
+        if not isinstance(value, dict):
+            problems.append(f"{key}: must be a mapping")
+    if status == "binds" and isinstance(applies, dict):
         if not applies.get("quote") or not applies.get("cite"):
             problems.append("applies: quote and cite are required when status is binds")
     if status == "ruled-out":
-        exempt = meta.get("exempt") or {}
-        if not exempt.get("reason"):
+        if isinstance(exempt, dict) and not exempt.get("reason"):
             problems.append("exempt.reason: required when status is ruled-out")
         if obligations:
             problems.append("obligations: a ruled-out regime must not list obligations")
