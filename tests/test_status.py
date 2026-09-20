@@ -26,7 +26,7 @@ def test_report_full(project: Path):
     rep = status.report(cdir, today="2026-09-20")
     assert rep["profile"] == {"present": True, "problems": [], "confirmed_at": "2026-09-01", "age_days": 19}
     assert rep["regimes"]["obligations"] == 2
-    assert rep["pending"] == {"open": 1, "by_severity": {"major": 1, "minor": 0, "info": 0}}
+    assert rep["pending"] == {"open": 1, "by_severity": {"major": 1, "minor": 0, "info": 0}, "unreadable": 0}
     assert rep["last_check"] == "2026-09-19T10:00:00Z"
     text = status.render(rep)
     assert "compliant" not in text.lower()

@@ -34,7 +34,7 @@ def report(cdir: Path, today: str | None = None) -> dict:
     return {
         "profile": prof,
         "regimes": regimes.counts(rs),
-        "pending": {"open": len(open_entries), "by_severity": by_sev},
+        "pending": {"open": len(open_entries), "by_severity": by_sev, "unreadable": pending.unreadable(cdir)},
         "last_check": lc.read_text(encoding="utf-8").strip() if lc.is_file() else None,
         "problems": [f"{r.id}: {x}" for r in rs for x in r.problems],
     }
@@ -56,6 +56,8 @@ def render(rep: dict) -> str:
     lines.append(f"obligations: {r['obligations']} registered · {r['obligations_unclear']} unclear")
     sev = pe["by_severity"]
     lines.append(f"pending: {pe['open']} open (major {sev['major']} · minor {sev['minor']} · info {sev['info']})")
+    if pe.get("unreadable"):
+        lines.append(f"pending: {pe['unreadable']} unreadable lines")
     lines.append(f"last check: {rep['last_check'] or 'never'}")
     for problem in rep["problems"]:
         lines.append(f"problem: {problem}")

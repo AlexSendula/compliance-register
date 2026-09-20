@@ -19,15 +19,29 @@ def _today(now: str | None) -> str:
     return now or dt.date.today().isoformat()
 
 
-def _read(path: Path) -> list[dict]:
+def _read(path: Path) -> tuple[list[dict], int]:
+    """(entries, unreadable). A corrupt line is skipped and counted, never
+    raised — one bad line must not deny status/pending/resolve/check."""
     if not path.is_file():
-        return []
-    out = []
-    for line in path.read_text(encoding="utf-8").splitlines():
+        return [], 0
+    out, unreadable = [], 0
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
         line = line.strip()
-        if line:
-            out.append(json.loads(line))
-    return out
+        if not line:
+            continue
+        try:
+            entry = json.loads(line)
+        except ValueError:
+            entry = None
+        if isinstance(entry, dict) and entry.get("id"):
+            out.append(entry)
+        else:
+            unreadable += 1
+    return out, unreadable
+
+
+def unreadable(cdir: Path) -> int:
+    return _read(cdir / PENDING)[1] + _read(cdir / RESOLUTIONS)[1]
 
 
 def _append(path: Path, entry: dict) -> None:
@@ -42,9 +56,9 @@ def add(cdir: Path, kind: str, severity: str, summary: str, *, source: str | Non
         raise ValueError(f"kind must be one of {KINDS}")
     if severity not in SEVERITIES:
         raise ValueError(f"severity must be one of {SEVERITIES}")
-    existing = _read(cdir / PENDING)
+    existing, skipped = _read(cdir / PENDING)
     entry = {
-        "id": f"chg-{len(existing) + 1:04d}",
+        "id": f"chg-{len(existing) + skipped + 1:04d}",
         "detected": _today(now),
         "kind": kind,
         "severity": severity,
@@ -60,16 +74,16 @@ def add(cdir: Path, kind: str, severity: str, summary: str, *, source: str | Non
 
 
 def list_open(cdir: Path) -> list[dict]:
-    resolved = {r["id"] for r in _read(cdir / RESOLUTIONS)}
-    return [e for e in _read(cdir / PENDING) if e["id"] not in resolved]
+    resolved = {r["id"] for r in _read(cdir / RESOLUTIONS)[0]}
+    return [e for e in _read(cdir / PENDING)[0] if e["id"] not in resolved]
 
 
 def resolve(cdir: Path, id: str, action: str, by: str, note: str = "", now: str | None = None) -> dict:
     if action not in ACTIONS:
         raise ValueError(f"action must be one of {ACTIONS}")
-    if id not in {e["id"] for e in _read(cdir / PENDING)}:
+    if id not in {e["id"] for e in _read(cdir / PENDING)[0]}:
         raise KeyError(id)
-    if id in {r["id"] for r in _read(cdir / RESOLUTIONS)}:
+    if id in {r["id"] for r in _read(cdir / RESOLUTIONS)[0]}:
         raise ValueError(f"{id} is already resolved")
     entry = {"id": id, "resolved": _today(now), "by": by, "action": action, "note": note}
     _append(cdir / RESOLUTIONS, entry)
