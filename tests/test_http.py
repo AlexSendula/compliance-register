@@ -109,3 +109,16 @@ def test_server_side_http_exception_is_unreachable():
     c = client({"https://a.test/x": broken})
     with pytest.raises(http.HttpUnreachable):
         c.get("https://a.test/x", allowed_hosts=["a.test"])
+
+
+def test_politeness_clock_is_shared_across_clients():
+    """20 sources on one host = 20 clients; the delay must still apply between them."""
+    http._LAST_BY_HOST.clear()
+    routes = {"https://a.test/robots.txt": (404, {}, ""), "https://a.test/1": (200, HTML, "1"), "https://a.test/2": (200, HTML, "2")}
+    slept = []
+    a = http.Http(user_agent="t/1", delay_seconds=5, opener=FakeOpener(routes), sleep=slept.append)
+    b = http.Http(user_agent="t/1", delay_seconds=5, opener=FakeOpener(routes), sleep=slept.append)
+    a.get("https://a.test/1", allowed_hosts=["a.test"])
+    assert slept == []
+    b.get("https://a.test/2", allowed_hosts=["a.test"])
+    assert slept == [5]

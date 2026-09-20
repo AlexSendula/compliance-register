@@ -22,6 +22,9 @@ BACKOFF = (2, 6)
 # what http.client itself refuses in a request target; catching it here keeps a
 # hostile Location a refusal instead of an InvalidURL traceback
 _CONTROL = re.compile(r"[\x00-\x20\x7f]")
+# one clock per host for the whole process: check/fetch build one client per
+# source, and twenty sources on one host must still wait between requests
+_LAST_BY_HOST: dict[str, float] = {}
 
 _UA = {
     "default": f"compliance-register/{__version__} (+https://github.com/AlexSendula/compliance-register; contact: github@alexsendula.com)",
@@ -73,15 +76,14 @@ class Http:
         self.max_bytes = max_bytes
         self.opener = opener or _default_opener
         self.sleep = sleep
-        self._last_by_host: dict[str, float] = {}
         self._robots: dict[str, urllib.robotparser.RobotFileParser | None] = {}
 
     # --- politeness ---------------------------------------------------
     def _wait(self, host: str) -> None:
-        last = self._last_by_host.get(host)
+        last = _LAST_BY_HOST.get(host)
         if last is not None and self.delay:
             self.sleep(self.delay)
-        self._last_by_host[host] = time.monotonic()
+        _LAST_BY_HOST[host] = time.monotonic()
 
     # --- robots -------------------------------------------------------
     def _allowed_by_robots(self, url: str) -> bool:
