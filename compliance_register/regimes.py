@@ -95,7 +95,12 @@ def load_all(cdir: Path) -> list[Regime]:
         return []
     out: list[Regime] = []
     for path in sorted(d.glob("*.md")):
-        meta, body = fm.load(path)
+        try:
+            meta, body = fm.load(path)
+        except (fm.FrontmatterError, OSError, UnicodeDecodeError) as exc:
+            # one unreadable file must not deny status/check/rescan to the rest
+            out.append(Regime(id=path.stem, status="", meta={}, body="", path=path, problems=[f"unreadable: {exc}"]))
+            continue
         r = Regime(id=str(meta.get("id", path.stem)), status=str(meta.get("status", "")), meta=meta, body=body, path=path)
         r.obligations = parse_obligations(body)
         r.problems = validate(meta, body)

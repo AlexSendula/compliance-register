@@ -23,3 +23,13 @@ def test_pending_skips_unreadable_lines_and_status_counts_them(project: Path):
     assert rep["pending"]["open"] == 1 and rep["pending"]["unreadable"] == 2
     assert "pending: 2 unreadable lines" in status.render(rep)
 
+def test_regime_with_bad_frontmatter_is_reported_not_fatal(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    write(cdir, META)
+    (cdir / "regimes" / "BAD.md").write_text("---\nid: [unterminated\n---\n\nbody\n")
+    rs = regimes.load_all(cdir)
+    assert [r.id for r in rs] == ["BAD", "GDPR"]
+    bad = rs[0]
+    assert bad.status == "" and bad.problems and not bad.obligations
+    assert rs[1].problems == []
+
