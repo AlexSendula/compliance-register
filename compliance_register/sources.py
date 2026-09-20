@@ -1,0 +1,109 @@
+"""sources.json — where law lives for this project's jurisdictions, and how
+each source is fetched and watched. Discovered by the agent, confirmed by a
+human, nothing hardcoded (D17)."""
+from __future__ import annotations
+
+import json
+import os
+import tempfile
+from dataclasses import dataclass, field, asdict
+from pathlib import Path
+from urllib.parse import urlsplit
+
+FILENAME = "sources.json"
+TIERS = ("api", "sitemap", "feed", "page-hash", "refuse")
+KINDS = ("legislation", "gazette", "regulator", "contract", "standard")
+ROBOTS = ("honour", "allowlist")
+STATUSES = ("proposed", "confirmed", "unresolved")
+FRESHNESS = ("fresh", "unreachable", "moved")
+_DEFAULT_ADAPTER = {"sitemap": "sitemap", "feed": "feed", "page-hash": "pagehash"}
+
+
+@dataclass
+class Source:
+    id: str
+    jurisdiction: str
+    kind: str
+    url: str
+    covers: str = ""
+    tier: str = "page-hash"
+    adapter: str | None = None
+    config: dict = field(default_factory=dict)
+    change_signal: str = ""
+    licence: dict = field(default_factory=lambda: {"redistribute": False, "attribution": None})
+    robots: str = "honour"
+    allowed_hosts: list[str] = field(default_factory=list)
+    headers: dict = field(default_factory=lambda: {"user_agent": "default"})
+    delay_seconds: int = 10
+    status: str = "proposed"
+    last_checked: str | None = None
+    last_status: str | None = None
+    last_version: str | None = None
+    last_fetched: str | None = None
+    evidence: list[str] = field(default_factory=list)
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Source":
+        known = {k: v for k, v in d.items() if k in cls.__dataclass_fields__}
+        s = cls(**known)
+        if not s.adapter:
+            s.adapter = _DEFAULT_ADAPTER.get(s.tier)
+        if not s.allowed_hosts:
+            host = urlsplit(s.url).hostname
+            s.allowed_hosts = [host] if host else []
+        return s
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @property
+    def redistributable(self) -> bool:
+        return bool(self.licence.get("redistribute") is True)
+
+
+def validate(s: Source) -> list[str]:
+    p: list[str] = []
+    if s.tier not in TIERS:
+        p.append(f"{s.id}: tier must be one of {TIERS}")
+    if s.tier == "api" and not s.adapter:
+        p.append(f"{s.id}: api tier needs an explicit adapter (eurlex, bwb)")
+    if s.kind not in KINDS:
+        p.append(f"{s.id}: kind must be one of {KINDS}")
+    if s.robots not in ROBOTS:
+        p.append(f"{s.id}: robots must be one of {ROBOTS}")
+    if s.status not in STATUSES:
+        p.append(f"{s.id}: status must be one of {STATUSES}")
+    if not isinstance(s.licence, dict) or not isinstance(s.licence.get("redistribute"), bool):
+        p.append(f"{s.id}: licence.redistribute must be true or false")
+    if not urlsplit(s.url).scheme in ("http", "https"):
+        p.append(f"{s.id}: url must be http(s)")
+    return p
+
+
+def load(cdir: Path) -> list[Source]:
+    path = cdir / FILENAME
+    if not path.is_file():
+        return []
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return [Source.from_dict(d) for d in data.get("sources", [])]
+
+
+def save(cdir: Path, srcs: list[Source]) -> None:
+    path = cdir / FILENAME
+    payload = {"schema": 1, "sources": [s.to_dict() for s in srcs]}
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=".", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as fh:
+            json.dump(payload, fh, indent=2, ensure_ascii=False)
+            fh.write("\n")
+        os.replace(tmp, path)
+    finally:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+
+
+def get(srcs: list[Source], id: str) -> Source:
+    for s in srcs:
+        if s.id == id:
+            return s
+    raise KeyError(id)
