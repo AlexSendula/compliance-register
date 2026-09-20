@@ -115,3 +115,9 @@ def test_sources_validate_cli(project: Path):
     sources.save(cdir, [s])
     code, out, _ = run(["sources", "validate"], project)
     assert code == 1 and "https" in out and "adapter" in out
+
+
+def test_rescan_cli_exits_2_on_invalid_profile(project: Path):
+    run(["init"], project)
+    code, out, err = run(["rescan"], project)
+    assert code == 2 and "unanswered" in err

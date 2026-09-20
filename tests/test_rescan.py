@@ -24,7 +24,7 @@ def test_removed_trigger_marks_regime_gone(project: Path):
     fm.save(cdir / "profile.md", confirmed_profile(automation_ai={"components": ["translation"]}), "")
     write(cdir, dict(META, id="AIACT", applies={"quote": "q", "cite": "Art. 2", "triggered_by": [{"automation_ai": True}]}))
     rescan.run(cdir, today="2026-09-20")
-    fm.save(cdir / "profile.md", confirmed_profile(automation_ai=None), "")
+    fm.save(cdir / "profile.md", confirmed_profile(automation_ai=False), "")
     rep = rescan.run(cdir, today="2026-10-01")
     assert rep["changed"] == ["automation_ai"]
     kinds = [(e["kind"], e["affects"]) for e in pending.list_open(cdir)]
@@ -39,3 +39,28 @@ def test_new_answer_asks_for_discover(project: Path):
     rescan.run(cdir, today="2026-10-01")
     e = pending.list_open(cdir)[0]
     assert e["kind"] == "regime-new" and "third_party_content" in e["summary"]
+
+
+def test_snapshot_holds_only_confirmed_values(project: Path):
+    import json
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    meta = confirmed_profile(sector="finance")
+    meta["answers"]["sector"]["status"] = "proposed"
+    fm.save(cdir / "profile.md", meta, "")
+    rep = rescan.run(cdir, today="2026-09-20")
+    assert not rep.get("error")
+    snap = json.loads((cdir / "profile.snapshot.json").read_text())
+    assert snap["sector"] is None and snap["users"] == "x"
+    # confirming the proposed value later is a change that gets a regime-new entry
+    meta["answers"]["sector"]["status"] = "confirmed"
+    fm.save(cdir / "profile.md", meta, "")
+    rep = rescan.run(cdir, today="2026-10-01")
+    assert rep["changed"] == ["sector"]
+
+
+def test_invalid_profile_is_refused_with_exit_2(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    fm.save(cdir / "profile.md", profile.empty(), "")
+    rep = rescan.run(cdir, today="2026-09-20")
+    assert rep["exit"] == 2 and "unanswered" in rep["error"]
+    assert not (cdir / "profile.snapshot.json").exists()

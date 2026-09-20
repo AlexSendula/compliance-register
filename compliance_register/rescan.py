@@ -1,5 +1,7 @@
-"""rescan — what changed in the profile since last time, and which regimes
-that touches. Writes pending entries; edits no regime file (D18, D19)."""
+"""rescan — what changed in the profile since the last rescan, and which
+regimes that touches. The baseline is profile.snapshot.json, holding only
+confirmed answers (D7): the first run writes the snapshot and reports
+nothing. Writes pending entries; edits no regime file (D18, D19)."""
 from __future__ import annotations
 
 import json
@@ -28,8 +30,13 @@ def run(cdir: Path, *, today: str) -> dict:
     p = profile.load(cdir)
     if p is None:
         return {"changed": [], "entries": 0, "error": "no profile.md"}
+    problems = profile.validate(p.meta)
+    if problems:
+        return {"changed": [], "entries": 0, "error": "profile does not validate: " + "; ".join(problems), "exit": 2}
     snap_path = cdir / SNAPSHOT
-    current = {s: p.meta["answers"][s]["value"] for s in profile.DIMENSIONS if s in p.meta.get("answers", {})}
+    answers = p.meta["answers"]
+    # only confirmed answers count (D7): a proposed value must not advance the baseline
+    current = {s: (answers[s].get("value") if answers[s].get("status") == "confirmed" else None) for s in profile.DIMENSIONS}
     first = not snap_path.is_file()
     previous = json.loads(snap_path.read_text(encoding="utf-8")) if not first else current
     changed = [s for s in profile.DIMENSIONS if previous.get(s) != current.get(s)]

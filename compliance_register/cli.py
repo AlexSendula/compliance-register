@@ -163,7 +163,7 @@ def cmd_check(args) -> int:
 def cmd_rescan(args) -> int:
     rep = rescanmod.run(_cdir(), today=args.today or _today())
     if rep.get("error"):
-        print(printable(str(rep["error"])), file=sys.stderr); return 1
+        print(printable(str(rep["error"])), file=sys.stderr); return rep.get("exit", 1)
     print(f"changed: {', '.join(rep['changed']) or 'nothing'} · pending entries written: {rep['entries']}")
     return 0
 
