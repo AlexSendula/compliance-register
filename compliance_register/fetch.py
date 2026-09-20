@@ -11,7 +11,6 @@ def default_client(source: srcmod.Source) -> _http.Http:
     return _http.Http(
         user_agent=_http.user_agent(source.headers.get("user_agent", "default")),
         delay_seconds=source.delay_seconds,
-        robots_allowlist=(source.robots == "allowlist"),
     )
 
 

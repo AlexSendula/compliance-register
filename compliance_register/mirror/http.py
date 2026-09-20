@@ -1,8 +1,8 @@
 """HTTP with the safety docs-mirror learned the hard way: every redirect hop
 is judged before it is taken, https never downgrades, bodies are read under a
 budget, transient failures are retried a little and then reported as
-unreachable — never as 'no change'. robots.txt is honoured per host unless the
-source is an allowlisted documented API."""
+unreachable — never as 'no change'. robots.txt is always honoured, per host;
+there is no allowlist (D24)."""
 from __future__ import annotations
 
 import time
@@ -61,14 +61,13 @@ def _default_opener(request, timeout):
 
 class Http:
     def __init__(self, *, user_agent: str, delay_seconds: int = 10, timeout: int = 30,
-                 max_bytes: int = 20_000_000, opener=None, sleep=time.sleep, robots_allowlist: bool = False):
+                 max_bytes: int = 20_000_000, opener=None, sleep=time.sleep):
         self.ua = user_agent
         self.delay = delay_seconds
         self.timeout = timeout
         self.max_bytes = max_bytes
         self.opener = opener or _default_opener
         self.sleep = sleep
-        self.robots_allowlist = robots_allowlist
         self._last_by_host: dict[str, float] = {}
         self._robots: dict[str, urllib.robotparser.RobotFileParser | None] = {}
 
@@ -81,13 +80,12 @@ class Http:
 
     # --- robots -------------------------------------------------------
     def _allowed_by_robots(self, url: str) -> bool:
-        if self.robots_allowlist:
-            return True
         parts = urlsplit(url)
         host = parts.hostname or ""
         if host not in self._robots:
             rp = urllib.robotparser.RobotFileParser()
-            robots_url = f"{parts.scheme}://{parts.netloc}/robots.txt"
+            authority = f"{host}:{parts.port}" if parts.port else host
+            robots_url = f"{parts.scheme}://{authority}/robots.txt"
             try:
                 status, headers, reader = self.opener(urllib.request.Request(robots_url, headers={"User-Agent": self.ua}), self.timeout)
                 if status == 200:

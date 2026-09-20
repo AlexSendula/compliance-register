@@ -62,9 +62,20 @@ def test_robots_disallow_refuses():
         c.get("https://a.test/private/x", allowed_hosts=["a.test"])
 
 
-def test_robots_allowlist_skips_check():
-    c = client({"https://a.test/private/x": (200, HTML, "ok")}, robots_allowlist=True)
-    assert c.get("https://a.test/private/x", allowed_hosts=["a.test"]).status == 200
+def test_robots_has_no_allowlist():
+    with pytest.raises(TypeError):
+        client({}, robots_allowlist=True)
+
+
+def test_robots_url_from_hostname_and_port_not_netloc():
+    opener = FakeOpener({
+        "https://a.test:8443/robots.txt": (200, {}, "User-agent: *\nDisallow: /private\n"),
+        "https://user:pw@a.test:8443/private/x": (200, HTML, "secret"),
+    })
+    c = http.Http(user_agent="t/1", delay_seconds=0, opener=opener, sleep=lambda s: None)
+    with pytest.raises(http.HttpRefused):
+        c.get("https://user:pw@a.test:8443/private/x", allowed_hosts=["a.test"])
+    assert opener.requests[0].full_url == "https://a.test:8443/robots.txt"
 
 
 def test_delay_between_same_host_requests():
