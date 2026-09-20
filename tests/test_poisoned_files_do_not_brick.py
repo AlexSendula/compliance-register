@@ -33,3 +33,15 @@ def test_regime_with_bad_frontmatter_is_reported_not_fatal(project: Path):
     assert bad.status == "" and bad.problems and not bad.obligations
     assert rs[1].problems == []
 
+def test_corrupt_sources_json_is_a_typed_error_and_exit_1(project: Path):
+    run(["init"], project)
+    cdir = paths.compliance_dir(project)
+    (cdir / "sources.json").write_text("{not json")
+    with pytest.raises(sources.SourcesError):
+        sources.load(cdir)
+    (cdir / "sources.json").write_text("[1, 2]")
+    with pytest.raises(sources.SourcesError):
+        sources.load(cdir)
+    code, out, err = run(["check", "--today", "2026-10-01"], project)
+    assert code == 1 and "sources.json" in err
+

@@ -19,6 +19,10 @@ FRESHNESS = ("fresh", "unreachable", "moved")
 _DEFAULT_ADAPTER = {"sitemap": "sitemap", "feed": "feed", "page-hash": "pagehash"}
 
 
+class SourcesError(Exception):
+    """sources.json cannot be read as a list of sources."""
+
+
 @dataclass
 class Source:
     id: str
@@ -94,8 +98,16 @@ def load(cdir: Path) -> list[Source]:
     path = cdir / FILENAME
     if not path.is_file():
         return []
-    data = json.loads(path.read_text(encoding="utf-8"))
-    return [Source.from_dict(d) for d in data.get("sources", [])]
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError as exc:
+        raise SourcesError(f"{FILENAME}: invalid JSON: {exc}") from exc
+    if not isinstance(data, dict) or not isinstance(data.get("sources", []), list):
+        raise SourcesError(f"{FILENAME}: must be an object with a 'sources' list")
+    try:
+        return [Source.from_dict(d) for d in data.get("sources", [])]
+    except (TypeError, ValueError, AttributeError) as exc:
+        raise SourcesError(f"{FILENAME}: malformed source entry: {exc}") from exc
 
 
 def save(cdir: Path, srcs: list[Source]) -> None:

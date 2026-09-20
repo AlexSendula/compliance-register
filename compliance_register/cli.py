@@ -8,7 +8,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from . import __version__, frontmatter as fm, paths, pending, profile, regimes, search, status
+from . import __version__, frontmatter as fm, paths, pending, profile, regimes, search, sources, status
 from . import check as checkmod, fetch as fetchmod, rescan as rescanmod
 
 GITIGNORE_LINE = ".search-index.json"
@@ -215,6 +215,6 @@ def main(argv: list[str] | None = None) -> int:
     except paths.UnsafePath as exc:
         print(f"refused: {exc}", file=sys.stderr)
         return 2
-    except fm.FrontmatterError as exc:
+    except (fm.FrontmatterError, sources.SourcesError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
