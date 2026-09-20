@@ -50,9 +50,11 @@ def load_manifest(cdir: Path, source: Source) -> dict:
         return {}
     try:
         data = json.loads(p.read_text(encoding="utf-8"))
-        return data if isinstance(data, dict) else {}
-    except ValueError:
+    except (ValueError, OSError):
         return {}
+    if not isinstance(data, dict):
+        return {}
+    return {k: v for k, v in data.items() if isinstance(v, dict)}
 
 
 def save_manifest(cdir: Path, source: Source, manifest: dict) -> None:
@@ -70,7 +72,7 @@ def save_manifest(cdir: Path, source: Source, manifest: dict) -> None:
 
 
 def needs_refresh(entry: dict | None, lastmod: str | None, hash: str | None) -> bool:
-    if entry is None:
+    if not isinstance(entry, dict):
         return True
     if hash is not None:
         return entry.get("hash") != hash

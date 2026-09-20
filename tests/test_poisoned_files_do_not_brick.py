@@ -45,3 +45,10 @@ def test_corrupt_sources_json_is_a_typed_error_and_exit_1(project: Path):
     code, out, err = run(["check", "--today", "2026-10-01"], project)
     assert code == 1 and "sources.json" in err
 
+def test_manifest_rows_that_are_not_dicts_are_dropped(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    src = sources.Source.from_dict(EURLEX)
+    store.save_manifest(cdir, src, {"https://x/1": "junk", "https://x/2": {"hash": "h"}})
+    assert store.load_manifest(cdir, src) == {"https://x/2": {"hash": "h"}}
+    assert store.needs_refresh("junk", None, "h") is True
+    assert store.needs_refresh(["a"], "2026-01-01", None) is True
