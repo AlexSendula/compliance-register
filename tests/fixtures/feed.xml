@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<rss version="2.0"><channel><title>Reg news</title>
+<item><guid>n1</guid><title>Guidance on cookies</title><link>https://reg.test/n/1</link><pubDate>Mon, 01 Sep 2026 10:00:00 GMT</pubDate></item>
+<item><guid>n2</guid><title>Annual report</title><link>https://reg.test/n/2</link><pubDate>Tue, 02 Sep 2026 10:00:00 GMT</pubDate></item>
+</channel></rss>
