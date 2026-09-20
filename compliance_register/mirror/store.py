@@ -31,6 +31,12 @@ def content_hash(text: str) -> str:
 def write_page(cdir: Path, source: Source, relpath: str, meta: dict, markdown: str, *, retrieved_at: str) -> Path:
     base = source_dir(cdir, source)
     target = paths.contained(base, Path(relpath))
+    if not source.redistributable:  # a clone where init never ran must not commit .private/ on the next git add -A
+        gi = cdir / "mirror" / ".gitignore"
+        existing = gi.read_text(encoding="utf-8") if gi.is_file() else ""
+        if ".private/" not in existing.splitlines():
+            gi.parent.mkdir(parents=True, exist_ok=True)
+            gi.write_text(existing + ("" if not existing or existing.endswith("\n") else "\n") + ".private/\n", encoding="utf-8")
     full = {
         "source": source.id,
         "source_url": meta.pop("source_url", source.url),

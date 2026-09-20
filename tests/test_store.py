@@ -58,3 +58,17 @@ def test_needs_refresh_rules():
 
 def test_content_hash_ignores_whitespace():
     assert store.content_hash("a  b\n\nc") == store.content_hash("a b c")
+
+
+def test_private_page_ensures_mirror_gitignore(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    priv = src(licence={"redistribute": False, "attribution": None})
+    gi = cdir / "mirror" / ".gitignore"
+    store.write_page(cdir, priv, "a.md", {}, "t\n", retrieved_at="2026-09-20")
+    assert gi.read_text().splitlines() == [".private/"]
+    gi.write_text("# mine\n")
+    store.write_page(cdir, priv, "b.md", {}, "t\n", retrieved_at="2026-09-20")
+    assert gi.read_text().splitlines() == ["# mine", ".private/"]
+    store.write_page(cdir, priv, "c.md", {}, "t\n", retrieved_at="2026-09-20")
+    assert gi.read_text().count(".private/") == 1
+    store.write_page(cdir, src(), "d.md", {}, "t\n", retrieved_at="2026-09-20")  # a public page does not touch it
