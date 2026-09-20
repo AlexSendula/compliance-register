@@ -40,3 +40,9 @@ def test_every_reference_linked_from_skill_md_exists():
     text = (ROOT / "SKILL.md").read_text()
     for rel in re.findall(r"references/[A-Za-z0-9_.-]+\.md", text):
         assert (ROOT / rel).is_file(), rel
+
+
+def test_skill_md_states_eurlex_v1_narrowings():
+    text = (ROOT / "SKILL.md").read_text()
+    mirror = text.split("## The mirror", 1)[1].split("\n## ", 1)[0]
+    assert "never been consolidated" in mirror and "cited by URL" in mirror

@@ -119,3 +119,10 @@ def test_resolve_all_rows_malformed_is_unreachable():
     import pytest
     with pytest.raises(http.HttpUnreachable):
         eurlex.resolve(csv_client(bad), ["32011L0083"], today="2026-09-20")
+
+
+def test_zero_rows_for_this_celex_is_unreachable_even_without_last_version(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    only_gdpr = '"baseCelex","consolCelex","consolDate"\n"32016R0679","02016R0679-20160504","2016-05-04"\n'
+    r = eurlex.check(src(), csv_client(only_gdpr), today="2026-09-20", cdir=cdir)
+    assert r.status == "unreachable" and r.version is None and "no consolidation" in r.detail

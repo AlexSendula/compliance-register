@@ -70,8 +70,8 @@ def check(source: Source, client: _http.Http, *, today: str, cdir) -> CheckResul
         return CheckResult("unreachable", None, f"config key missing: {exc}")
     except (_http.HttpUnreachable, _http.HttpRefused, ValueError) as exc:
         return CheckResult("unreachable", None, str(exc))
-    if r["current"] is None and source.last_version:
-        return CheckResult("unreachable", None, f"{celex}: known instrument returned no consolidation")
+    if r["current"] is None:  # never consolidated, or dropped from the graph: either way we cannot tell
+        return CheckResult("unreachable", None, f"{celex}: no consolidation in the graph")
     if r["current"] != source.last_version:
         return CheckResult("moved", r["current"], f"consolidation {source.last_version} → {r['current']}", [r["current"] or ""], r["next"], r["next_date"])
     return CheckResult("fresh", r["current"], "consolidated CELEX unchanged", [], r["next"], r["next_date"])

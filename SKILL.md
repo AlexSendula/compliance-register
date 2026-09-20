@@ -115,6 +115,10 @@ Read the mirror before fetching a page from the web: if the source is in
 `sources.json` and the article is under `mirror/`, quote the local file —
 its frontmatter says which version and when it was retrieved.
 
+EUR-Lex acts that have never been consolidated (nothing has amended them
+yet) are not mirrored in v1: `check` reports them unreachable and they are
+cited by URL.
+
 `check` downloads nothing on `api`, `sitemap` and `feed` sources. It never
 updates a version; only `fetch` does, after the source's content guards pass.
 "Unreachable" means we could not tell. It is never "fresh".
