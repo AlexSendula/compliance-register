@@ -6,16 +6,16 @@ import xml.etree.ElementTree as ET
 
 from ...sources import Source
 from .. import htmlmd, http as _http, store
-from . import CheckResult, FetchResult
+from . import LISTING_MAX_BYTES, CheckResult, FetchResult, parse_xml
 
 _ATOM = "{http://www.w3.org/2005/Atom}"
 
 
 def _entries(source: Source, client: _http.Http) -> list[dict]:
-    resp = client.get(source.url, allowed_hosts=source.allowed_hosts)
+    resp = client.get(source.url, allowed_hosts=source.allowed_hosts, max_bytes=LISTING_MAX_BYTES)
     if resp.status != 200:
         raise _http.HttpUnreachable(f"{source.url}: HTTP {resp.status}")
-    root = ET.fromstring(resp.body)
+    root = parse_xml(resp.body)
     out = []
     if root.tag == _ATOM + "feed":
         for e in root.findall(_ATOM + "entry"):

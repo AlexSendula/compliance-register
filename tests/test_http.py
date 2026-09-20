@@ -122,3 +122,10 @@ def test_politeness_clock_is_shared_across_clients():
     assert slept == []
     b.get("https://a.test/2", allowed_hosts=["a.test"])
     assert slept == [5]
+
+
+def test_per_call_max_bytes_overrides_client_budget():
+    c = client({"https://a.test/x": (200, HTML, "x" * 100)}, max_bytes=1000)
+    with pytest.raises(http.HttpRefused):
+        c.get("https://a.test/x", allowed_hosts=["a.test"], max_bytes=50)
+    assert c.get("https://a.test/x", allowed_hosts=["a.test"]).status == 200

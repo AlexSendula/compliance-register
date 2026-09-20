@@ -59,3 +59,18 @@ def test_fetch_refuses_non_html(project: Path):
     c = client({"https://reg.test/guidance/a": (200, {"Content-Type": "application/pdf"}, b"%PDF-1.4")})
     f = sitemap.fetch(src(), c, cdir, today="2026-09-20")
     assert "https://reg.test/guidance/a" in f.refused and len(f.written) == 1
+
+
+def test_sitemap_with_dtd_is_unreachable(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    bomb = '<?xml version="1.0"?><!DOCTYPE x [<!ENTITY a "aaaa">]><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://reg.test/guidance/&a;</loc></url></urlset>'
+    c = client({"https://reg.test/sitemap.xml": (200, {"Content-Type": "application/xml"}, bomb)})
+    r = sitemap.check(src(), c, today="2026-09-20", cdir=cdir)
+    assert r.status == "unreachable" and "DTD" in r.detail
+
+
+def test_listing_is_capped_at_5mb(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    huge = '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + "<!-- x -->" * 600_000 + "</urlset>"
+    c = client({"https://reg.test/sitemap.xml": (200, {"Content-Type": "application/xml"}, huge)})
+    assert sitemap.check(src(), c, today="2026-09-20", cdir=cdir).status == "unreachable"

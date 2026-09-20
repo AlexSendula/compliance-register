@@ -106,7 +106,7 @@ class Http:
         return True if rp is None else rp.can_fetch(self.ua, url)
 
     # --- one hop ------------------------------------------------------
-    def _once(self, url: str) -> tuple[int, dict, bytes]:
+    def _once(self, url: str, max_bytes: int) -> tuple[int, dict, bytes]:
         req = urllib.request.Request(url, headers={"User-Agent": self.ua, "Accept": "text/html,application/xhtml+xml,application/xml,text/csv,*/*;q=0.5"})
         last_exc: Exception | None = None
         for attempt in range(RETRIES + 1):
@@ -115,9 +115,9 @@ class Http:
                 if status in (429,) or 500 <= status < 600:
                     last_exc = HttpUnreachable(f"{url}: HTTP {status}")
                 else:
-                    body = reader.read(self.max_bytes + 1)
-                    if len(body) > self.max_bytes:
-                        raise HttpRefused(f"{url}: body exceeds {self.max_bytes} bytes")
+                    body = reader.read(max_bytes + 1)
+                    if len(body) > max_bytes:
+                        raise HttpRefused(f"{url}: body exceeds {max_bytes} bytes")
                     return status, {k.title(): v for k, v in headers.items()}, body
             except (urllib.error.URLError, OSError, TimeoutError, http.client.HTTPException, ValueError) as exc:
                 last_exc = HttpUnreachable(f"{url}: {exc}")
@@ -126,7 +126,9 @@ class Http:
         raise last_exc or HttpUnreachable(url)
 
     # --- public -------------------------------------------------------
-    def get(self, url: str, *, allowed_hosts: list[str]) -> Response:
+    def get(self, url: str, *, allowed_hosts: list[str], max_bytes: int | None = None) -> Response:
+        """max_bytes caps this call's body below the client budget (listings)."""
+        budget = self.max_bytes if max_bytes is None else min(max_bytes, self.max_bytes)
         current = url
         for _ in range(MAX_HOPS + 1):
             parts = urlsplit(current)
@@ -137,7 +139,7 @@ class Http:
             if not self._allowed_by_robots(current):
                 raise HttpRefused(f"{current}: disallowed by robots.txt")
             self._wait(parts.hostname or "")
-            status, headers, body = self._once(current)
+            status, headers, body = self._once(current, budget)
             if status in (301, 302, 303, 307, 308):
                 loc = headers.get("Location")
                 if not loc:

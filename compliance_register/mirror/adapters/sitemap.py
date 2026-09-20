@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 
 from ...sources import Source
 from .. import htmlmd, http as _http, store
-from . import CheckResult, FetchResult
+from . import LISTING_MAX_BYTES, CheckResult, FetchResult, parse_xml
 
 _NS = "{http://www.sitemaps.org/schemas/sitemap/0.9}"
 
@@ -17,10 +17,10 @@ def _entries(source: Source, client: _http.Http) -> list[tuple[str, str | None]]
     include = source.config.get("include") or []
 
     def parse(url: str, depth: int) -> None:
-        resp = client.get(url, allowed_hosts=source.allowed_hosts)
+        resp = client.get(url, allowed_hosts=source.allowed_hosts, max_bytes=LISTING_MAX_BYTES)
         if resp.status != 200:
             raise _http.HttpUnreachable(f"{url}: HTTP {resp.status}")
-        root = ET.fromstring(resp.body)
+        root = parse_xml(resp.body)
         if root.tag == _NS + "sitemapindex" and depth == 0:
             for sm in root.findall(_NS + "sitemap"):
                 loc = sm.findtext(_NS + "loc")
