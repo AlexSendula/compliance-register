@@ -13,6 +13,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from . import paths
+
 TABLE_VERSION = 1
 INDEX_FILE = ".search-index.json"
 K1 = 1.5
@@ -135,7 +137,13 @@ def search(cdir: Path, query: str, k: int = 5, kind: str | None = None) -> list[
             hits.append(Hit(path=d["path"], score=score, kind=d["kind"], snippet=""))
     hits.sort(key=lambda h: (-h.score, h.path))
     hits = hits[:k]
+    out = []
     for h in hits:
+        try:
+            paths.contained(cdir, Path(h.path))  # a poisoned index must not read any file into a snippet
+        except paths.UnsafePath:
+            continue
         h.snippet = _snippet(cdir, h.path, terms)
         h.path = (cdir / h.path).as_posix()
-    return hits
+        out.append(h)
+    return out

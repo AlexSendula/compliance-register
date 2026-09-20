@@ -41,3 +41,16 @@ def test_private_mirror_pages_are_searchable(project: Path):
 
 def test_tokenize_keeps_accented_words():
     assert search.tokenize("bescherming persoonsgegevens ćirilica") == ["bescherming", "persoonsgegevens", "ćirilica"]
+
+
+def test_poisoned_index_path_outside_cdir_is_skipped(project: Path):
+    import json
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    write(cdir, META)
+    secret = project / "secret.txt"; secret.write_text("record of processing SECRET\n")
+    search.search(cdir, "record")  # builds the index
+    table = json.loads((cdir / search.INDEX_FILE).read_text())
+    table["docs"][0]["path"] = str(secret)
+    (cdir / search.INDEX_FILE).write_text(json.dumps(table))
+    hits = search.search(cdir, "record of processing")
+    assert hits == [] or all("SECRET" not in h.snippet and str(secret) != h.path for h in hits)
