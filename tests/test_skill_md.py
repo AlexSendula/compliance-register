@@ -46,3 +46,5 @@ def test_skill_md_states_eurlex_v1_narrowings():
     text = (ROOT / "SKILL.md").read_text()
     mirror = text.split("## The mirror", 1)[1].split("\n## ", 1)[0]
     assert "never been consolidated" in mirror and "cited by URL" in mirror
+    assert "not pre-checked" in mirror and "G1" in mirror and "G2" in mirror
+    assert not (ROOT / "references" / "eurlex-language.sparql").exists()

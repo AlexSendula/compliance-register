@@ -117,7 +117,9 @@ its frontmatter says which version and when it was retrieved.
 
 EUR-Lex acts that have never been consolidated (nothing has amended them
 yet) are not mirrored in v1: `check` reports them unreachable and they are
-cited by URL.
+cited by URL. Language availability is not pre-checked: a G1/G2 refusal on a
+version SPARQL says exists may mean that language expression is not
+published yet.
 
 `check` downloads nothing on `api`, `sitemap` and `feed` sources. It never
 updates a version; only `fetch` does, after the source's content guards pass.
