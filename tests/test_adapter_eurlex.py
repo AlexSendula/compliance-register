@@ -29,12 +29,19 @@ def sparql_route(request):
 
 def client(consolidated_html=None):
     return http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=FakeOpener({
-        "http://publications.europa.eu/robots.txt": (404, {}, ""),
+        "https://publications.europa.eu/robots.txt": (404, {}, ""),
         "https://eur-lex.europa.eu/robots.txt": (404, {}, ""),
         eurlex.SPARQL + "*": sparql_route,  # prefix route: the query string is long
         "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02011L0083-20220528":
             (200, HTML, consolidated_html or FIX.joinpath("eurlex-consolidated.html").read_text()),
     }))
+
+
+def test_sparql_endpoint_is_https():
+    c = client()
+    eurlex.resolve(c, ["32011L0083"], today="2026-09-20")
+    assert eurlex.SPARQL.startswith("https://publications.europa.eu/")
+    assert all(r.full_url.startswith("https://") for r in c.opener.requests)
 
 
 def test_resolve_applies_today_client_side():

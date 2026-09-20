@@ -15,7 +15,7 @@ from ...sources import Source
 from .. import http as _http, store
 from . import CheckResult, FetchResult
 
-SPARQL = "http://publications.europa.eu/webapi/rdf/sparql"
+SPARQL = "https://publications.europa.eu/webapi/rdf/sparql"
 LANG3 = {"BG": "BUL", "CS": "CES", "DA": "DAN", "DE": "DEU", "EL": "ELL", "EN": "ENG", "ES": "SPA", "ET": "EST", "FI": "FIN", "FR": "FRA", "GA": "GLE", "HR": "HRV", "HU": "HUN", "IT": "ITA", "LT": "LIT", "LV": "LAV", "MT": "MLT", "NL": "NLD", "PL": "POL", "PT": "POR", "RO": "RON", "SK": "SLK", "SL": "SLV", "SV": "SWE"}
 MARKER = "This text is meant purely as a documentation tool and has no legal effect"
 # the <p class="reference"> line: consolidated CELEX (sector 0) — LANG — DD.MM.YYYY. The <title> repeats it with the base CELEX, so anchor on the leading 0.
