@@ -47,9 +47,10 @@ def run(cdir: Path, *, ids: list[str] | None, today: str, client_factory=default
     any_moved = False
     open_kinds = {(e["kind"], e.get("source")) for e in pending.list_open(cdir)}
     open_to = {(e["kind"], e.get("source"), e.get("to")) for e in pending.list_open(cdir)}  # dedupe key for moved/next
+    resolved = adapters.prefetch(chosen, client_factory, today=today)
     for s in chosen:
         try:
-            r = adapters.get(s.adapter).check(s, client_factory(s), today=today, cdir=cdir)
+            r = adapters.get(s.adapter).check(s, client_factory(s), today=today, cdir=cdir, **resolved.get(s.adapter, {}))
         except Exception as exc:  # one bad source must never abort the run for the rest
             r = adapters.CheckResult("unreachable", None, f"{type(exc).__name__}: {exc}")
         rep[r.status] += 1

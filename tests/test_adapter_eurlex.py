@@ -126,3 +126,44 @@ def test_zero_rows_for_this_celex_is_unreachable_even_without_last_version(proje
     only_gdpr = '"baseCelex","consolCelex","consolDate"\n"32016R0679","02016R0679-20160504","2016-05-04"\n'
     r = eurlex.check(src(), csv_client(only_gdpr), today="2026-09-20", cdir=cdir)
     assert r.status == "unreachable" and r.version is None and "no consolidation" in r.detail
+
+
+def src2():
+    s = src(); s.id = "eu-eurlex-32016R0679"; s.config = {"celex": "32016R0679", "language": "EN"}
+    s.url = "https://eur-lex.europa.eu/eli/reg/2016/679/oj"
+    return s
+
+
+def test_prefetch_resolves_whole_basket_in_one_request(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    c = client()
+    resolved = eurlex.prefetch([src(), src2()], c, today="2026-09-20")
+    sparql = [r for r in c.opener.requests if r.full_url.startswith(eurlex.SPARQL)]
+    assert len(sparql) == 1 and set(resolved) == {"32011L0083", "32016R0679"}
+    assert eurlex.check(src(), c, today="2026-09-20", cdir=cdir, resolved=resolved).status == "moved"
+    assert eurlex.check(src2(), c, today="2026-09-20", cdir=cdir, resolved=resolved).status == "moved"
+    f = eurlex.fetch(src(), c, cdir, today="2026-09-20", resolved=resolved)
+    assert f.version == "02011L0083-20220528"
+    assert len([r for r in c.opener.requests if r.full_url.startswith(eurlex.SPARQL)]) == 1
+
+
+def test_prefetch_failure_is_unreachable_per_source_not_raised(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    c = csv_client('"baseCelex","consolCelex","consolDate"\n')
+    resolved = eurlex.prefetch([src(), src2()], c, today="2026-09-20")
+    r = eurlex.check(src(), c, today="2026-09-20", cdir=cdir, resolved=resolved)
+    assert r.status == "unreachable" and "no rows" in r.detail
+    assert eurlex.fetch(src2(), c, cdir, today="2026-09-20", resolved=resolved).refused[0].startswith("resolve:")
+
+
+def test_check_run_issues_one_sparql_query_for_all_eurlex_sources(project: Path):
+    from compliance_register import check, fetch
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    sources.save(cdir, [src(), src2()])
+    c = client()
+    rep = check.run(cdir, ids=None, today="2026-09-20", client_factory=lambda s: c)
+    assert rep["moved"] == 2
+    assert len([r for r in c.opener.requests if r.full_url.startswith(eurlex.SPARQL)]) == 1
+    rep = fetch.run(cdir, ids=None, force=False, today="2026-09-20", client_factory=lambda s: c)
+    assert rep["written"] == 3  # 32016R0679's page has no fixture route → refused, no traceback
+    assert len([r for r in c.opener.requests if r.full_url.startswith(eurlex.SPARQL)]) == 2

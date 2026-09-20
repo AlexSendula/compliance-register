@@ -61,11 +61,34 @@ def resolve(client: _http.Http, celexes: list[str], *, today: str) -> dict:
     return out
 
 
-def check(source: Source, client: _http.Http, *, today: str, cdir) -> CheckResult:
+def prefetch(srcs: list[Source], client: _http.Http, *, today: str) -> dict:
+    """One SPARQL round per run for the whole eurlex basket. A value is the
+    per-celex dict from resolve(), or the exception that stopped its chunk —
+    check() and fetch() raise it again inside their own try."""
+    celexes = sorted({s.config.get("celex") for s in srcs if isinstance(s.config, dict) and s.config.get("celex")})
+    out: dict = {}
+    # ponytail: GET, chunked at 100; add POST if a basket ever exceeds it
+    for i in range(0, len(celexes), 100):
+        batch = celexes[i:i + 100]
+        try:
+            out.update(resolve(client, batch, today=today))
+        except (_http.HttpUnreachable, _http.HttpRefused, ValueError) as exc:
+            out.update({c: exc for c in batch})
+    return out
+
+
+def _resolved(celex: str, client: _http.Http, today: str, resolved: dict | None) -> dict:
+    r = resolved[celex] if resolved is not None else resolve(client, [celex], today=today)[celex]
+    if isinstance(r, Exception):
+        raise r
+    return r
+
+
+def check(source: Source, client: _http.Http, *, today: str, cdir, resolved: dict | None = None) -> CheckResult:
     celex = None
     try:
         celex = source.config["celex"]
-        r = resolve(client, [celex], today=today)[celex]
+        r = _resolved(celex, client, today, resolved)
     except KeyError as exc:
         return CheckResult("unreachable", None, f"config key missing: {exc}")
     except (_http.HttpUnreachable, _http.HttpRefused, ValueError) as exc:
@@ -138,13 +161,13 @@ def chunk(html: str) -> dict[int, str]:
     return out
 
 
-def fetch(source: Source, client: _http.Http, cdir, *, today: str, force: bool = False) -> FetchResult:
+def fetch(source: Source, client: _http.Http, cdir, *, today: str, force: bool = False, resolved: dict | None = None) -> FetchResult:
     result = FetchResult()
     celex = source.config["celex"]
     lang = (source.config.get("language") or "EN").upper()
     try:
-        r = resolve(client, [celex], today=today)[celex]
-    except (_http.HttpUnreachable, _http.HttpRefused) as exc:
+        r = _resolved(celex, client, today, resolved)
+    except (_http.HttpUnreachable, _http.HttpRefused, ValueError) as exc:
         result.refused.append(f"resolve: {exc}"); return result
     current = r["current"]
     if not current:

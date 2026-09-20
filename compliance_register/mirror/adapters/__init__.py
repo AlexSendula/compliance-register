@@ -34,6 +34,17 @@ def get(name: str):
     return registry[name]
 
 
+def prefetch(chosen, client_factory, *, today: str) -> dict:
+    """{adapter name: extra kwargs for its check()/fetch()} — the eurlex basket
+    is resolved once per run with one client, so N sources cost one SPARQL
+    request. Never raises: a failed resolve surfaces per source."""
+    from . import eurlex
+    basket = [s for s in chosen if s.adapter == "eurlex" and s.tier != "refuse"]
+    if not basket:
+        return {}
+    return {"eurlex": {"resolved": eurlex.prefetch(basket, client_factory(basket[0]), today=today)}}
+
+
 def parse_xml(body: bytes) -> ET.Element:
     """ET.fromstring behind one guard: a listing carrying a DTD is refused
     before expat sees it (entity expansion is the only XML risk left on a

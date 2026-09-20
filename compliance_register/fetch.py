@@ -26,6 +26,7 @@ def run(cdir: Path, *, ids: list[str] | None, force: bool, today: str, client_fa
         return rep
     from .check import _affects  # check imports default_client from here; keep the cycle lazy
     open_unreachable = {(e["kind"], e.get("source")) for e in pending.list_open(cdir) if e["kind"] == "source-unreachable"}
+    resolved = adapters.prefetch(chosen, client_factory, today=today)
     for s in chosen:
         if s.tier == "refuse":
             rep["refused"].append(s.id)
@@ -34,7 +35,7 @@ def run(cdir: Path, *, ids: list[str] | None, force: bool, today: str, client_fa
                 rep["exit"] = 2
             continue
         try:
-            r = adapters.get(s.adapter).fetch(s, client_factory(s), cdir, today=today, force=force)
+            r = adapters.get(s.adapter).fetch(s, client_factory(s), cdir, today=today, force=force, **resolved.get(s.adapter, {}))
         except Exception as exc:  # one bad source must never abort the run for the rest
             r = adapters.FetchResult(refused=[f"{type(exc).__name__}: {exc}"])
         rep["written"] += len(r.written)
