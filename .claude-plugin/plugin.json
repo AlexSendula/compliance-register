@@ -1,0 +1,9 @@
+{
+  "name": "compliance-register",
+  "version": "0.1.0",
+  "description": "Register of the laws, guidance, licences and contracts that apply to a software project — discovered, quoted, dated, re-checked on command. Never says compliant.",
+  "author": { "name": "Alex", "email": "github@alexsendula.com" },
+  "license": "MIT",
+  "keywords": ["compliance", "regulation", "gdpr", "psd2", "obligations", "register", "knowledge-base"],
+  "skills": ["."]
+}
