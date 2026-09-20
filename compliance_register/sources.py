@@ -3,6 +3,7 @@ each source is fetched and watched. Discovered by the agent, confirmed by a
 human, nothing hardcoded (D17)."""
 from __future__ import annotations
 
+import ipaddress
 import json
 import os
 import tempfile
@@ -71,9 +72,22 @@ def validate(s: Source) -> list[str]:
         p.append(f"{s.id}: status must be one of {STATUSES}")
     if not isinstance(s.licence, dict) or not isinstance(s.licence.get("redistribute"), bool):
         p.append(f"{s.id}: licence.redistribute must be true or false")
-    if not urlsplit(s.url).scheme in ("http", "https"):
-        p.append(f"{s.id}: url must be http(s)")
+    if urlsplit(s.url).scheme != "https":
+        p.append(f"{s.id}: url must be https")
+    for h in s.allowed_hosts:
+        if _is_private_host(h):
+            p.append(f"{s.id}: allowed_hosts must not include local or private addresses ({h})")
     return p
+
+
+def _is_private_host(host: str) -> bool:
+    if host.lower() == "localhost":
+        return True
+    try:
+        ip = ipaddress.ip_address(host.strip("[]"))
+    except ValueError:
+        return False
+    return ip.is_loopback or ip.is_private or ip.is_link_local or ip.is_reserved or ip.is_unspecified
 
 
 def load(cdir: Path) -> list[Source]:

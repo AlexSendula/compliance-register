@@ -61,3 +61,19 @@ def test_adapter_registry_has_no_bwb():
     with pytest.raises(KeyError):
         adapters.get("bwb")
     assert "bwb" not in " ".join(sources.validate(sources.Source.from_dict(dict(EURLEX, adapter=None))))
+
+
+@pytest.mark.parametrize("host", ["localhost", "127.0.0.1", "::1", "10.0.0.5", "192.168.1.1", "169.254.169.254", "0.0.0.0", "fe80::1"])
+def test_validate_refuses_private_hosts(host):
+    s = sources.Source.from_dict(dict(EURLEX, allowed_hosts=["eur-lex.europa.eu", host]))
+    assert any(host in p and "allowed_hosts" in p for p in sources.validate(s))
+
+
+def test_validate_allows_public_ip_and_names():
+    s = sources.Source.from_dict(dict(EURLEX, allowed_hosts=["eur-lex.europa.eu", "93.184.216.34"]))
+    assert sources.validate(s) == []
+
+
+def test_validate_requires_https():
+    s = sources.Source.from_dict(dict(EURLEX, url="http://eur-lex.europa.eu/eli/reg/2016/679/oj"))
+    assert any("https" in p for p in sources.validate(s))
