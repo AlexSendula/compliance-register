@@ -24,30 +24,51 @@ Needs Python 3.12+ and PyYAML.
 
 ## Use
 
-Ask your agent which regulations apply to the project. It will run the four
-stages in `SKILL.md`: profile, discover, register, watch. Commands:
+Ask your agent which regulations apply to the project. It drives the four
+stages in `SKILL.md` — profile, discover, register, watch — from the method
+files in `references/`; the first three are not CLI commands. The CLI:
 
 ```bash
 python3 bin/compliance-register init
 python3 bin/compliance-register status
-python3 bin/compliance-register search "direct debit mandate"
 python3 bin/compliance-register pending
 python3 bin/compliance-register resolve chg-0001 --action applied --by "Alex"
+python3 bin/compliance-register search "direct debit mandate"
+python3 bin/compliance-register profile validate
+python3 bin/compliance-register profile diff --against HEAD
+python3 bin/compliance-register regimes validate
+python3 bin/compliance-register sources validate
 python3 bin/compliance-register fetch            # mirror confirmed sources
 python3 bin/compliance-register check            # fresh / unreachable / moved → pending
 python3 bin/compliance-register rescan           # profile changed? → pending
 ```
 
+Exit codes: `0` done · `1` failure (for `check`: a source was unreachable;
+for `fetch`: a guard or HTTP refused something) · `2` refused (not inside a
+project with `knowledge-base/`, missing dependency, nothing to check,
+validation failed before any request, a `refuse`-tier source asked for, a
+named source not confirmed). `SKILL.md` has the per-command rules.
+
 ## What it writes
 
 ```
 knowledge-base/compliance/
-  profile.md        the 15 answers
-  sources.json      where law lives for your jurisdictions
-  mirror/           the text, markdown with provenance frontmatter, one directory per source
-  regimes/*.md      one file per regime, obligations inside
-  pending.jsonl     detected changes awaiting a human
-  resolutions.jsonl what humans did
+  .gitignore            written by init: .search-index.json
+  .search-index.json    derived by search; never committed
+  .last-check           when check last ran
+  profile.md            the 15 answers
+  profile.snapshot.json what the last rescan saw; committed
+  sources.json          where law lives for your jurisdictions
+  mirror/
+    .gitignore          written by init: .private/
+    .private/           sources with redistribute: false; never committed
+    <jurisdiction>/<source-id>/
+      MANIFEST.json     per-source page manifest
+      *.md              the text, markdown with provenance frontmatter
+                        (the api tier nests pages under <version>/)
+  regimes/<ID>.md       one file per regime, obligations inside
+  pending.jsonl         detected changes awaiting a human
+  resolutions.jsonl     what humans did
 ```
 
 Sources whose licence forbids redistribution go under `mirror/.private/`, which

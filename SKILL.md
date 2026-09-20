@@ -50,32 +50,45 @@ work around it.
 
 ## Commands
 
+`profile`, `discover` and `register` are stage names, not CLI commands —
+you drive them from the method files. The CLI is deterministic and never
+gives a verdict:
+
 | Command | Does |
 |---|---|
-| `init` | scaffold `knowledge-base/compliance/` |
-| `status [--json]` | regimes and obligations counted, profile age, pending count |
-| `profile validate` | exit 1 with the list of unanswered or null answers |
-| `profile diff --against <file or git ref>` | dimensions whose value changed |
-| `regimes validate` | exit 1 with problems per regime file |
-| `sources validate` | exit 1 with problems per source (`check` and `fetch` run this first and make no request while it fails) |
+| `init` | scaffold `knowledge-base/compliance/` (idempotent) |
+| `status [--json]` | regimes and obligations counted, profile age, pending count, last check |
 | `pending [--json]` | open detected changes |
-| `resolve <id> --action applied\|dismissed\|deferred --by <name> [--note]` | record what a human did |
-| `search "<query>" [-k N] [--kind regime\|mirror\|profile]` | ranked keyword search |
-| `fetch [--source ID] [--force]` | acquire or refresh confirmed sources into `mirror/`; exit 2 for a `refuse`-tier source you asked for |
+| `resolve <id> --action applied\|dismissed\|deferred --by <name> [--note]` | record what a human did; exit 1 on an unknown id |
+| `search "<query>" [-k N] [--kind regime\|mirror\|profile] [--json]` | ranked keyword search over regimes, mirror and profile |
+| `profile validate` | exit 1 with the list of unanswered or null answers |
+| `profile diff --against <file or git ref>` | dimensions whose value changed against an older profile |
+| `regimes validate` | exit 1 with problems per regime file |
+| `sources validate` | exit 1 with problems per source — `check` and `fetch` run this first and make no request while it fails |
+| `fetch [--source ID] [--force]` | acquire or refresh confirmed sources into `mirror/`; `--force` rewrites pages whose version has not changed |
 | `check [--source ID] [--json]` | for each source: fresh / unreachable / moved. Writes `pending.jsonl` and stops. Page-hash sources are fetched to compare and say so |
-| `rescan` | profile changed since the last rescan? Writes `regime-gone` / `regime-new` entries. Edits nothing |
+| `rescan` | profile changed since the last rescan? Writes `regime-gone` / `regime-new` entries and a new snapshot. Edits nothing |
 
-Exit codes: `0` done · `1` failure · `2` refused (not in a project with
-`knowledge-base/`, missing dependency). For the watch commands precisely:
+Without `--source`, `fetch` and `check` take every `status: confirmed`
+source. With `--source ID`, a source that is not confirmed is refused.
+
+Exit codes: `0` done · `1` failure (bad input, a validator found problems,
+an unreadable `sources.json` or frontmatter block) · `2` refused (not in a
+project with `knowledge-base/`, missing dependency, or one of the cases
+below) — no command given prints help and exits 1. For the watch commands
+precisely:
 
 - `check` → `0` ran, every source fresh or moved · `1` ran, but at least one
-  source was unreachable (drift not knowable there) · `2` nothing to check, or
-  validation failed — no request was made.
+  source was unreachable (drift not knowable there) · `2` nothing to check
+  (no confirmed non-`refuse` source), or validation failed — no request was
+  made. Whatever the exit, a watched regime whose `review_by` has arrived
+  gets one open `date-passed` entry.
 - `fetch` → `0` done · `1` a guard or HTTP refused something (a
   `source-unreachable` entry names it) · `2` a `refuse`-tier source was asked
-  for, validation failed, or a named source is not confirmed — no request was
-  made.
-- `rescan` → `0` done · `1` no profile · `2` the profile does not validate.
+  for by `--source`, validation failed, or a named source is not confirmed —
+  no request was made. An unnamed `refuse`-tier source is skipped, not an error.
+- `rescan` → `0` done (the first run only writes the snapshot) · `1` no
+  profile · `2` the profile does not validate — no snapshot is written.
 
 ## Rules
 
@@ -93,9 +106,9 @@ Exit codes: `0` done · `1` failure · `2` refused (not in a project with
   `pending.jsonl` and stop. Resolving is a human's job; `resolve` records it.
 - **Everything is committed** except what a source's licence forbids
   (`mirror/.private/`, gitignored by `init`).
-- **When a profile answer changes**, run `profile diff`, then stage 2b for the
-  listed dimensions only. Mark regimes whose trigger vanished
-  `no-longer-applies`; never delete.
+- **When a profile answer changes**, confirm, commit, run `rescan`, then
+  stage 2b for the dimensions its entries name only. Whoever resolves a
+  `regime-gone` entry marks the regime `no-longer-applies`; never delete.
 
 ## The mirror
 

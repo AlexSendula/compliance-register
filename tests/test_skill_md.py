@@ -88,3 +88,38 @@ def test_method_profile_makes_rescan_the_baseline_and_bars_repo_name_as_evidence
     assert "--against HEAD~1" not in text
     assert "rescan" in text
     assert "any answer" in text and "indicia" in text
+
+
+def _cli_commands() -> list[str]:
+    from compliance_register.cli import build_parser
+
+    def walk(parser, prefix=""):
+        subs = getattr(parser, "_subparsers", None)
+        if subs is None:
+            return [prefix.strip()]
+        out = []
+        for action in subs._group_actions:
+            for name, sub in action.choices.items():
+                out.extend(walk(sub, f"{prefix} {name}"))
+        return out
+
+    return walk(build_parser())
+
+
+def test_skill_md_commands_table_covers_the_whole_cli():
+    text = (ROOT / "SKILL.md").read_text()
+    section = text.split("## Commands", 1)[1].split("\n## ", 1)[0]
+    for name in _cli_commands():
+        assert f"`{name}" in section, name
+    assert "not CLI commands" in section
+    for rule in ("`check` →", "`fetch` →", "`rescan` →"):
+        assert rule in section
+    assert "profile diff --against HEAD~1" not in text
+
+
+def test_readme_matches_the_cli_and_lists_engine_files():
+    text = (ROOT / "README.md").read_text()
+    for name in _cli_commands():
+        assert f"compliance-register {name}" in text, name
+    for path in (".last-check", "profile.snapshot.json", "mirror/.private/", ".search-index.json", "MANIFEST.json"):
+        assert path in text, path
