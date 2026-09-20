@@ -12,3 +12,4 @@ packages = ["compliance_register"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
