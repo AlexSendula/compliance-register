@@ -42,7 +42,9 @@ below, and `check` and `fetch` make no request while it does.
   - `eurlex`: `celex` (the base CELEX number of the act, required) and
     `language` (a two-letter EU language code; default `EN`);
   - `pagehash`: `urls` (a list of pages to hash; defaults to `[url]`);
-  - `sitemap`: `include` (a list of URL prefixes to keep; empty keeps all);
+  - `sitemap`: `include` (a list of URL prefixes to keep; empty keeps all —
+    but a listing is capped at 2000 pages and 50 child sitemaps, and `check`
+    says so; set `include` on any site bigger than that);
   - `feed`: nothing.
 - `change_signal`: what tells you it moved — version id, lastmod, feed
   entry, content hash.
