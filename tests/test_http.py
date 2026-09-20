@@ -93,3 +93,19 @@ def test_user_agent_strings():
     from compliance_register import __version__
     assert http.user_agent("default") == (
         f"compliance-register/{__version__} (+https://github.com/AlexSendula/compliance-register; contact: github@alexsendula.com)")
+
+
+@pytest.mark.parametrize("loc", ["https://a.test/y\r\nX-Injected: 1", "https://a.test/y\x00", "https://[::1"])
+def test_hostile_location_is_refused_not_raised(loc):
+    c = client({"https://a.test/x": (301, {"Location": loc}, "")})
+    with pytest.raises(http.HttpRefused):
+        c.get("https://a.test/x", allowed_hosts=["a.test"])
+
+
+def test_server_side_http_exception_is_unreachable():
+    import http.client as hc
+    def broken(req):
+        raise hc.IncompleteRead(b"partial")
+    c = client({"https://a.test/x": broken})
+    with pytest.raises(http.HttpUnreachable):
+        c.get("https://a.test/x", allowed_hosts=["a.test"])

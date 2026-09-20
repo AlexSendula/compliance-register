@@ -5,6 +5,8 @@ unreachable — never as 'no change'. robots.txt is always honoured, per host;
 there is no allowlist (D24)."""
 from __future__ import annotations
 
+import http.client
+import re
 import time
 import urllib.error
 import urllib.request
@@ -17,6 +19,9 @@ from .. import __version__
 MAX_HOPS = 5
 RETRIES = 2
 BACKOFF = (2, 6)
+# what http.client itself refuses in a request target; catching it here keeps a
+# hostile Location a refusal instead of an InvalidURL traceback
+_CONTROL = re.compile(r"[\x00-\x20\x7f]")
 
 _UA = {
     "default": f"compliance-register/{__version__} (+https://github.com/AlexSendula/compliance-register; contact: github@alexsendula.com)",
@@ -112,7 +117,7 @@ class Http:
                     if len(body) > self.max_bytes:
                         raise HttpRefused(f"{url}: body exceeds {self.max_bytes} bytes")
                     return status, {k.title(): v for k, v in headers.items()}, body
-            except (urllib.error.URLError, OSError, TimeoutError) as exc:
+            except (urllib.error.URLError, OSError, TimeoutError, http.client.HTTPException, ValueError) as exc:
                 last_exc = HttpUnreachable(f"{url}: {exc}")
             if attempt < RETRIES:
                 self.sleep(BACKOFF[attempt])
@@ -135,7 +140,13 @@ class Http:
                 loc = headers.get("Location")
                 if not loc:
                     raise HttpRefused(f"{current}: redirect without Location")
-                nxt = urljoin(current, loc)
+                if _CONTROL.search(loc):
+                    raise HttpRefused(f"{current}: redirect target contains control characters")
+                try:
+                    nxt = urljoin(current, loc)
+                    urlsplit(nxt)
+                except ValueError as exc:
+                    raise HttpRefused(f"{current}: unparseable redirect target: {exc}")
                 if urlsplit(current).scheme == "https" and urlsplit(nxt).scheme == "http":
                     raise HttpRefused(f"{current}: refuses https→http downgrade to {nxt}")
                 current = nxt
