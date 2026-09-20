@@ -48,3 +48,23 @@ def test_skill_md_states_eurlex_v1_narrowings():
     assert "never been consolidated" in mirror and "cited by URL" in mirror
     assert "not pre-checked" in mirror and "G1" in mirror and "G2" in mirror
     assert not (ROOT / "references" / "eurlex-language.sparql").exists()
+
+
+# --- pass 5: shipped references and docs carry the method, never the law ---
+
+SHIPPED = [ROOT / "SKILL.md", ROOT / "README.md", *sorted((ROOT / "references").glob("*.md"))]
+_CELEX = re.compile(r"\d{5}[A-Z]{1,2}\d{4}")
+_ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
+_ARTICLE = re.compile(r"\bArt\. ?\d")
+_URL = re.compile(r"https?://")
+
+
+def test_regime_template_ships_placeholders_not_law():
+    text = (ROOT / "references" / "regime-template.md").read_text()
+    assert "id: EXAMPLE" in text and "<verbatim scope clause>" in text and "<Art. N(M)>" in text
+    assert "<jurisdiction>-<short-name>" in text
+    assert "EXAMPLE-001" in text
+    assert not _CELEX.search(text) and not _ISO_DATE.search(text)
+    assert not re.search(r"\bArt\. \d", text)
+    assert "## Obligations" in text and "Rules:" in text
+
