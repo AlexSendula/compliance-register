@@ -1,0 +1,14 @@
+[project]
+name = "compliance-register"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["PyYAML"]
+
+[project.scripts]
+compliance-register = "compliance_register.cli:main"
+
+[tool.setuptools]
+packages = ["compliance_register"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
