@@ -28,7 +28,10 @@ def run(cdir: Path, *, ids: list[str] | None, today: str, client_factory=default
     any_moved = False
     open_kinds = {(e["kind"], e.get("source")) for e in pending.list_open(cdir)}
     for s in chosen:
-        r = adapters.get(s.adapter).check(s, client_factory(s), today=today, cdir=cdir)
+        try:
+            r = adapters.get(s.adapter).check(s, client_factory(s), today=today, cdir=cdir)
+        except Exception as exc:  # one bad source must never abort the run for the rest
+            r = adapters.CheckResult("unreachable", None, f"{type(exc).__name__}: {exc}")
         rep[r.status] += 1
         rep["details"][s.id] = r.detail
         affects = _affects(cdir, s.id)

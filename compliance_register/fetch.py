@@ -25,8 +25,10 @@ def run(cdir: Path, *, ids: list[str] | None, force: bool, today: str, client_fa
             if ids:
                 rep["exit"] = 2
             continue
-        adapter = adapters.get(s.adapter)
-        r = adapter.fetch(s, client_factory(s), cdir, today=today, force=force)
+        try:
+            r = adapters.get(s.adapter).fetch(s, client_factory(s), cdir, today=today, force=force)
+        except Exception as exc:  # one bad source must never abort the run for the rest
+            r = adapters.FetchResult(refused=[f"{type(exc).__name__}: {exc}"])
         rep["written"] += len(r.written)
         rep["skipped"] += r.skipped
         if r.refused:

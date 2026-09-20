@@ -42,10 +42,9 @@ def check(source: Source, client: _http.Http, *, today: str, cdir) -> CheckResul
 
 def fetch(source: Source, client: _http.Http, cdir, *, today: str, force: bool = False) -> FetchResult:
     result = FetchResult()
-    entries = _entries(source, client)
     manifest = store.load_manifest(cdir, source)
     try:
-        for e in entries:
+        for e in _entries(source, client):
             if not force and e["id"] in manifest:
                 result.skipped += 1; continue
             try:
@@ -60,6 +59,8 @@ def fetch(source: Source, client: _http.Http, cdir, *, today: str, force: bool =
             path = store.write_page(cdir, source, rel, {"source_url": e["link"], "title": e["title"], "published": e["published"]}, md, retrieved_at=today)
             manifest[e["id"]] = {"fetched": today, "lastmod": e["published"], "hash": store.content_hash(md), "path": rel, "version": None}
             result.written.append(str(path))
+    except (_http.HttpUnreachable, _http.HttpRefused, ET.ParseError) as exc:
+        result.refused.append(f"listing: {exc}")
     finally:
         store.save_manifest(cdir, source, manifest)
     return result

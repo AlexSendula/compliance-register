@@ -80,3 +80,10 @@ def test_chunk_headings_and_whitespace_on_real_markup():
     assert sorted(arts) == [1, 2, 3]
     assert arts[1].startswith("## Article 1\n\n### Subject matter\n\nThe purpose of this Directive")
     assert "\n \n" not in arts[3] and "\n\n\n" not in arts[3]
+
+
+def test_check_with_missing_config_is_unreachable_not_raised(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    s = src(); s.config = {}
+    r = eurlex.check(s, client(), today="2026-09-20", cdir=cdir)
+    assert r.status == "unreachable" and "celex" in r.detail

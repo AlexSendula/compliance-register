@@ -55,10 +55,9 @@ def check(source: Source, client: _http.Http, *, today: str, cdir) -> CheckResul
 
 def fetch(source: Source, client: _http.Http, cdir, *, today: str, force: bool = False) -> FetchResult:
     result = FetchResult()
-    entries = _entries(source, client)
     manifest = store.load_manifest(cdir, source)
     try:
-        for url, lastmod in entries:
+        for url, lastmod in _entries(source, client):
             if not force and not store.needs_refresh(manifest.get(url), lastmod, None):
                 result.skipped += 1
                 continue
@@ -74,6 +73,8 @@ def fetch(source: Source, client: _http.Http, cdir, *, today: str, force: bool =
             path = store.write_page(cdir, source, rel, {"source_url": url, "lastmod": lastmod}, md, retrieved_at=today)
             manifest[url] = {"fetched": today, "lastmod": lastmod, "hash": store.content_hash(md), "path": rel, "version": None}
             result.written.append(str(path))
+    except (_http.HttpUnreachable, _http.HttpRefused, ET.ParseError) as exc:
+        result.refused.append(f"listing: {exc}")
     finally:
         store.save_manifest(cdir, source, manifest)
     return result

@@ -55,10 +55,13 @@ def resolve(client: _http.Http, celexes: list[str], *, today: str) -> dict:
 
 
 def check(source: Source, client: _http.Http, *, today: str, cdir) -> CheckResult:
-    celex = source.config["celex"]
+    celex = None
     try:
+        celex = source.config["celex"]
         r = resolve(client, [celex], today=today)[celex]
-    except (_http.HttpUnreachable, _http.HttpRefused, KeyError, ValueError) as exc:
+    except KeyError as exc:
+        return CheckResult("unreachable", None, f"config key missing: {exc}")
+    except (_http.HttpUnreachable, _http.HttpRefused, ValueError) as exc:
         return CheckResult("unreachable", None, str(exc))
     if r["current"] is None and source.last_version:
         return CheckResult("unreachable", None, f"{celex}: known instrument returned no consolidation")

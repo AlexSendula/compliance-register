@@ -42,3 +42,10 @@ def test_feed_with_dtd_is_unreachable(project: Path):
     c = client({"https://reg.test/feed.xml": (200, {"Content-Type": "application/rss+xml"}, bomb)})
     r = feed.check(src(), c, today="2026-09-20", cdir=cdir)
     assert r.status == "unreachable" and "DTD" in r.detail
+
+
+def test_fetch_listing_failure_is_refused_not_raised(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    c = client({"https://reg.test/feed.xml": (503, {}, "")})
+    f = feed.fetch(src(), c, cdir, today="2026-09-20")
+    assert f.written == [] and f.refused and "503" in f.refused[0]

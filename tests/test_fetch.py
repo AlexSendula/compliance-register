@@ -18,3 +18,12 @@ def test_fetch_refuses_refuse_tier(project: Path):
     srcs = sources.load(cdir); srcs[0].tier = "refuse"; sources.save(cdir, srcs)
     rep = fetch.run(cdir, ids=["nl-reg"], force=False, today="2026-09-20", client_factory=factory)
     assert rep["refused"] == ["nl-reg"] and rep["exit"] == 2
+
+
+def test_adapter_exception_is_refused_and_run_continues(project: Path, monkeypatch):
+    cdir, factory = setup(project)
+    from compliance_register.mirror.adapters import sitemap
+    monkeypatch.setattr(sitemap, "fetch", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("adapter bug")))
+    rep = fetch.run(cdir, ids=None, force=False, today="2026-09-20", client_factory=factory)
+    assert rep["written"] == 0 and "RuntimeError: adapter bug" in str(rep["details"]["nl-reg"])
+    assert sources.load(cdir)[0].last_fetched is None

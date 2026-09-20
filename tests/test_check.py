@@ -51,3 +51,21 @@ def test_check_adds_profile_stale_once(project: Path):
     check.run(cdir, ids=None, today="2026-09-21", client_factory=factory)
     kinds = [e["kind"] for e in pending.list_open(cdir)]
     assert kinds.count("profile-stale") == 1
+
+
+def test_adapter_exception_is_unreachable_and_run_continues(project: Path, monkeypatch):
+    cdir, factory = setup(project)
+    srcs = sources.load(cdir)
+    srcs.append(sources.Source.from_dict(dict(srcs[0].to_dict(), id="nl-reg-2")))  # same sitemap, second source
+    sources.save(cdir, srcs)
+    from compliance_register.mirror.adapters import sitemap
+    real = sitemap.check
+    def boom(source, client, **kw):
+        if source.id == "nl-reg":
+            raise RuntimeError("adapter bug")
+        return real(source, client, **kw)
+    monkeypatch.setattr(sitemap, "check", boom)
+    rep = check.run(cdir, ids=None, today="2026-09-20", client_factory=factory)
+    assert rep["unreachable"] == 1 and "RuntimeError: adapter bug" in rep["details"]["nl-reg"]
+    assert rep["moved"] == 1  # the second source was still checked
+    assert (cdir / ".last-check").is_file()

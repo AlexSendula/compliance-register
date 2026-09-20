@@ -74,3 +74,11 @@ def test_listing_is_capped_at_5mb(project: Path):
     huge = '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + "<!-- x -->" * 600_000 + "</urlset>"
     c = client({"https://reg.test/sitemap.xml": (200, {"Content-Type": "application/xml"}, huge)})
     assert sitemap.check(src(), c, today="2026-09-20", cdir=cdir).status == "unreachable"
+
+
+def test_fetch_listing_failure_is_refused_and_manifest_still_saved(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    c = client({"https://reg.test/sitemap.xml": (503, {}, "")})
+    f = sitemap.fetch(src(), c, cdir, today="2026-09-20")
+    assert f.written == [] and f.refused and "503" in f.refused[0]
+    assert (store.source_dir(cdir, src()) / store.MANIFEST).is_file()
