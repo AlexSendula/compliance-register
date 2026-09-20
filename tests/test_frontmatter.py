@@ -50,3 +50,11 @@ def test_save_is_atomic(tmp_path: Path):
 def test_dump_keeps_key_order():
     text = fm.dump({"b": 1, "a": 2}, "")
     assert text.index("b: 1") < text.index("a: 2")
+
+
+def test_loads_normalises_dates():
+    import json
+    meta, _ = fm.loads("---\nconfirmed_at: 2026-09-20\nsources:\n  - retrieved: 2026-09-20T10:00:00\n---\n")
+    assert meta["confirmed_at"] == "2026-09-20"
+    assert meta["sources"][0]["retrieved"] == "2026-09-20T10:00:00"
+    json.dumps(meta)

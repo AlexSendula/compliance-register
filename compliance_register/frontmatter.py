@@ -2,6 +2,7 @@
 or writes the block; every other module gets a dict and a body string."""
 from __future__ import annotations
 
+import datetime as dt
 import os
 import tempfile
 from pathlib import Path
@@ -36,7 +37,19 @@ def loads(text: str) -> tuple[dict, str]:
         raise FrontmatterError("frontmatter must be a mapping")
     if body.startswith("\n"):
         body = body[1:]
-    return meta, body
+    return _dates_to_str(meta), body
+
+
+def _dates_to_str(value):
+    """PyYAML resolves unquoted `2026-09-20` to a date; everything downstream
+    compares and json-dumps strings, so normalise here, once."""
+    if isinstance(value, (dt.date, dt.datetime)):
+        return value.isoformat()
+    if isinstance(value, dict):
+        return {k: _dates_to_str(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_dates_to_str(v) for v in value]
+    return value
 
 
 def load(path: Path) -> tuple[dict, str]:
