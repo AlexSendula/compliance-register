@@ -60,10 +60,11 @@ def _kind(rel: str) -> str:
 def _docs(cdir: Path) -> list[tuple[str, Path]]:
     out = []
     for p in sorted(cdir.rglob("*.md")):
-        rel = p.relative_to(cdir).as_posix()
-        if rel.startswith(".") or "/." in rel:
+        # mirror/.private/ is gitignored for committing, not hidden from search;
+        # skip only dot-files (the index itself included)
+        if p.name.startswith("."):
             continue
-        out.append((rel, p))
+        out.append((p.relative_to(cdir).as_posix(), p))
     return out
 
 

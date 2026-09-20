@@ -25,3 +25,19 @@ def test_index_rebuilds_when_file_changes(project: Path):
 
 def test_stop_words_dropped():
     assert "the" not in search.tokenize("the record of the processing")
+
+
+def test_private_mirror_pages_are_searchable(project: Path):
+    """mirror/.private/ is gitignored for committing, not hidden from local use —
+    the non-redistributable sources are the ones most worth quoting."""
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    page = cdir / "mirror" / ".private" / "x" / "y.md"
+    page.parent.mkdir(parents=True)
+    page.write_text("## Terms\nchargeback liability rests with the merchant\n")
+    (cdir / "mirror" / ".hidden.md").write_text("chargeback liability dotfile\n")
+    hits = search.search(cdir, "chargeback liability")
+    assert [h.kind for h in hits] == ["mirror"] and hits[0].path.endswith(".private/x/y.md")
+
+
+def test_tokenize_keeps_accented_words():
+    assert search.tokenize("bescherming persoonsgegevens ćirilica") == ["bescherming", "persoonsgegevens", "ćirilica"]
