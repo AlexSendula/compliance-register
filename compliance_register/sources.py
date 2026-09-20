@@ -13,7 +13,6 @@ from urllib.parse import urlsplit
 FILENAME = "sources.json"
 TIERS = ("api", "sitemap", "feed", "page-hash", "refuse")
 KINDS = ("legislation", "gazette", "regulator", "contract", "standard")
-ROBOTS = ("honour", "allowlist")
 STATUSES = ("proposed", "confirmed", "unresolved")
 FRESHNESS = ("fresh", "unreachable", "moved")
 _DEFAULT_ADAPTER = {"sitemap": "sitemap", "feed": "feed", "page-hash": "pagehash"}
@@ -31,7 +30,6 @@ class Source:
     config: dict = field(default_factory=dict)
     change_signal: str = ""
     licence: dict = field(default_factory=lambda: {"redistribute": False, "attribution": None})
-    robots: str = "honour"
     allowed_hosts: list[str] = field(default_factory=list)
     headers: dict = field(default_factory=lambda: {"user_agent": "default"})
     delay_seconds: int = 10
@@ -69,8 +67,6 @@ def validate(s: Source) -> list[str]:
         p.append(f"{s.id}: api tier needs an explicit adapter (eurlex)")
     if s.kind not in KINDS:
         p.append(f"{s.id}: kind must be one of {KINDS}")
-    if s.robots not in ROBOTS:
-        p.append(f"{s.id}: robots must be one of {ROBOTS}")
     if s.status not in STATUSES:
         p.append(f"{s.id}: status must be one of {STATUSES}")
     if not isinstance(s.licence, dict) or not isinstance(s.licence.get("redistribute"), bool):

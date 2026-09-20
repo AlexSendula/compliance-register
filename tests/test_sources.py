@@ -10,7 +10,7 @@ EURLEX = {
     "tier": "api", "adapter": "eurlex", "config": {"celex": "32016R0679", "language": "EN"},
     "change_signal": "consolidated CELEX suffix",
     "licence": {"redistribute": True, "attribution": "© European Union, 1998-2026, https://eur-lex.europa.eu/"},
-    "robots": "honour", "allowed_hosts": ["eur-lex.europa.eu", "publications.europa.eu"],
+    "allowed_hosts": ["eur-lex.europa.eu", "publications.europa.eu"],
     "headers": {"user_agent": "default"}, "delay_seconds": 10, "status": "confirmed",
     "evidence": ["https://eur-lex.europa.eu/content/legal-notice/legal-notice.html"],
 }
@@ -29,11 +29,16 @@ def test_roundtrip(project: Path):
 
 
 def test_validate_rules():
-    bad = dict(EURLEX, tier="api", adapter=None, licence={"redistribute": "yes"}, robots="ignore")
+    bad = dict(EURLEX, tier="api", adapter=None, licence={"redistribute": "yes"})
     problems = sources.validate(sources.Source.from_dict(bad))
     assert any("adapter" in p for p in problems)
     assert any("redistribute" in p for p in problems)
-    assert any("robots" in p for p in problems)
+
+
+def test_no_robots_field_or_posture():
+    s = sources.Source.from_dict(dict(EURLEX, robots="allowlist"))
+    assert "robots" not in s.to_dict() and not hasattr(sources, "ROBOTS")
+    assert sources.validate(s) == []
 
 
 def test_default_adapter_from_tier():
