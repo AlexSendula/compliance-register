@@ -1,0 +1,9 @@
+PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT ?consolCelex ?lang WHERE {
+  VALUES ?consolCelex { {{VALUES}} }
+  ?c cdm:resource_legal_id_celex ?consolCelex .
+  ?e cdm:expression_belongs_to_work ?c ;
+     cdm:expression_uses_language ?langUri .
+  BIND(REPLACE(STR(?langUri), "^.*/", "") AS ?lang)
+}
