@@ -83,3 +83,23 @@ def test_search_cli(project: Path):
     write(paths.compliance_dir(project), META)
     code, out, _ = run(["search", "record of processing", "--json"], project)
     assert code == 0 and json.loads(out)[0]["path"].endswith("GDPR.md")
+
+
+def test_search_output_escapes_terminal_controls(project: Path):
+    """Escape at sink (docs-mirror ADR-008): a mirrored or hand-written body
+    can carry ESC (repaints the terminal) or U+202E (reverses what is read)."""
+    run(["init"], project)
+    from tests.test_regimes import META, write
+    write(paths.compliance_dir(project), META, body="## Obligations\n\n### GDPR-001 · Records\n- **You must:** keep a record \x1b[2J of processing ‮activities\n- **It says:** Art. 30\n")
+    code, out, _ = run(["search", "record of processing"], project)
+    assert code == 0 and "GDPR.md" in out
+    assert "\x1b" not in out and "‮" not in out
+    assert "\\x1b" in out and "\\u202e" in out
+
+
+def test_pending_output_escapes_terminal_controls(project: Path):
+    run(["init"], project)
+    from compliance_register import pending
+    pending.add(paths.compliance_dir(project), "source-moved", "major", "moved to \x1b[2Jhttps://evil", now="2026-10-01")
+    code, out, _ = run(["pending"], project)
+    assert code == 0 and "\x1b" not in out and "\\x1b[2J" in out

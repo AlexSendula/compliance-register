@@ -6,6 +6,7 @@ import datetime as dt
 from pathlib import Path
 
 from . import pending, profile, regimes
+from .render import printable
 
 LAST_CHECK = ".last-check"
 
@@ -60,5 +61,5 @@ def render(rep: dict) -> str:
         lines.append(f"pending: {pe['unreadable']} unreadable lines")
     lines.append(f"last check: {rep['last_check'] or 'never'}")
     for problem in rep["problems"]:
-        lines.append(f"problem: {problem}")
+        lines.append(f"problem: {printable(str(problem))}")
     return "\n".join(lines) + "\n"

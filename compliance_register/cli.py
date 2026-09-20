@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from . import __version__, frontmatter as fm, paths, pending, profile, regimes, search, sources, status
+from .render import printable
 from . import check as checkmod, fetch as fetchmod, rescan as rescanmod
 
 GITIGNORE_LINE = ".search-index.json"
@@ -57,7 +58,7 @@ def cmd_pending(args) -> int:
         print("no pending changes")
         return 0
     for e in entries:
-        print(f"{e['id']}  {e['severity']:<5}  {e['kind']:<18}  {e['summary']}")
+        print(f"{printable(str(e['id']))}  {printable(str(e['severity'])):<5}  {printable(str(e['kind'])):<18}  {printable(str(e['summary']))}")
     return 0
 
 
@@ -65,12 +66,12 @@ def cmd_resolve(args) -> int:
     try:
         e = pending.resolve(_cdir(), args.id, args.action, by=args.by, note=args.note or "")
     except KeyError:
-        print(f"unknown pending id: {args.id}", file=sys.stderr)
+        print(f"unknown pending id: {printable(args.id)}", file=sys.stderr)
         return 1
     except ValueError as exc:
-        print(str(exc), file=sys.stderr)
+        print(printable(str(exc)), file=sys.stderr)
         return 1
-    print(f"{e['id']} {e['action']} by {e['by']}")
+    print(f"{printable(e['id'])} {e['action']} by {printable(e['by'])}")
     return 0
 
 
@@ -83,7 +84,7 @@ def cmd_search(args) -> int:
         print("no hits — try the source's own vocabulary")
         return 0
     for h in hits:
-        print(f"{h.score:6.2f}  {h.kind:<7}  {h.path}\n        {h.snippet}")
+        print(f"{h.score:6.2f}  {h.kind:<7}  {printable(h.path)}\n        {printable(h.snippet)}")
     return 0
 
 
@@ -94,7 +95,7 @@ def cmd_profile_validate(args) -> int:
         return 1
     problems = profile.validate(p.meta)
     for x in problems:
-        print(x)
+        print(printable(x))
     return 1 if problems else 0
 
 
@@ -127,7 +128,7 @@ def cmd_regimes_validate(args) -> int:
     rs = regimes.load_all(_cdir())
     problems = [f"{r.id}: {x}" for r in rs for x in r.problems]
     for x in problems:
-        print(x)
+        print(printable(x))
     return 1 if problems else 0
 
 
@@ -135,7 +136,7 @@ def cmd_fetch(args) -> int:
     rep = fetchmod.run(_cdir(), ids=args.source or None, force=args.force, today=args.today or _today())
     print(f"written {rep['written']} · skipped {rep['skipped']} · refused {len(rep['refused'])}")
     for sid, d in rep["details"].items():
-        print(f"  {sid}: {d}")
+        print(f"  {printable(sid)}: {printable(str(d))}")
     return rep["exit"]
 
 
@@ -146,7 +147,7 @@ def cmd_check(args) -> int:
     else:
         print(f"fresh {rep['fresh']} · moved {rep['moved']} · unreachable {rep['unreachable']}")
         for sid, d in rep["details"].items():
-            print(f"  {sid}: {d}")
+            print(f"  {printable(sid)}: {printable(str(d))}")
         if rep["moved"] or rep["unreachable"]:
             print("see: compliance-register pending")
     return rep["exit"]
@@ -155,7 +156,7 @@ def cmd_check(args) -> int:
 def cmd_rescan(args) -> int:
     rep = rescanmod.run(_cdir(), today=args.today or _today())
     if rep.get("error"):
-        print(rep["error"], file=sys.stderr); return 1
+        print(printable(str(rep["error"])), file=sys.stderr); return 1
     print(f"changed: {', '.join(rep['changed']) or 'nothing'} · pending entries written: {rep['entries']}")
     return 0
 
@@ -210,11 +211,11 @@ def main(argv: list[str] | None = None) -> int:
     try:
         return args.fn(args)
     except paths.NotAProject as exc:
-        print(f"refused: {exc} — run this inside a project that has a knowledge-base/ directory", file=sys.stderr)
+        print(f"refused: {printable(str(exc))} — run this inside a project that has a knowledge-base/ directory", file=sys.stderr)
         return 2
     except paths.UnsafePath as exc:
-        print(f"refused: {exc}", file=sys.stderr)
+        print(f"refused: {printable(str(exc))}", file=sys.stderr)
         return 2
     except (fm.FrontmatterError, sources.SourcesError) as exc:
-        print(f"error: {exc}", file=sys.stderr)
+        print(f"error: {printable(str(exc))}", file=sys.stderr)
         return 1
