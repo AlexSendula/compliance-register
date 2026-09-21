@@ -49,3 +49,11 @@ def test_fetch_listing_failure_is_refused_not_raised(project: Path):
     c = client({"https://reg.test/feed.xml": (503, {}, "")})
     f = feed.fetch(src(), c, cdir, today="2026-09-20")
     assert f.written == [] and f.refused and "503" in f.refused[0]
+
+
+def test_feed_with_no_usable_entries_is_unreachable_not_fresh(project: Path):
+    """A listing that yields nothing is 'cannot tell', never 'no change' (P4)."""
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    empty = '<rss version="2.0"><channel><title>x</title><item><title>no id, no link</title></item></channel></rss>'
+    r = feed.check(src(), client({"https://reg.test/feed.xml": (200, {"Content-Type": "application/rss+xml"}, empty)}), today="2026-09-20", cdir=cdir)
+    assert r.status == "unreachable" and "no entries" in r.detail

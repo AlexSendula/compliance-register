@@ -117,7 +117,7 @@ def cmd_profile_diff(args) -> int:
     try:
         old = _profile_meta_from(args.against, cdir)
     except subprocess.CalledProcessError as exc:
-        print(exc.stderr.strip() or f"cannot read {args.against}", file=sys.stderr)
+        print(printable(exc.stderr.strip() or f"cannot read {args.against}"), file=sys.stderr)
         return 1
     for slug in profile.diff(old, cur.meta):
         print(slug)

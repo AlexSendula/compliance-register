@@ -185,3 +185,14 @@ def test_corrupt_profile_does_not_deny_the_check_report(project: Path):
     rep = check.run(cdir, ids=None, today="2026-09-20", client_factory=factory)
     assert rep["moved"] == 1 and "unreadable" in rep["details"]["profile.md"]
     assert ("profile-stale", None) not in {(e["kind"], e["source"]) for e in pending.list_open(cdir)}
+
+
+def test_moved_row_records_the_full_changed_count_when_truncated(project: Path):
+    cdir, _ = setup(project)
+    urls = "".join(f"<url><loc>https://reg.test/p{i}</loc><lastmod>2026-09-01</lastmod></url>" for i in range(25))
+    sm = f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>'
+    routes = {"https://reg.test/robots.txt": (404, {}, ""), "https://reg.test/sitemap.xml": (200, {"Content-Type": "application/xml"}, sm)}
+    factory = lambda source: http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=FakeOpener(routes))
+    check.run(cdir, ids=None, today="2026-09-20", client_factory=factory)
+    row = pending.list_open(cdir)[0]
+    assert len(row["changed"]) == 20 and row["changed_total"] == 25

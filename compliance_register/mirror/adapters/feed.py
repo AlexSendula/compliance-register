@@ -34,6 +34,8 @@ def check(source: Source, client: _http.Http, *, today: str, cdir) -> CheckResul
     except (_http.HttpUnreachable, _http.HttpRefused, ET.ParseError) as exc:
         return CheckResult("unreachable", None, str(exc))
     manifest = store.load_manifest(cdir, source)
+    if not entries:  # a listing that yields nothing is "cannot tell", never "no change"
+        return CheckResult("unreachable", None, "feed has no entries with an id and a link")
     new = [e["id"] for e in entries if e["id"] not in manifest]
     if new:
         return CheckResult("moved", None, f"{len(new)} new feed entries", new)

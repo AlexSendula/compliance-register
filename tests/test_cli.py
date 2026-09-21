@@ -128,10 +128,10 @@ def test_profile_diff_ref_is_never_a_git_option(project: Path, monkeypatch):
     seen = {}
     def fake_run(cmd, **kw):
         seen["cmd"] = cmd
-        raise subprocess.CalledProcessError(128, cmd, stderr="fatal: bad revision")
+        raise subprocess.CalledProcessError(128, cmd, stderr="fatal: bad revision \x1b[31mred\x1b[0m")
     monkeypatch.setattr(subprocess, "run", fake_run)
     code, _, err = run(["profile", "diff", "--against=--output=/tmp/x"], project)
-    assert code == 1 and "bad revision" in err
+    assert code == 1 and "bad revision" in err and "\x1b" not in err  # git's stderr is a sink too (P10)
     assert seen["cmd"][:3] == ["git", "show", "--end-of-options"] and seen["cmd"][3].startswith("--output=/tmp/x:")
 
 

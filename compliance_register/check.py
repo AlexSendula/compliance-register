@@ -64,7 +64,7 @@ def run(cdir: Path, *, ids: list[str] | None, today: str, client_factory=default
             any_moved = True
             if ("source-moved", s.id, r.version) not in open_to:
                 pending.add(cdir, "source-moved", "major", r.detail, source=s.id, affects=affects,
-                            extra={"from": s.last_version, "to": r.version, "changed": r.changed[:20]}, now=today)
+                            extra={"from": s.last_version, "to": r.version, "changed": r.changed[:20], "changed_total": len(r.changed)}, now=today)
         elif r.status == "unreachable":
             if ("source-unreachable", s.id) not in open_kinds:
                 pending.add(cdir, "source-unreachable", "info", r.detail, source=s.id, affects=affects, now=today)
