@@ -1,0 +1,1 @@
+{"date": "2026-09-21", "item": "SPEC-001", "paths": ["compliance_register/profile.py"], "reason": "profile.load no longer raises on an unreadable file; spec prose and decision updated to Profile.problems / validate(meta, problems)", "verdict": "amended"}
