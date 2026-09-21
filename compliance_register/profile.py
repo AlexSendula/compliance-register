@@ -4,7 +4,7 @@ The slugs are the dimensions from references/dimensions-checklist.md, in
 order. Questions 1 and 2 come first because they choose the jurisdictions."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from . import frontmatter as fm
@@ -36,6 +36,7 @@ class Profile:
     meta: dict
     body: str
     path: Path
+    problems: list[str] = field(default_factory=list)  # non-empty only when the file could not be read
 
 
 def empty() -> dict:
@@ -50,8 +51,10 @@ def empty() -> dict:
     }
 
 
-def validate(meta: dict) -> list[str]:
-    problems: list[str] = []
+def validate(meta: dict, problems: list[str] | None = None) -> list[str]:
+    problems = list(problems or [])
+    if problems:  # unreadable: nothing below can be judged
+        return problems
     answers = meta.get("answers")
     if not isinstance(answers, dict):
         return ["profile has no answers mapping"]
@@ -91,5 +94,10 @@ def load(cdir: Path) -> Profile | None:
     path = cdir / FILENAME
     if not path.is_file():
         return None
-    meta, body = fm.load(path)
+    try:
+        meta, body = fm.load(path)
+    except (fm.FrontmatterError, OSError, UnicodeDecodeError) as exc:
+        # a poisoned profile.md must not deny status/check to the rest (P9); rescan and
+        # profile validate see the problem through validate() and refuse loudly
+        return Profile(meta={}, body="", path=path, problems=[f"unreadable: {exc}"])
     return Profile(meta=meta, body=body, path=path)

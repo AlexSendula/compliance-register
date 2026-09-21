@@ -64,3 +64,19 @@ def test_invalid_profile_is_refused_with_exit_2(project: Path):
     rep = rescan.run(cdir, today="2026-09-20")
     assert rep["exit"] == 2 and "unanswered" in rep["error"]
     assert not (cdir / "profile.snapshot.json").exists()
+
+
+def test_corrupt_snapshot_is_refused_with_a_message(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    fm.save(cdir / "profile.md", confirmed_profile(), "")
+    (cdir / "profile.snapshot.json").write_text("{not json", encoding="utf-8")
+    rep = rescan.run(cdir, today="2026-09-20")
+    assert rep["exit"] == 1 and "profile.snapshot.json" in rep["error"]
+    assert (cdir / "profile.snapshot.json").read_text() == "{not json"  # never silently reset the baseline
+
+
+def test_corrupt_profile_is_refused_with_a_message(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    (cdir / "profile.md").write_text("---\nanswers: [\n", encoding="utf-8")
+    rep = rescan.run(cdir, today="2026-09-20")
+    assert rep["exit"] == 2 and "unreadable" in rep["error"]

@@ -93,7 +93,7 @@ def cmd_profile_validate(args) -> int:
     if p is None:
         print("no profile.md — run init", file=sys.stderr)
         return 1
-    problems = profile.validate(p.meta)
+    problems = profile.validate(p.meta, p.problems)
     for x in problems:
         print(printable(x))
     return 1 if problems else 0

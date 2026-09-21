@@ -32,7 +32,7 @@ def run(cdir: Path, *, today: str) -> dict:
     p = profile.load(cdir)
     if p is None:
         return {"changed": [], "entries": 0, "error": "no profile.md"}
-    problems = profile.validate(p.meta)
+    problems = profile.validate(p.meta, p.problems)
     if problems:
         return {"changed": [], "entries": 0, "error": "profile does not validate: " + "; ".join(problems), "exit": 2}
     snap_path = cdir / SNAPSHOT
@@ -40,7 +40,16 @@ def run(cdir: Path, *, today: str) -> dict:
     # only confirmed answers count (D7): a proposed value must not advance the baseline
     current = {s: (answers[s].get("value") if answers[s].get("status") == "confirmed" else None) for s in profile.DIMENSIONS}
     first = not snap_path.is_file()
-    previous = json.loads(snap_path.read_text(encoding="utf-8")) if not first else current
+    if first:
+        previous = current
+    else:
+        try:
+            previous = json.loads(snap_path.read_text(encoding="utf-8"))
+            if not isinstance(previous, dict):
+                raise ValueError("not a mapping")
+        except (OSError, UnicodeDecodeError, ValueError) as exc:
+            # refuse by name rather than silently resetting the baseline
+            return {"changed": [], "entries": 0, "error": f"{SNAPSHOT} is unreadable: {exc}", "exit": 1}
     changed = [s for s in profile.DIMENSIONS if previous.get(s) != current.get(s)]
     entries = 0
     if not first:

@@ -7,6 +7,9 @@ HTML = {"Content-Type": "text/html; charset=utf-8"}
 
 
 def client(routes, **kw):
+    # a host with no robots.txt (404) unless the test says otherwise — an unroutable
+    # robots.txt is now "rules unknown", which is unreachable, not "no rules"
+    routes = {"https://a.test/robots.txt": (404, {}, ""), **routes}
     return http.Http(user_agent="t/1", delay_seconds=0, opener=FakeOpener(routes), sleep=lambda s: None, **kw)
 
 
@@ -119,9 +122,9 @@ def test_politeness_clock_is_shared_across_clients():
     a = http.Http(user_agent="t/1", delay_seconds=5, opener=FakeOpener(routes), sleep=slept.append)
     b = http.Http(user_agent="t/1", delay_seconds=5, opener=FakeOpener(routes), sleep=slept.append)
     a.get("https://a.test/1", allowed_hosts=["a.test"])
-    assert slept == []
+    assert slept == [5]  # robots.txt set the clock, the page waited
     b.get("https://a.test/2", allowed_hosts=["a.test"])
-    assert slept == [5]
+    assert slept == [5, 5, 5]  # b's very first request (its robots.txt) waited on a's clock
 
 
 def test_per_call_max_bytes_overrides_client_budget():
@@ -129,3 +132,40 @@ def test_per_call_max_bytes_overrides_client_budget():
     with pytest.raises(http.HttpRefused):
         c.get("https://a.test/x", allowed_hosts=["a.test"], max_bytes=50)
     assert c.get("https://a.test/x", allowed_hosts=["a.test"]).status == 200
+
+
+# --- robots.txt is read the way RFC 9309 says, and against our own name (P8) ---
+
+def test_robots_redirect_is_followed_and_rules_applied():
+    c = client({
+        "https://a.test/robots.txt": (301, {"Location": "https://a.test/r/robots.txt"}, ""),
+        "https://a.test/r/robots.txt": (200, {}, "User-agent: *\nDisallow: /private\n"),
+        "https://a.test/private/x": (200, HTML, "secret"),
+    })
+    with pytest.raises(http.HttpRefused, match="robots"):
+        c.get("https://a.test/private/x", allowed_hosts=["a.test"])
+
+
+def test_robots_5xx_is_unreachable_not_fetched():
+    c = client({"https://a.test/robots.txt": (503, {}, ""), "https://a.test/x": (200, HTML, "ok")})
+    opener = c.opener
+    with pytest.raises(http.HttpUnreachable, match="robots.txt"):
+        c.get("https://a.test/x", allowed_hosts=["a.test"])
+    assert not [r for r in opener.requests if r.full_url == "https://a.test/x"]
+
+
+def test_robots_4xx_means_no_rules():
+    for status in (401, 403, 404, 410):
+        c = client({"https://a.test/robots.txt": (status, {}, ""), "https://a.test/x": (200, HTML, "ok")})
+        assert c.get("https://a.test/x", allowed_hosts=["a.test"]).status == 200
+
+
+def test_robots_disallow_for_our_product_token_holds_under_browser_ua():
+    routes = {
+        "https://a.test/robots.txt": (200, {}, "User-agent: compliance-register\nDisallow: /\n"),
+        "https://a.test/x": (200, HTML, "ok"),
+    }
+    for policy in ("default", "neutral", "browser"):
+        c = http.Http(user_agent=http.user_agent(policy), delay_seconds=0, opener=FakeOpener(routes), sleep=lambda s: None)
+        with pytest.raises(http.HttpRefused, match="robots"):
+            c.get("https://a.test/x", allowed_hosts=["a.test"])

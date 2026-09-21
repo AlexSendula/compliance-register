@@ -36,9 +36,10 @@ def check(source: Source, client: _http.Http, *, today: str, cdir) -> CheckResul
             changed.append(url)
     if unreachable and not changed:
         return CheckResult("unreachable", None, "; ".join(unreachable))
+    tail = ("; unreachable: " + "; ".join(unreachable)) if unreachable else ""
     if changed:
-        return CheckResult("moved", None, f"page-hash tier fetches to compare: {len(changed)} of {len(urls)} changed", changed)
-    return CheckResult("fresh", None, f"page-hash tier fetches to compare: {len(urls)} unchanged")
+        return CheckResult("moved", None, f"page-hash tier fetches to compare: {len(changed)} of {len(urls)} changed{tail}", changed)
+    return CheckResult("fresh", None, f"page-hash tier fetches to compare: {len(urls)} unchanged{tail}")
 
 
 def fetch(source: Source, client: _http.Http, cdir, *, today: str, force: bool = False) -> FetchResult:

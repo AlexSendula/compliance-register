@@ -32,3 +32,16 @@ def test_fetch_then_fresh_then_moved(project: Path):
     r = pagehash.check(src(), client("<p>v2 changed</p>"), today="2026-09-22", cdir=cdir)
     assert r.status == "moved" and r.changed == ["https://psp.test/terms"]
     assert "fetches" in r.detail
+
+
+def test_check_names_unreachable_urls_even_when_another_changed(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    pagehash.fetch(src(), client(), cdir, today="2026-09-20")
+    c = http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=FakeOpener({
+        "https://psp.test/robots.txt": (404, {}, ""),
+        "https://psp.test/terms": (200, HTML, "<html><body><p>v2</p></body></html>"),
+        "https://psp.test/dpa": (503, {}, ""),
+    }))
+    r = pagehash.check(src(), c, today="2026-09-22", cdir=cdir)
+    assert r.status == "moved" and r.changed == ["https://psp.test/terms"]
+    assert "https://psp.test/dpa" in r.detail and "503" in r.detail

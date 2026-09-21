@@ -27,7 +27,7 @@ def report(cdir: Path, today: str | None = None) -> dict:
     if p is not None:
         prof = {
             "present": True,
-            "problems": profile.validate(p.meta),
+            "problems": profile.validate(p.meta, p.problems),
             "confirmed_at": p.meta.get("confirmed_at"),
             "age_days": _age_days(p.meta.get("confirmed_at"), today),
         }
@@ -53,6 +53,8 @@ def render(rep: dict) -> str:
         age = f"{p['age_days']} days old" if p["age_days"] is not None else "not yet confirmed"
         state = "valid" if not p["problems"] else f"{len(p['problems'])} problem(s)"
         lines.append(f"profile: {state}, {age}")
+        for problem in p["problems"]:
+            lines.append(f"profile: {printable(str(problem))}")
     lines.append(
         f"regimes: {r['binds']} bind · {r['ruled_out']} ruled out · "
         f"{r['undetermined']} undetermined · {r['no_longer_applies']} no longer apply"

@@ -165,12 +165,23 @@ def test_oversized_csv_field_in_resolve_is_unreachable_and_run_completes(project
     assert rep["exit"] == 1 and "Error" in str(rep["details"]["eu-eurlex-32011L0083"])
 
 
-def test_robots_opener_raising_is_no_robots_file_and_run_completes(project: Path):
+def test_robots_opener_raising_is_unreachable_and_run_completes(project: Path):
+    """RFC 9309 §2.3.1.4: robots.txt we could not read means complete disallow —
+    the source is unreachable, never fetched-anyway (P4, P8)."""
     from tests.test_adapter_eurlex import sparql_route
     from compliance_register.mirror.adapters import eurlex
     def boom(request):
         raise ValueError("Port could not be cast to integer value")
     cdir, factory = _eurlex_project(project, {"https://publications.europa.eu/robots.txt": boom, eurlex.SPARQL + "*": sparql_route})
     rep = check.run(cdir, ids=None, today="2026-09-20", client_factory=factory)
-    assert rep["moved"] == 1 and rep["unreachable"] == 0
+    assert rep["unreachable"] == 1 and rep["moved"] == 0 and "robots.txt" in rep["details"]["eu-eurlex-32011L0083"]
     assert sources.load(cdir)[0].last_checked == "2026-09-20" and (cdir / ".last-check").is_file()
+
+
+def test_corrupt_profile_does_not_deny_the_check_report(project: Path):
+    """A poisoned profile.md must not swallow the check report after every source was queried (P9)."""
+    cdir, factory = setup(project)
+    (cdir / "profile.md").write_text("---\nanswers: [\n", encoding="utf-8")
+    rep = check.run(cdir, ids=None, today="2026-09-20", client_factory=factory)
+    assert rep["moved"] == 1 and "unreadable" in rep["details"]["profile.md"]
+    assert ("profile-stale", None) not in {(e["kind"], e["source"]) for e in pending.list_open(cdir)}

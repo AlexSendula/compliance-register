@@ -40,3 +40,12 @@ def test_non_iso_confirmed_at_is_no_age_not_a_traceback(project: Path):
     fm.save(cdir / "profile.md", meta, "")
     rep = status.report(cdir, today="2026-09-20")
     assert rep["profile"]["age_days"] is None and "not yet confirmed" in status.render(rep)
+
+
+def test_corrupt_profile_is_a_problem_not_an_abort(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    (cdir / "profile.md").write_text("---\nanswers: [\n", encoding="utf-8")
+    rep = status.report(cdir, today="2026-09-20")
+    assert rep["profile"]["present"] is True
+    assert any("unreadable" in p for p in rep["profile"]["problems"])
+    assert "unreadable" in status.render(rep)

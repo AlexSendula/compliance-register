@@ -76,7 +76,8 @@ class Http:
         self.max_bytes = max_bytes
         self.opener = opener or _default_opener
         self.sleep = sleep
-        self._robots: dict[str, urllib.robotparser.RobotFileParser | None] = {}
+        # per host: parsed rules, None (no robots.txt), or the error that made the rules unknowable
+        self._robots: dict[str, urllib.robotparser.RobotFileParser | HttpUnreachable | None] = {}
 
     # --- politeness ---------------------------------------------------
     def _wait(self, host: str) -> None:
@@ -86,24 +87,36 @@ class Http:
         _LAST_BY_HOST[host] = time.monotonic()
 
     # --- robots -------------------------------------------------------
-    def _allowed_by_robots(self, url: str) -> bool:
+    def _allowed_by_robots(self, url: str, allowed_hosts: list[str]) -> bool:
+        """RFC 9309: follow redirects to the file; 4xx means no rules; 5xx or a
+        network failure means the rules are unknown, so the host is unreachable
+        for us — never fetched anyway. The rules are evaluated against our own
+        product token as well as the User-Agent actually presented, so a site
+        that names compliance-register is honoured under every UA policy."""
         parts = urlsplit(url)
         host = parts.hostname or ""
         if host not in self._robots:
-            rp = urllib.robotparser.RobotFileParser()
             authority = f"{host}:{parts.port}" if parts.port else host
             robots_url = f"{parts.scheme}://{authority}/robots.txt"
             try:
-                status, headers, reader = self.opener(urllib.request.Request(robots_url, headers={"User-Agent": self.ua}), self.timeout)
-                if status == 200:
-                    rp.parse(reader.read(200_000).decode("utf-8", "replace").splitlines())
+                resp = self._follow(robots_url, allowed_hosts=allowed_hosts, budget=200_000, robots=False)
+            except (HttpRefused, HttpUnreachable) as exc:  # a refused redirect or budget leaves the rules just as unknown
+                self._robots[host] = HttpUnreachable(f"robots.txt unreadable, rules unknown: {exc}")
+            else:
+                if 200 <= resp.status < 300:
+                    rp = urllib.robotparser.RobotFileParser()
+                    rp.parse(resp.body.decode("utf-8", "replace").splitlines())
                     self._robots[host] = rp
-                else:
+                elif 400 <= resp.status < 500:
                     self._robots[host] = None
-            except Exception:  # unreadable robots.txt (network, bad status line, odd port) counts as no robots file
-                self._robots[host] = None
+                else:
+                    self._robots[host] = HttpUnreachable(f"robots.txt unreadable, rules unknown: {robots_url}: HTTP {resp.status}")
         rp = self._robots[host]
-        return True if rp is None else rp.can_fetch(self.ua, url)
+        if isinstance(rp, Exception):
+            raise rp
+        if rp is None:
+            return True
+        return rp.can_fetch(_UA["default"], url) and rp.can_fetch(self.ua, url)
 
     # --- one hop ------------------------------------------------------
     def _once(self, url: str, max_bytes: int) -> tuple[int, dict, bytes]:
@@ -129,6 +142,10 @@ class Http:
     def get(self, url: str, *, allowed_hosts: list[str], max_bytes: int | None = None) -> Response:
         """max_bytes caps this call's body below the client budget (listings)."""
         budget = self.max_bytes if max_bytes is None else min(max_bytes, self.max_bytes)
+        return self._follow(url, allowed_hosts=allowed_hosts, budget=budget, robots=True)
+
+    def _follow(self, url: str, *, allowed_hosts: list[str], budget: int, robots: bool) -> Response:
+        """Every hop is judged before it is taken; robots=False only for robots.txt itself."""
         current = url
         for _ in range(MAX_HOPS + 1):
             parts = urlsplit(current)
@@ -136,7 +153,7 @@ class Http:
                 raise HttpRefused(f"{current}: scheme not allowed")
             if parts.hostname not in allowed_hosts:
                 raise HttpRefused(f"{current}: host {parts.hostname} not in allowed_hosts {allowed_hosts}")
-            if not self._allowed_by_robots(current):
+            if robots and not self._allowed_by_robots(current, allowed_hosts):
                 raise HttpRefused(f"{current}: disallowed by robots.txt")
             self._wait(parts.hostname or "")
             status, headers, body = self._once(current, budget)

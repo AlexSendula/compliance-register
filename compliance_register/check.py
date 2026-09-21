@@ -81,6 +81,9 @@ def run(cdir: Path, *, ids: list[str] | None, today: str, client_factory=default
     _date_passed(cdir, today)
     (cdir / LAST_CHECK).write_text(f"{today}T{dt.datetime.now(dt.timezone.utc).strftime('%H:%M:%SZ')}\n", encoding="utf-8")
     p = profile.load(cdir)
+    if p is not None and p.problems:
+        rep["details"]["profile.md"] = "; ".join(p.problems)
+        p = None
     if any_moved and p is not None and ("profile-stale", None) not in open_kinds:
         confirmed = str(p.meta.get("confirmed_at") or "")
         if not confirmed or confirmed < today:
