@@ -17,7 +17,7 @@ license: MIT
 compatibility: Requires Python 3.12+ and PyYAML. No network needed except for fetch and check.
 metadata:
   author: AlexSendula
-  version: "0.1.0"
+  version: "1.0.0"
 ---
 
 # Compliance register
