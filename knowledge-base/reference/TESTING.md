@@ -1,10 +1,10 @@
 # Testing Guide
 
-> Last updated: 2026-09-20
+> Last updated: 2026-09-21
 
 ## Overview
 
-The suite is **200 pytest tests, no network, under half a second** (`python3 -m pytest -q` → `200 passed in 0.46s`). Every HTTP call goes through an injected opener, every clock through an injected `today`, every sleep through an injected callable, and every project through a `tmp_path`. Nothing in `tests/` reaches the internet, reads the real date, or touches a real project.
+The suite is **307 pytest tests, no network, no DNS, under a second** (`python3 -m pytest -q` → `307 passed in 0.7s`). Every HTTP call goes through an injected opener, every clock through an injected `today`, every sleep through an injected callable, and every project through a `tmp_path`. Nothing in `tests/` reaches the internet, reads the real date, or touches a real project.
 
 Two things are deliberately outside the suite: live endpoints (EUR-Lex CELLAR, regulator sitemaps, real `robots.txt`) and the agent-driven Discover stage. Both are covered by the supervised first trial on viva-croatia, not by pytest — see "What is not tested".
 
@@ -54,23 +54,34 @@ tests/
 
 | File | Tests | Exercises |
 |------|-------|-----------|
+| `test_http.py` | 53 | redirects per hop, budget, retries, robots per RFC 9309, politeness clock, hostile `Location`, per-hop resolution (SEC-003) |
+| `test_cli.py` | 26 | every subcommand in-process; exit codes; messages; escape-at-sink on `search`, `pending` and `resolve` output |
+| `test_adapter_eurlex.py` | 23 | SPARQL resolve, CELLAR content negotiation, guards G1–G5, per-article chunking, basket chunking, skip on unchanged version |
 | `test_htmlmd.py` | 23 | HTML→markdown on real EUR-Lex markup (carried over from docs-mirror) |
-| `test_sources.py` | 20 | `sources.json` schema, validation, `Source` round-trip |
-| `test_http.py` | 17 | redirects per hop, budget, retries, robots, politeness clock, hostile `Location` |
-| `test_adapter_eurlex.py` | 15 | SPARQL resolve, dated CELEX change signal, guards G1–G5, per-article chunking, one query per basket |
-| `test_cli.py` | 14 | every subcommand in-process; exit codes; escape-at-sink on `search` and `pending` output |
-| `test_check.py` | 14 | three-valued freshness, `affects`, dedup of open pending entries, `--today` |
-| `test_skill_md.py` | 12 | Agent Skills spec conformance; no law fact or source address in shipped docs |
-| `test_paths.py` | 12 | project detection, `knowledge-base/compliance/` layout |
-| `test_adapter_sitemap.py` | 9 | sitemap tier with `include` prefixes, MANIFEST.json |
-| `test_store.py` | 8 | public vs `.private/` store, provenance frontmatter, manifest |
-| `test_profile.py` / `test_rescan.py` | 7 / 5 | 15-dimension profile, snapshot + drift → pending |
-| `test_search.py` / `test_pending.py` / `test_regimes.py` / `test_frontmatter.py` / `test_fetch.py` / `test_status.py` | 6 / 5 / 5 / 6 / 6 / 3 | the remaining modules |
+| `test_sources.py` | 21 | `sources.json` schema, validation, `Source` round-trip |
+| `test_check.py` | 17 | three-valued freshness, `affects`, dedup of open pending entries, `--today`, refuse-tier exclusion |
+| `test_skill_md.py` | 16 | Agent Skills spec conformance; no law fact or source address in shipped docs; version identical in four places; references consistency |
+| `test_paths.py` | 14 | project detection, containment incl. symlinks, `safe_component` limits |
+| `test_adapter_sitemap.py` | 12 | sitemap tier with `include` prefixes, caps, no page bodies on check, `--force`, HTML-listing message |
+| `test_store.py` | 12 | public vs `.private/` store, provenance frontmatter, manifest, unsafe ids |
+| `test_profile.py` | 10 | 15-dimension profile, validate rules, diff |
+| `test_rescan.py` | 9 | snapshot + drift → pending, refusals |
+| `test_search.py` | 9 | BM25, tokenizer, `--kind`, index rebuild |
+| `test_fetch.py` | 8 | fetch command: refusals, `--force`, refuse tier |
+| `test_frontmatter.py` | 8 | YAML block edge cases, atomic save, dates |
+| `test_regimes.py` | 8 | regime frontmatter and obligation rules |
+| `test_adapter_feed.py` | 7 | RSS and Atom, guid fallback, non-HTML entries, empty listing |
+| `test_pending.py` | 6 | append-only logs, ids, resolve errors |
 | `test_poisoned_files_do_not_brick.py` | 6 | see below |
-| `test_adapter_feed.py` / `test_adapter_pagehash.py` | 3 / 1 | feed and page-hash tiers |
-| `test_launcher.py` / `test_preflight.py` | 2 / 1 | launcher and prerequisites |
+| `test_adapter_pagehash.py` | 5 | page-hash tier: `.private/`, unreachable, not-html, url fallback |
+| `test_launcher.py` | 5 | launcher: version, executable bit, cannot-start listing, old-Python guard |
+| `test_status.py` | 5 | counts, age, unreadable lines, corrupt profile |
+| `test_preflight.py` | 2 | prerequisites: CA store, PyYAML |
+| `test_render.py` | 2 | `printable` identity and mnemonics |
 
 ## The no-network rule
+
+**No DNS either.** `tests/conftest.py` stubs `mirror.http.resolve` for every test to answer a public address, so the SEC-003 per-hop resolution check never touches a resolver; a test that wants a private answer passes `Http(resolver=…)`, and the one test that resolves a real name uses `localhost` (no network) after `monkeypatch.undo()`.
 
 `Http.__init__` takes `opener` and `sleep` as keyword arguments and defaults them to `urllib` and `time.sleep` (`compliance_register/mirror/http.py:71-78`). `check.run` and `fetch.run` take a `client_factory` that defaults to a real client built from the source's headers and delay (`compliance_register/check.py:37`, `compliance_register/fetch.py:10-17`). Tests replace both seams; nothing else is patched for HTTP.
 

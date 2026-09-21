@@ -62,9 +62,16 @@ behaviors:
     locator: tests/test_check.py::test_oversized_csv_field_in_resolve_is_unreachable_and_run_completes
   - behavior_id: BEH-110
     title: "prefetch returns {} when no eurlex source is chosen and makes no request"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_adapter_eurlex.py::test_prefetch_returns_empty_when_no_eurlex_source_is_chosen_and_makes_no_request
+  - behavior_id: BEH-296
+    title: "an HTML page served as a listing is named as such, not as a DTD"
+    state: accepted
+    level: unit
+    adapter: pytest
+    locator: tests/test_adapter_sitemap.py::test_html_served_as_a_listing_is_named_as_such
 ---
 
 # Adapter contract, registry and shared guards
@@ -96,7 +103,8 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-107 prefetch resolves the whole eurlex basket with one SPARQL request and feeds check() and fetch() | accepted | `tests/test_adapter_eurlex.py::test_prefetch_resolves_whole_basket_in_one_request` |
 | BEH-108 a failed prefetch surfaces per source as unreachable/refused, never raised | accepted | `tests/test_adapter_eurlex.py::test_prefetch_failure_is_unreachable_per_source_not_raised` |
 | BEH-109 an oversized CSV field (csv.Error) inside prefetch is unreachable and the run still writes .last-check | accepted | `tests/test_check.py::test_oversized_csv_field_in_resolve_is_unreachable_and_run_completes` |
-| BEH-110 prefetch returns {} when no eurlex source is chosen and makes no request | confirmed | — (test owed) |
+| BEH-110 prefetch returns {} when no eurlex source is chosen and makes no request | accepted | `tests/test_adapter_eurlex.py::test_prefetch_returns_empty_when_no_eurlex_source_is_chosen_and_makes_no_request` |
+| BEH-296 an HTML page served as a listing is named as such, not as a DTD | accepted | `tests/test_adapter_sitemap.py::test_html_served_as_a_listing_is_named_as_such` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -145,3 +153,5 @@ Design Decisions** below, not here.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Inferred from code, tests and design repo (D21, D29); certainty 91 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | parse_xml names an HTML page served as a listing (bot challenge / error page as 200) before the DTD check; BEH-296 added | nieuwbouw-tracker trial review |
+| 2026-09-21 | Tests written for BEH-110; promoted confirmed → accepted | tests owed |

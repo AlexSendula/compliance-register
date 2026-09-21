@@ -48,3 +48,11 @@ def test_ids_continue_from_max_id_not_line_count(project: Path):
     (cdir / "pending.jsonl").write_text(json.dumps(a) + "\n")
     c = pending.add(cdir, "regime-new", "info", "c", now="2026-10-03")
     assert c["id"] == "chg-0003" and [e["id"] for e in pending.list_open(cdir)] == ["chg-0001", "chg-0003"]
+
+
+def test_resolve_raises_keyerror_for_an_id_that_is_not_in_pending_jsonl(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    pending.add(cdir, "regime-new", "info", "x", now="2026-10-01")
+    with pytest.raises(KeyError):
+        pending.resolve(cdir, "chg-0002", "applied", by="A", now="2026-10-02")
+    assert not (cdir / "resolutions.jsonl").exists()

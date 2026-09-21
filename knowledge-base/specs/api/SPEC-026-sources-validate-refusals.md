@@ -126,11 +126,11 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 ### Private, loopback, link-local, reserved and unspecified addresses are refused in allowed_hosts
 
-**Decision**: `_is_private_host` rejects `localhost` and any `ipaddress` that is loopback/private/link_local/reserved/unspecified; public IPs and hostnames pass.
+**Decision**: `mirror.http.is_private_host` (shared with the per-hop resolution check) rejects `localhost` and any `ipaddress` literal that is not globally routable or is multicast; public IPs and hostnames pass here.
 
-**Rationale**: `allowed_hosts` bounds where redirects may go; without this rule a `sources.json` entry could steer a fetch at a metadata service or a local daemon. Hostnames that resolve to private IPs are not resolved here (no DNS in validate); that is the http layer's concern.
+**Rationale**: `allowed_hosts` bounds where redirects may go; without this rule a `sources.json` entry could steer a fetch at a metadata service or a local daemon. Hostnames are not resolved here (no DNS in validate, which stays offline); `Http` resolves every hop before the request and applies the same test to the answers (SPEC-007, SEC-003).
 
-**Security Scan Note**: This is the SSRF mitigation at the configuration boundary. A finding that "hostnames are not resolved before the check" should be assessed against `compliance_register/mirror/http.py`, not here.
+**Security Scan Note**: This is the SSRF mitigation at the configuration boundary. Hostnames are resolved and checked in `compliance_register/mirror/http.py` (`_refuse_private_resolution`), not here.
 
 ### Only https origin URLs are accepted
 
@@ -182,3 +182,5 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
 | 2026-09-20 | `config.language` is a two-letter key of `eurlex.LANG3`, not a three-letter code | Cross-check against `sources.validate` and `references/method-discover-sources.md` |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | `_is_private_host` moved to `mirror.http.is_private_host`, reused by the robots.txt redirect path | nieuwbouw-tracker trial review |
+| 2026-09-21 | is_private_host is now not-global-or-multicast; hostname resolution happens per hop in Http (SEC-003) | security finding SEC-003 |

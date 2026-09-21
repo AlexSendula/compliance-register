@@ -42,14 +42,16 @@ behaviors:
     locator: tests/test_regimes.py::test_validate_ruled_out_needs_reason_and_no_obligations
   - behavior_id: BEH-015
     title: "validate requires applies.quote and applies.cite when status is binds"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_regimes.py::test_validate_requires_applies_quote_and_cite_when_status_is_binds
   - behavior_id: BEH-016
     title: "validate reports duplicate obligation ids and bullet keys outside the six known ones"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_regimes.py::test_validate_reports_duplicate_obligation_ids_and_bullet_keys_outside_the_six_known_ones
   - behavior_id: BEH-017
     title: "counts returns per-status totals plus obligations and obligations_unclear (missing You must or It says)"
     state: accepted
@@ -76,14 +78,16 @@ behaviors:
     locator: tests/test_poisoned_files_do_not_brick.py::test_regime_with_wrong_shaped_sources_and_applies_is_reported_not_fatal
   - behavior_id: BEH-021
     title: "load_all returns an empty list when regimes/ does not exist"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_regimes.py::test_load_all_returns_an_empty_list_when_regimes_does_not_exist
   - behavior_id: BEH-022
     title: "`regimes validate` prints `<id>: <problem>` lines and exits 1 when any regime has problems"
-    state: confirmed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
+    locator: tests/test_cli.py::test_regimes_validate_prints_id_problem_lines_and_exits_1_when_any_regime_has_problems
 ---
 
 # Regimes: one file per regime, frontmatter validation, obligation parsing and counts
@@ -115,14 +119,14 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-012 load_all parses `### ID · title` headings and `- **Key:** value` bullets into obligations with id, title and fields | accepted | `tests/test_regimes.py::test_load_all_parses_obligations` |
 | BEH-013 validate reports each missing required key and a status outside the four allowed values | accepted | `tests/test_regimes.py::test_validate_requires_fields` |
 | BEH-014 validate requires exempt.reason and forbids obligations when status is ruled-out | accepted | `tests/test_regimes.py::test_validate_ruled_out_needs_reason_and_no_obligations` |
-| BEH-015 validate requires applies.quote and applies.cite when status is binds | confirmed | — (test owed) |
-| BEH-016 validate reports duplicate obligation ids and bullet keys outside the six known ones | confirmed | — (test owed) |
+| BEH-015 validate requires applies.quote and applies.cite when status is binds | accepted | `tests/test_regimes.py::test_validate_requires_applies_quote_and_cite_when_status_is_binds` |
+| BEH-016 validate reports duplicate obligation ids and bullet keys outside the six known ones | accepted | `tests/test_regimes.py::test_validate_reports_duplicate_obligation_ids_and_bullet_keys_outside_the_six_known_ones` |
 | BEH-017 counts returns per-status totals plus obligations and obligations_unclear (missing You must or It says) | accepted | `tests/test_regimes.py::test_counts` |
 | BEH-018 a file whose stem differs from its frontmatter id gets a filename problem | accepted | `tests/test_regimes.py::test_filename_must_match_id` |
 | BEH-019 a regime file with unterminated or invalid frontmatter becomes a placeholder row with an unreadable problem while sibling files load normally | accepted | `tests/test_poisoned_files_do_not_brick.py::test_regime_with_bad_frontmatter_is_reported_not_fatal` |
 | BEH-020 a regime whose sources, applies or exempt are not the expected shape is reported as problems and still counted | accepted | `tests/test_poisoned_files_do_not_brick.py::test_regime_with_wrong_shaped_sources_and_applies_is_reported_not_fatal` |
-| BEH-021 load_all returns an empty list when regimes/ does not exist | confirmed | — (test owed) |
-| BEH-022 `regimes validate` prints `<id>: <problem>` lines and exits 1 when any regime has problems | confirmed | — (test owed) |
+| BEH-021 load_all returns an empty list when regimes/ does not exist | accepted | `tests/test_regimes.py::test_load_all_returns_an_empty_list_when_regimes_does_not_exist` |
+| BEH-022 `regimes validate` prints `<id>: <problem>` lines and exits 1 when any regime has problems | accepted | `tests/test_cli.py::test_regimes_validate_prints_id_problem_lines_and_exits_1_when_any_regime_has_problems` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -186,3 +190,4 @@ Design Decisions** below, not here.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan; certainty 91 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-015, BEH-016, BEH-021, BEH-022; promoted confirmed → accepted | tests owed |

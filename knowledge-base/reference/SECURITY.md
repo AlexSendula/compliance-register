@@ -1,6 +1,6 @@
 # Security
 
-> Last updated: 2026-09-20
+> Last updated: 2026-09-21
 
 ## Overview
 
@@ -37,14 +37,14 @@ flowchart LR
 
 | Threat | Control | Where |
 |---|---|---|
-| SSRF to loopback / private / link-local addresses | `allowed_hosts` refused when `localhost` or an IP literal that is loopback, private, link-local, reserved or unspecified; `url` must be `https` | `compliance_register/sources.py:86-93`, `:118-125` |
+| SSRF to loopback / private / link-local addresses | `allowed_hosts` refused when `localhost` or an IP literal that is not globally routable; `url` must be `https`; and every hop is resolved before the request and refused if any answer is not globally routable (loopback, RFC 1918, link-local, CGNAT, IPv4-mapped, reserved, multicast) — `localtest.me` and `127.0.0.1.nip.io` are refused before a byte is sent | `compliance_register/sources.py:86-93`, `compliance_register/mirror/http.py:71-96`, `:200-226` |
 | Redirect to another host, or to a private host, mid-chain | Every hop is re-checked: scheme must be `https` (plaintext `http` is refused even when a listing or `config.urls` names it), hostname must be in `allowed_hosts`, robots.txt re-consulted; `allowed_hosts` defaults to the source URL's host and a bare string is wrapped so it is never a substring test | `compliance_register/mirror/http.py:147-157`, `compliance_register/sources.py:57-61` |
-| TLS downgrade via redirect | `https` → `http` hop is refused | `compliance_register/mirror/http.py:154-155` |
+| TLS downgrade via redirect | an `http://` Location is rewritten to `https://` before the hop; no request ever goes out in the clear (`test_http_redirect_is_upgraded_to_https_and_never_requested_in_the_clear`) | `compliance_register/mirror/http.py:249-251` |
 | Redirect loop / hostile `Location` | `MAX_HOPS = 5`; control characters in `Location` refused; unparseable target refused (a refusal, not an `InvalidURL` traceback) | `compliance_register/mirror/http.py:19`, `:143-159` |
 | Memory exhaustion from a huge body | Body read as `max_bytes + 1` and refused when over budget; client default 20 MB, listings (sitemap/feed) capped at 5 MB, robots.txt at 200 KB | `compliance_register/mirror/http.py:131-133`, `:72`, `:102`; `compliance_register/mirror/adapters/__init__.py:10` |
 | Hanging connection | 30 s timeout per request | `compliance_register/mirror/http.py:71`, `:114` |
 | Hammering a host / being throttled | Process-wide per-host politeness clock (default 10 s between requests, shared across clients); `429` and `5xx` retried twice with 2 s / 6 s backoff, then reported `unreachable` — never "no change" | `compliance_register/mirror/http.py:25-27`, `:82-86`, `:112-126` |
-| Crawling where the site forbids it | robots.txt fetched once per host through the guarded hop loop (redirects followed, 4xx = no rules, 5xx/unreachable = host unreachable, never fetched anyway) and evaluated against both our product token and the request's User-Agent; no allowlist, no bypass switch (design repo, D24; RFC 9309) | `compliance_register/mirror/http.py:90-119`, `:156-157`; `tests/test_http.py:65` |
+| Crawling where the site forbids it | robots.txt fetched once per host through the guarded hop loop (redirects followed, even to another public host — never a private one; 4xx = no rules, 5xx/unreachable = host unreachable, never fetched anyway), matched per RFC 9309 (longest pattern, allow on tie) and evaluated against both our product token and the request's User-Agent; no allowlist, no bypass switch (design repo, D24; RFC 9309) | `compliance_register/mirror/http.py:87-130`, `:160-189`; `tests/test_http.py:65` |
 | Fan-out from one sitemap index | At most 50 child sitemaps and 2000 pages; the cap is reported in the result, not silently applied | `compliance_register/mirror/adapters/sitemap.py:13-14`, `:30-43` |
 | XXE / entity expansion in a sitemap or feed | `<!DOCTYPE` in the first 4 KB or `<!ENTITY` anywhere is refused before `ET.fromstring` runs | `compliance_register/mirror/adapters/__init__.py:53-59` |
 | SPARQL injection through `config.celex` | CELEX must match `\d{5}[A-Z]{1,2}\d{4}` at validation, before any request; only then is it interpolated into the query template | `compliance_register/sources.py:94-98`, `compliance_register/mirror/adapters/eurlex.py:24`, `:31-33` |
@@ -85,7 +85,8 @@ One runtime dependency, PyYAML, used only through its safe API. TLS verification
 
 ## Known limitations
 
-- **DNS-resolved private addresses are not caught.** `_is_private_host` inspects `localhost` and IP literals only (`compliance_register/sources.py:118-125`); a public hostname that resolves to a private IP, or rebinds between robots.txt and the page fetch, passes validation. `sources.json` is human-confirmed input in a committed file, which is the mitigation today.
+- **Resolve-then-connect window (TTL-0 rebinding).** Every hop is resolved and vetted (`compliance_register/mirror/http.py:200-226`), but urllib resolves again to connect; a name answering public then private between the two lookups reaches the private address at the TCP/TLS level. Not practically exploitable: the client is https-only with certificate verification, so the private target must present a certificate valid for the confirmed name before any HTTP is sent. Pinning the connection to the vetted address would close it.
+- **Proxy environments are out of scope.** urllib honours `https_proxy`; the resolution check assumes direct DNS and direct connections. Behind a mandatory proxy the tool reports names it cannot resolve locally as unreachable.
 - **Per-source User-Agent policy.** `headers.user_agent` may select `neutral` (curl) or `browser` (Firefox) strings (`compliance_register/mirror/http.py:29-33`); robots.txt is evaluated against that string *and* against our own product token, so a site that names `compliance-register` is honoured under every policy. The default discloses; a human choosing otherwise is on record in `sources.json`.
 - **Mirrored text is data an agent will read.** Nothing in the tool stops an agent from following instructions embedded in a fetched page. `printable` protects the terminal, not the reader.
 - **Redirect budget is per `get`, not per run.** A listing with thousands of redirecting entries costs a request each, bounded only by the page caps and the politeness clock.

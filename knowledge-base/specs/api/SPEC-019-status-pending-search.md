@@ -64,9 +64,10 @@ behaviors:
     locator: tests/test_poisoned_files_do_not_brick.py::test_pending_skips_unreadable_lines_and_status_counts_them
   - behavior_id: BEH-186
     title: 'pending prints ''no pending changes'' and search prints the ''no hits'' hint on empty results, both exit 0'
-    state: confirmed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
+    locator: tests/test_cli.py::test_pending_prints_no_pending_changes_and_search_prints_the_no_hits_hint_on_empty_results_both_exit_0
 ---
 
 # status, pending, search: read-only reports with --json raw and text escaped
@@ -102,7 +103,7 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-183 search --json returns hits whose path ends with the matching regime file | accepted | `tests/test_cli.py::test_search_cli` |
 | BEH-184 search text output escapes ESC and U+202E found in a regime body as \x1b and \u202e | accepted | `tests/test_cli.py::test_search_output_escapes_terminal_controls` |
 | BEH-185 status text mode prints 'pending: N unreadable lines' when pending.jsonl has corrupt rows | accepted | `tests/test_poisoned_files_do_not_brick.py::test_pending_skips_unreadable_lines_and_status_counts_them` |
-| BEH-186 pending prints 'no pending changes' and search prints the 'no hits' hint on empty results, both exit 0 | confirmed | — (test owed) |
+| BEH-186 pending prints 'no pending changes' and search prints the 'no hits' hint on empty results, both exit 0 | accepted | `tests/test_cli.py::test_pending_prints_no_pending_changes_and_search_prints_the_no_hits_hint_on_empty_results_both_exit_0` |
 
 ## Intentional Design Decisions
 
@@ -146,3 +147,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-186; promoted confirmed → accepted | tests owed |

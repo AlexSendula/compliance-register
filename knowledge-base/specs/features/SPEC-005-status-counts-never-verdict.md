@@ -61,9 +61,10 @@ behaviors:
     locator: tests/test_cli.py::test_status_json
   - behavior_id: BEH-049
     title: "the 'pending: N unreadable lines' line is omitted when there are no unreadable lines"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_status.py::test_the_pending_n_unreadable_lines_line_is_omitted_when_there_are_no_unreadable_lines
   - behavior_id: BEH-283
     title: "an unreadable profile.md is reported as a profile problem and rendered, never an abort"
     state: accepted
@@ -100,7 +101,7 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-046 unreadable pending lines are reported in pending.unreadable and rendered as 'pending: N unreadable lines' | accepted | `tests/test_poisoned_files_do_not_brick.py::test_pending_skips_unreadable_lines_and_status_counts_them` |
 | BEH-047 regime problems appear in report.problems as '<id>: <problem>' and are rendered through printable | accepted | `tests/test_poisoned_files_do_not_brick.py::test_regime_with_wrong_shaped_sources_and_applies_is_reported_not_fatal` |
 | BEH-048 `status --json` exits 0 and prints the report as JSON | accepted | `tests/test_cli.py::test_status_json` |
-| BEH-049 the 'pending: N unreadable lines' line is omitted when there are no unreadable lines | confirmed | — (test owed) |
+| BEH-049 the 'pending: N unreadable lines' line is omitted when there are no unreadable lines | accepted | `tests/test_status.py::test_the_pending_n_unreadable_lines_line_is_omitted_when_there_are_no_unreadable_lines` |
 | BEH-283 an unreadable profile.md is reported as a profile problem and rendered, never an abort | accepted | `tests/test_status.py::test_corrupt_profile_is_a_problem_not_an_abort` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
@@ -154,3 +155,4 @@ Design Decisions** below, not here.
 | 2026-09-20 | Initial spec | Generated from codebase scan; certainty 91 |
 | 2026-09-21 | `profile.load` absorbs an unreadable file into `Profile.problems`; status reports and renders it; BEH-283 added | G2 principle checkpoint, principle 9 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-049; promoted confirmed → accepted | tests owed |

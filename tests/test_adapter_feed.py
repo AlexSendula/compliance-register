@@ -57,3 +57,27 @@ def test_feed_with_no_usable_entries_is_unreachable_not_fresh(project: Path):
     empty = '<rss version="2.0"><channel><title>x</title><item><title>no id, no link</title></item></channel></rss>'
     r = feed.check(src(), client({"https://reg.test/feed.xml": (200, {"Content-Type": "application/rss+xml"}, empty)}), today="2026-09-20", cdir=cdir)
     assert r.status == "unreachable" and "no entries" in r.detail
+
+
+ATOM = ('<feed xmlns="http://www.w3.org/2005/Atom"><title>Reg</title>'
+        '<entry><id>urn:reg:1</id><title>Cookies</title><updated>2026-09-01T10:00:00Z</updated>'
+        '<link rel="self" href="https://reg.test/atom/1"/><link rel="alternate" href="https://reg.test/n/1"/></entry>'
+        '</feed>')
+
+
+def test_an_atom_feeds_entries_are_normalised_with_the_alternate_link_and_id():
+    c = client({"https://reg.test/feed.xml": (200, {"Content-Type": "application/atom+xml"}, ATOM)})
+    assert feed._entries(src(), c) == [{"id": "urn:reg:1", "title": "Cookies", "published": "2026-09-01T10:00:00Z", "link": "https://reg.test/n/1"}]
+
+
+def test_an_entry_without_a_guid_falls_back_to_its_link_as_id():
+    rss = '<rss version="2.0"><channel><item><title>t</title><link>https://reg.test/n/1</link></item></channel></rss>'
+    c = client({"https://reg.test/feed.xml": (200, {"Content-Type": "application/rss+xml"}, rss)})
+    assert [e["id"] for e in feed._entries(src(), c)] == ["https://reg.test/n/1"]
+
+
+def test_a_non_html_entry_page_is_refused_by_link_and_the_other_entries_are_still_written(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    c = client({"https://reg.test/n/1": (200, {"Content-Type": "application/pdf"}, b"%PDF-1.4")})
+    f = feed.fetch(src(), c, cdir, today="2026-09-20")
+    assert f.refused == ["https://reg.test/n/1"] and len(f.written) == 1

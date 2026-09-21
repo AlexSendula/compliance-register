@@ -66,9 +66,10 @@ behaviors:
     locator: tests/test_poisoned_files_do_not_brick.py::test_pending_entry_without_kind_or_severity_is_unreadable
   - behavior_id: BEH-030
     title: "resolve raises KeyError for an id that is not in pending.jsonl"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_pending.py::test_resolve_raises_keyerror_for_an_id_that_is_not_in_pending_jsonl
   - behavior_id: BEH-031
     title: "`resolve <id> --action applied --by X` exits 0 and the id disappears from `pending --json`"
     state: accepted
@@ -118,7 +119,7 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-027 the next id continues from the maximum id across both files, so a hand-deleted resolved line never frees its id | accepted | `tests/test_pending.py::test_ids_continue_from_max_id_not_line_count` |
 | BEH-028 a non-JSON line or a row without an id is skipped, counted by unreadable(), and surfaced by status | accepted | `tests/test_poisoned_files_do_not_brick.py::test_pending_skips_unreadable_lines_and_status_counts_them` |
 | BEH-029 a pending row without a string kind and severity is unreadable, and `pending` still lists the good rows | accepted | `tests/test_poisoned_files_do_not_brick.py::test_pending_entry_without_kind_or_severity_is_unreadable` |
-| BEH-030 resolve raises KeyError for an id that is not in pending.jsonl | confirmed | — (test owed) |
+| BEH-030 resolve raises KeyError for an id that is not in pending.jsonl | accepted | `tests/test_pending.py::test_resolve_raises_keyerror_for_an_id_that_is_not_in_pending_jsonl` |
 | BEH-031 `resolve <id> --action applied --by X` exits 0 and the id disappears from `pending --json` | accepted | `tests/test_cli.py::test_resolve_and_pending` |
 | BEH-032 `pending` output passes every field through render.printable so ESC and bidi controls are escaped | accepted | `tests/test_cli.py::test_pending_output_escapes_terminal_controls` |
 
@@ -183,3 +184,4 @@ Design Decisions** below, not here.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan; certainty 93 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-030; promoted confirmed → accepted | tests owed |

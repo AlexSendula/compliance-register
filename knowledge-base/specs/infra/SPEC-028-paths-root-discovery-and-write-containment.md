@@ -54,9 +54,10 @@ behaviors:
     locator: tests/test_paths.py::test_contained_refuses_escape
   - behavior_id: BEH-240
     title: "contained follows symlinks: a link inside the base that resolves outside it is refused, and the base itself is accepted"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_paths.py::test_contained_follows_symlinks
   - behavior_id: BEH-241
     title: "safe_component rejects ../x, a/b, trailing space, empty string, a leading dot, and internal whitespace"
     state: accepted
@@ -71,9 +72,10 @@ behaviors:
     locator: tests/test_paths.py::test_safe_component_accepts
   - behavior_id: BEH-243
     title: "safe_component rejects non-ASCII characters and names longer than 128 characters (128 accepted, 129 refused)"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_paths.py::test_safe_component_rejects_non_ascii_and_names_longer_than_128
   - behavior_id: BEH-244
     title: "Any command run outside a project exits 2 and the stderr message names knowledge-base"
     state: accepted
@@ -113,10 +115,10 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-237 compliance_dir(root) is exactly <root>/knowledge-base/compliance | accepted | `tests/test_paths.py::test_compliance_dir` |
 | BEH-238 contained resolves a relative child path under the base and returns the absolute target | accepted | `tests/test_paths.py::test_contained_accepts_child` |
 | BEH-239 contained raises UnsafePath when a relative target uses ../ to leave the base | accepted | `tests/test_paths.py::test_contained_refuses_escape` |
-| BEH-240 contained follows symlinks: a link inside the base that resolves outside it is refused, and the base itself is accepted | confirmed | — (test owed) |
+| BEH-240 contained follows symlinks: a link inside the base that resolves outside it is refused, and the base itself is accepted | accepted | `tests/test_paths.py::test_contained_follows_symlinks` |
 | BEH-241 safe_component rejects ../x, a/b, trailing space, empty string, a leading dot, and internal whitespace | accepted | `tests/test_paths.py::test_safe_component_rejects` |
 | BEH-242 safe_component accepts plain ASCII names with dots, dashes and digits such as GDPR and eu-eurlex-32016R0679 | accepted | `tests/test_paths.py::test_safe_component_accepts` |
-| BEH-243 safe_component rejects non-ASCII characters and names longer than 128 characters (128 accepted, 129 refused) | confirmed | — (test owed) |
+| BEH-243 safe_component rejects non-ASCII characters and names longer than 128 characters (128 accepted, 129 refused) | accepted | `tests/test_paths.py::test_safe_component_rejects_non_ascii_and_names_longer_than_128` |
 | BEH-244 Any command run outside a project exits 2 and the stderr message names knowledge-base | accepted | `tests/test_cli.py::test_outside_project_exits_2` |
 | BEH-245 A mirror page relpath that escapes the source directory is refused with UnsafePath before anything is written | accepted | `tests/test_store.py::test_write_page_refuses_escape` |
 
@@ -172,3 +174,4 @@ Design Decisions** below, not here.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Scan-generated from `paths.py`, its tests and design decisions D20, D23, D29 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-240, BEH-243; promoted confirmed → accepted | tests owed |

@@ -31,14 +31,16 @@ behaviors:
     locator: tests/test_cli.py::test_sources_validate_cli
   - behavior_id: BEH-193
     title: 'profile validate without a profile.md prints ''no profile.md — run init'' to stderr and exits 1'
-    state: confirmed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
+    locator: tests/test_cli.py::test_profile_validate_without_a_profile_md_prints_no_profile_md_run_init_to_stderr_and_exits_1
   - behavior_id: BEH-194
     title: 'regimes validate exits 1 and prints ''<id>: <problem>'' for a regime whose frontmatter does not parse, while still loading the others'
-    state: confirmed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
+    locator: tests/test_cli.py::test_regimes_validate_exits_1_and_prints_id_problem_for_a_regime_whose_frontmatter_does_not_parse_while_still_loading_the_others
 ---
 
 # Validators: profile validate, regimes validate, sources validate (exit 1 with problems, network-free)
@@ -65,8 +67,8 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 |----------|-------|-------------|
 | BEH-191 profile validate on the profile init writes exits 1 and lists unanswered dimensions | accepted | `tests/test_cli.py::test_profile_validate_fails_on_fresh_profile` |
 | BEH-192 sources validate exits 0 on an empty sources.json and exits 1 naming https and adapter problems for an http api-tier source without adapter | accepted | `tests/test_cli.py::test_sources_validate_cli` |
-| BEH-193 profile validate without a profile.md prints 'no profile.md — run init' to stderr and exits 1 | confirmed | — (test owed) |
-| BEH-194 regimes validate exits 1 and prints '<id>: <problem>' for a regime whose frontmatter does not parse, while still loading the others | confirmed | — (test owed) |
+| BEH-193 profile validate without a profile.md prints 'no profile.md — run init' to stderr and exits 1 | accepted | `tests/test_cli.py::test_profile_validate_without_a_profile_md_prints_no_profile_md_run_init_to_stderr_and_exits_1` |
+| BEH-194 regimes validate exits 1 and prints '<id>: <problem>' for a regime whose frontmatter does not parse, while still loading the others | accepted | `tests/test_cli.py::test_regimes_validate_exits_1_and_prints_id_problem_for_a_regime_whose_frontmatter_does_not_parse_while_still_loading_the_others` |
 
 ## Intentional Design Decisions
 
@@ -100,3 +102,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-193, BEH-194; promoted confirmed → accepted | tests owed |

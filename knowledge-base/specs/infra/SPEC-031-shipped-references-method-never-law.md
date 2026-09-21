@@ -61,19 +61,22 @@ behaviors:
     locator: tests/test_skill_md.py::test_shipped_docs_carry_no_law_fact_or_source_address
   - behavior_id: BEH-273
     title: "eurlex-resolve.sparql contains a {{VALUES}} placeholder that the eurlex adapter replaces with quoted CELEX strings, and the file names no instrument CELEX"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_skill_md.py::test_sparql_template_has_values_placeholder_and_no_instrument_celex
   - behavior_id: BEH-274
     title: "The Slugs section of dimensions-checklist.md lists the fifteen slugs in the same order as profile.DIMENSIONS"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_skill_md.py::test_checklist_slugs_match_profile_dimensions_in_order
   - behavior_id: BEH-275
     title: "Every dimension in dimensions-checklist.md carries the five fixed lines Ask, Decides, Code may propose, Trap and Found in"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_skill_md.py::test_every_checklist_dimension_carries_the_five_fixed_lines
 ---
 
 # Shipped references: method files, regime template, dimensions checklist and SPARQL template carry the method, never the law
@@ -106,9 +109,9 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-270 method-profile.md routes profile changes through rescan, never '--against HEAD~1', and bars repo name as evidence for any answer while allowing locale indicia | accepted | `tests/test_skill_md.py::test_method_profile_makes_rescan_the_baseline_and_bars_repo_name_as_evidence` |
 | BEH-271 method-discover-regimes.md mentions rescan and never 'profile diff' for the re-run loop | accepted | `tests/test_skill_md.py::test_skill_md_documents_pending_kinds_severities_and_the_api_endpoint_rule` |
 | BEH-272 No line of SKILL.md, README.md or any references/*.md contains a CELEX number, ISO date, 'Art. N' citation or http(s) URL, except dimensions-checklist lines carrying '**Found in**' | accepted | `tests/test_skill_md.py::test_shipped_docs_carry_no_law_fact_or_source_address` |
-| BEH-273 eurlex-resolve.sparql contains a {{VALUES}} placeholder that the eurlex adapter replaces with quoted CELEX strings, and the file names no instrument CELEX | confirmed | — (test owed) |
-| BEH-274 The Slugs section of dimensions-checklist.md lists the fifteen slugs in the same order as profile.DIMENSIONS | confirmed | — (test owed) |
-| BEH-275 Every dimension in dimensions-checklist.md carries the five fixed lines Ask, Decides, Code may propose, Trap and Found in | confirmed | — (test owed) |
+| BEH-273 eurlex-resolve.sparql contains a {{VALUES}} placeholder that the eurlex adapter replaces with quoted CELEX strings, and the file names no instrument CELEX | accepted | `tests/test_skill_md.py::test_sparql_template_has_values_placeholder_and_no_instrument_celex` |
+| BEH-274 The Slugs section of dimensions-checklist.md lists the fifteen slugs in the same order as profile.DIMENSIONS | accepted | `tests/test_skill_md.py::test_checklist_slugs_match_profile_dimensions_in_order` |
+| BEH-275 Every dimension in dimensions-checklist.md carries the five fixed lines Ask, Decides, Code may propose, Trap and Found in | accepted | `tests/test_skill_md.py::test_every_checklist_dimension_carries_the_five_fixed_lines` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -171,3 +174,4 @@ Design Decisions** below, not here.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Scan-generated from `references/`, `tests/test_skill_md.py`, commits e0b28a4, 4c139a8, bb06b9d and design decisions D4, D5, D17, D18, D19, D28 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-273, BEH-274, BEH-275; promoted confirmed → accepted | tests owed |

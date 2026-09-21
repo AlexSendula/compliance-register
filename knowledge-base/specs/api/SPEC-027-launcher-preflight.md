@@ -39,19 +39,22 @@ behaviors:
     locator: tests/test_preflight.py::test_empty_trust_store_is_named
   - behavior_id: BEH-232
     title: 'A missing yaml module yields a problem containing the pip install command'
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_preflight.py::test_missing_yaml_names_the_pip_command
   - behavior_id: BEH-233
     title: 'When check_prerequisites returns problems the launcher prints ''compliance-register cannot start:'' with one ''  - '' line each and exits 2 without importing cli'
-    state: confirmed
+    state: accepted
     level: component
     adapter: pytest
+    locator: tests/test_launcher.py::test_prerequisite_problems_are_listed_and_exit_2_before_cli
   - behavior_id: BEH-234
     title: 'On Python older than 3.12 the launcher exits 2 with the found version in the message'
-    state: confirmed
+    state: accepted
     level: component
     adapter: pytest
+    locator: tests/test_launcher.py::test_old_python_guard_is_deterministic_via_a_patched_version_info
 ---
 
 # Launcher and preflight: Python ≥ 3.12, PyYAML and a non-empty CA store, or exit 2
@@ -68,7 +71,7 @@ SKILL.md tells the agent to invoke the CLI by path and, on exit 2 with a named p
 
 The CA check exists because an empty trust store makes every https fetch fail, which `check` would honestly report as unreachable for every source. Principle 4 says that is never "not there", but a whole register of "unreachable" would still mislead; naming the cause up front (commit d84b52a) is cheaper than diagnosing it after the first run.
 
-Open question: the Python-too-old path and the PyYAML-missing path have no test (they would need a second interpreter or module shadowing); confirm that is accepted coverage.
+Both prerequisite paths are tested: PyYAML-missing by monkeypatching `importlib.util.find_spec` (BEH-232), the cannot-start listing and the Python-too-old guard through the real launcher under `sitecustomize` — one patching `check_prerequisites` (BEH-233), one patching `sys.version_info` to 3.11 (BEH-234/267), with `-X importtime` proving no package import.
 
 ## Behavior
 
@@ -81,9 +84,9 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-229 The launcher, run via subprocess with --version, exits 0 and prints 'compliance-register <version>' | accepted | `tests/test_launcher.py::test_launcher_prints_version` |
 | BEH-230 bin/compliance-register has the executable bit set | accepted | `tests/test_launcher.py::test_launcher_is_executable` |
 | BEH-231 An empty CA trust store yields a problem mentioning 'no CA certificates' and SSL_CERT_FILE; a populated store yields none | accepted | `tests/test_preflight.py::test_empty_trust_store_is_named` |
-| BEH-232 A missing yaml module yields a problem containing the pip install command | confirmed | — (test owed) |
-| BEH-233 When check_prerequisites returns problems the launcher prints 'compliance-register cannot start:' with one '  - ' line each and exits 2 without importing cli | confirmed | — (test owed) |
-| BEH-234 On Python older than 3.12 the launcher exits 2 with the found version in the message | confirmed | — (test owed) |
+| BEH-232 A missing yaml module yields a problem containing the pip install command | accepted | `tests/test_preflight.py::test_missing_yaml_names_the_pip_command` |
+| BEH-233 When check_prerequisites returns problems the launcher prints 'compliance-register cannot start:' with one '  - ' line each and exits 2 without importing cli | accepted | `tests/test_launcher.py::test_prerequisite_problems_are_listed_and_exit_2_before_cli` |
+| BEH-234 On Python older than 3.12 the launcher exits 2 with the found version in the message | accepted | `tests/test_launcher.py::test_old_python_guard_is_deterministic_via_a_patched_version_info` |
 
 ## Intentional Design Decisions
 
@@ -130,3 +133,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-232, BEH-233, BEH-234; promoted confirmed → accepted | tests owed |

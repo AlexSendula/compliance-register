@@ -49,3 +49,10 @@ def test_corrupt_profile_is_a_problem_not_an_abort(project: Path):
     assert rep["profile"]["present"] is True
     assert any("unreadable" in p for p in rep["profile"]["problems"])
     assert "unreadable" in status.render(rep)
+
+
+def test_the_pending_n_unreadable_lines_line_is_omitted_when_there_are_no_unreadable_lines(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    pending.add(cdir, "source-moved", "major", "x", now="2026-09-19")
+    rep = status.report(cdir, today="2026-09-20")
+    assert rep["pending"]["unreadable"] == 0 and "unreadable" not in status.render(rep)

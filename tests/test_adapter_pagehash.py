@@ -8,12 +8,12 @@ from tests.fakehttp import FakeOpener
 HTML = {"Content-Type": "text/html"}
 
 
-def src():
-    return sources.Source.from_dict({
+def src(**over):
+    return sources.Source.from_dict({**{
         "id": "psp-terms", "jurisdiction": "NL", "kind": "contract", "url": "https://psp.test/terms",
         "tier": "page-hash", "config": {"urls": ["https://psp.test/terms", "https://psp.test/dpa"]},
         "licence": {"redistribute": False, "attribution": None}, "status": "confirmed", "delay_seconds": 0,
-    })
+    }, **over})
 
 
 def client(terms="<p>v1</p>"):
@@ -45,3 +45,35 @@ def test_check_names_unreachable_urls_even_when_another_changed(project: Path):
     r = pagehash.check(src(), c, today="2026-09-22", cdir=cdir)
     assert r.status == "moved" and r.changed == ["https://psp.test/terms"]
     assert "https://psp.test/dpa" in r.detail and "503" in r.detail
+
+
+def test_check_is_unreachable_when_a_url_fails_and_no_other_url_changed(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    pagehash.fetch(src(), client(), cdir, today="2026-09-20")
+    c = http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=FakeOpener({
+        "https://psp.test/robots.txt": (404, {}, ""),
+        "https://psp.test/terms": (200, HTML, "<html><body><p>v1</p></body></html>"),
+        "https://psp.test/dpa": (503, {}, ""),
+    }))
+    r = pagehash.check(src(), c, today="2026-09-21", cdir=cdir)
+    assert r.status == "unreachable" and r.changed == [] and "https://psp.test/dpa" in r.detail and "503" in r.detail
+
+
+def test_a_non_html_body_is_reported_as_not_html_and_counts_as_unreachable(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    pagehash.fetch(src(), client(), cdir, today="2026-09-20")
+    c = http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=FakeOpener({
+        "https://psp.test/robots.txt": (404, {}, ""),
+        "https://psp.test/terms": (200, HTML, "<html><body><p>v1</p></body></html>"),
+        "https://psp.test/dpa": (200, {"Content-Type": "application/pdf"}, b"%PDF-1.4"),
+    }))
+    r = pagehash.check(src(), c, today="2026-09-21", cdir=cdir)
+    assert r.status == "unreachable" and r.detail == "https://psp.test/dpa: not html"
+
+
+def test_config_urls_absent_falls_back_to_the_source_url(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    c = client()
+    f = pagehash.fetch(src(config={}), c, cdir, today="2026-09-20")
+    assert len(f.written) == 1 and "https://psp.test/terms" in store.load_manifest(cdir, src())
+    assert [q.full_url for q in c.opener.requests if "robots" not in q.full_url] == ["https://psp.test/terms"]

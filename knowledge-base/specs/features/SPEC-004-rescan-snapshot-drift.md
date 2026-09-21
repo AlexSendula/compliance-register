@@ -67,14 +67,16 @@ behaviors:
     locator: tests/test_poisoned_files_do_not_brick.py::test_regime_with_wrong_shaped_sources_and_applies_is_reported_not_fatal
   - behavior_id: BEH-040
     title: "run returns error 'no profile.md' when the profile is absent"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_rescan.py::test_run_returns_error_no_profile_md_when_the_profile_is_absent
   - behavior_id: BEH-041
     title: "ruled-out and no-longer-applies regimes never receive a regime-gone entry"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_rescan.py::test_ruled_out_and_no_longer_applies_regimes_never_receive_a_regime_gone_entry
   - behavior_id: BEH-042
     title: "`--today` must be YYYY-MM-DD; any other string exits 1"
     state: accepted
@@ -116,8 +118,8 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-037 an invalid profile returns exit 2 with the problems and writes no snapshot | accepted | `tests/test_rescan.py::test_invalid_profile_is_refused_with_exit_2` |
 | BEH-038 `rescan` on a fresh profile exits 2 and names the unanswered dimensions on stderr | accepted | `tests/test_cli.py::test_rescan_cli_exits_2_on_invalid_profile` |
 | BEH-039 a regime whose applies is not a mapping does not break rescan; the drift is still reported | accepted | `tests/test_poisoned_files_do_not_brick.py::test_regime_with_wrong_shaped_sources_and_applies_is_reported_not_fatal` |
-| BEH-040 run returns error 'no profile.md' when the profile is absent | confirmed | — (test owed) |
-| BEH-041 ruled-out and no-longer-applies regimes never receive a regime-gone entry | confirmed | — (test owed) |
+| BEH-040 run returns error 'no profile.md' when the profile is absent | accepted | `tests/test_rescan.py::test_run_returns_error_no_profile_md_when_the_profile_is_absent` |
+| BEH-041 ruled-out and no-longer-applies regimes never receive a regime-gone entry | accepted | `tests/test_rescan.py::test_ruled_out_and_no_longer_applies_regimes_never_receive_a_regime_gone_entry` |
 | BEH-042 `--today` must be YYYY-MM-DD; any other string exits 1 | accepted | `tests/test_cli.py::test_today_must_be_an_iso_date` |
 | BEH-281 a corrupt profile.snapshot.json is refused by name with exit 1 and the baseline is left untouched | accepted | `tests/test_rescan.py::test_corrupt_snapshot_is_refused_with_a_message` |
 | BEH-282 an unreadable profile.md is refused with exit 2 and the problem named | accepted | `tests/test_rescan.py::test_corrupt_profile_is_refused_with_a_message` |
@@ -155,3 +157,4 @@ Design Decisions** below, not here.
 | 2026-09-20 | Initial spec | Generated from codebase scan; certainty 91 |
 | 2026-09-21 | A corrupt snapshot is refused by name (exit 1) instead of raising; an unreadable profile.md is refused through `validate` (exit 2); BEH-281, BEH-282 added | G2 principle checkpoint, principle 9 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-040, BEH-041; promoted confirmed → accepted | tests owed |

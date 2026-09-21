@@ -9,13 +9,14 @@ import io
 import re
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlsplit
 
 from ...sources import Source
 from .. import http as _http, store
 from . import CheckResult, FetchResult
 
 SPARQL = "https://publications.europa.eu/webapi/rdf/sparql"
+CELLAR = "https://publications.europa.eu/resource/celex"
 LANG3 = {"BG": "BUL", "CS": "CES", "DA": "DAN", "DE": "DEU", "EL": "ELL", "EN": "ENG", "ES": "SPA", "ET": "EST", "FI": "FIN", "FR": "FRA", "GA": "GLE", "HR": "HRV", "HU": "HUN", "IT": "ITA", "LT": "LIT", "LV": "LAV", "MT": "MLT", "NL": "NLD", "PL": "POL", "PT": "POR", "RO": "RON", "SK": "SLK", "SL": "SLV", "SV": "SWE"}
 MARKER = "This text is meant purely as a documentation tool and has no legal effect"
 # the <p class="reference"> line: consolidated CELEX (sector 0) — LANG — DD.MM.YYYY. The <title> repeats it with the base CELEX, so anchor on the leading 0.
@@ -174,17 +175,21 @@ def fetch(source: Source, client: _http.Http, cdir, *, today: str, force: bool =
         result.refused.append("resolve: no consolidation in force"); return result
     if not force and current == source.last_version:
         result.skipped += 1; return result
-    url = f"https://eur-lex.europa.eu/legal-content/{lang}/TXT/HTML/?uri=CELEX:{current}"
+    # eur-lex.europa.eu answers 202-empty to every client (WAF); CELLAR — the API this
+    # adapter speaks — serves the consolidated XHTML by content negotiation (D28).
+    url = f"{CELLAR}/{current}"
+    hosts = list(source.allowed_hosts) + [urlsplit(CELLAR).hostname]
     try:
-        resp = client.get(url, allowed_hosts=source.allowed_hosts)
+        resp = client.get(url, allowed_hosts=hosts, headers={"Accept": "application/xhtml+xml", "Accept-Language": lang.lower()})
     except (_http.HttpUnreachable, _http.HttpRefused) as exc:
         result.refused.append(f"fetch: {exc}"); return result
     body = resp.body.decode("utf-8", "replace")
-    # guards
-    if resp.status != 200 or not resp.headers.get("Content-Type", "").startswith("text/html"):
+    # guards — structural, never tied to one language's wording
+    ctype = resp.headers.get("Content-Type", "")
+    if resp.status != 200 or not (ctype.startswith("text/html") or ctype.startswith("application/xhtml+xml")):
         result.refused.append("G1: not an HTML 200"); return result
-    if MARKER not in body:
-        result.refused.append("G2: documentation-tool marker missing (site chrome?)"); return result
+    if 'class="disclaimer"' not in body:
+        result.refused.append("G2: consolidated-text disclaimer missing (site chrome?)"); return result
     anchors = [int(x) for x in _ANCHOR.findall(body)]
     if not anchors:
         result.refused.append("G3: no article anchors"); return result

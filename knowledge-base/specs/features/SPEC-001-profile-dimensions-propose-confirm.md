@@ -48,14 +48,16 @@ behaviors:
     locator: tests/test_profile.py::test_validate_ok
   - behavior_id: BEH-005
     title: "validate rejects an answer whose status is not one of unanswered/proposed/confirmed and a key that is not a known dimension"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_profile.py::test_validate_rejects_an_answer_whose_status_is_not_one_of_unanswered_proposed_confirmed_and_a_key_that_is_not_a_known_dimension
   - behavior_id: BEH-006
     title: "validate requires confirmed_by and confirmed_at only once every answer is confirmed"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_profile.py::test_validate_requires_confirmed_by_and_confirmed_at_only_once_every_answer_is_confirmed
   - behavior_id: BEH-007
     title: "diff lists the dimensions whose value changed, in dimension order"
     state: accepted
@@ -116,8 +118,8 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-002 empty() seeds every dimension as status unanswered with value null and no evidence | accepted | `tests/test_profile.py::test_empty_has_every_dimension_unanswered` |
 | BEH-003 validate reports each unanswered dimension and each confirmed answer whose value is null | accepted | `tests/test_profile.py::test_validate_flags_missing_and_null` |
 | BEH-004 validate returns no problems when all 15 are confirmed with values and confirmed_by/confirmed_at are set | accepted | `tests/test_profile.py::test_validate_ok` |
-| BEH-005 validate rejects an answer whose status is not one of unanswered/proposed/confirmed and a key that is not a known dimension | confirmed | — (test owed) |
-| BEH-006 validate requires confirmed_by and confirmed_at only once every answer is confirmed | confirmed | — (test owed) |
+| BEH-005 validate rejects an answer whose status is not one of unanswered/proposed/confirmed and a key that is not a known dimension | accepted | `tests/test_profile.py::test_validate_rejects_an_answer_whose_status_is_not_one_of_unanswered_proposed_confirmed_and_a_key_that_is_not_a_known_dimension` |
+| BEH-006 validate requires confirmed_by and confirmed_at only once every answer is confirmed | accepted | `tests/test_profile.py::test_validate_requires_confirmed_by_and_confirmed_at_only_once_every_answer_is_confirmed` |
 | BEH-007 diff lists the dimensions whose value changed, in dimension order | accepted | `tests/test_profile.py::test_diff_lists_changed_dimensions` |
 | BEH-008 load returns None when profile.md is absent and a Profile with meta and body when present | accepted | `tests/test_profile.py::test_load_reads_file` |
 | BEH-009 `profile validate` on a freshly initialised profile exits 1 and prints the unanswered dimensions | accepted | `tests/test_cli.py::test_profile_validate_fails_on_fresh_profile` |
@@ -187,3 +189,4 @@ Design Decisions** below, not here.
 | 2026-09-20 | Initial spec | Generated from codebase scan; certainty 93 |
 | 2026-09-21 | `load` absorbs an unreadable profile.md into `Profile.problems`; `validate` takes them through | P4b drift check after f34d2fa |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-005, BEH-006; promoted confirmed → accepted | tests owed |

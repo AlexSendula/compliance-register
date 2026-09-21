@@ -72,3 +72,9 @@ def test_private_page_ensures_mirror_gitignore(project: Path):
     store.write_page(cdir, priv, "c.md", {}, "t\n", retrieved_at="2026-09-20")
     assert gi.read_text().count(".private/") == 1
     store.write_page(cdir, src(), "d.md", {}, "t\n", retrieved_at="2026-09-20")  # a public page does not touch it
+
+
+@pytest.mark.parametrize("over", [{"id": "../evil"}, {"id": ".hidden"}, {"jurisdiction": "EU/.."}, {"jurisdiction": "e u"}])
+def test_a_jurisdiction_or_source_id_that_is_not_a_safe_path_component_raises_unsafe_path(project: Path, over):
+    with pytest.raises(paths.UnsafePath):
+        store.source_dir(paths.compliance_dir(project), src(**over))

@@ -80,3 +80,24 @@ def test_corrupt_profile_is_refused_with_a_message(project: Path):
     (cdir / "profile.md").write_text("---\nanswers: [\n", encoding="utf-8")
     rep = rescan.run(cdir, today="2026-09-20")
     assert rep["exit"] == 2 and "unreadable" in rep["error"]
+
+
+def test_run_returns_error_no_profile_md_when_the_profile_is_absent(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    rep = rescan.run(cdir, today="2026-09-20")
+    assert rep["error"] == "no profile.md" and rep["changed"] == [] and rep["entries"] == 0
+    assert not (cdir / "profile.snapshot.json").exists()
+
+
+def test_ruled_out_and_no_longer_applies_regimes_never_receive_a_regime_gone_entry(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    fm.save(cdir / "profile.md", confirmed_profile(automation_ai={"components": ["translation"]}), "")
+    applies = {"quote": "q", "cite": "Art. 2", "triggered_by": [{"automation_ai": True}]}
+    write(cdir, dict(META, id="AIACT", applies=applies))
+    write(cdir, dict(META, id="DSA", status="ruled-out", applies=applies), body="")
+    write(cdir, dict(META, id="OLD", status="no-longer-applies", applies=applies), body="")
+    rescan.run(cdir, today="2026-09-20")
+    fm.save(cdir / "profile.md", confirmed_profile(automation_ai=False), "")
+    rep = rescan.run(cdir, today="2026-10-01")
+    gone = [e["affects"] for e in pending.list_open(cdir) if e["kind"] == "regime-gone"]
+    assert rep["entries"] == 1 and gone == [["AIACT"]]

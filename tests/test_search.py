@@ -54,3 +54,36 @@ def test_poisoned_index_path_outside_cdir_is_skipped(project: Path):
     (cdir / search.INDEX_FILE).write_text(json.dumps(table))
     hits = search.search(cdir, "record of processing")
     assert hits == [] or all("SECRET" not in h.snippet and str(secret) != h.path for h in hits)
+
+
+def test_a_query_that_tokenizes_to_nothing_returns_no_hits(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    write(cdir, META)
+    assert search.tokenize("the of a") == []
+    assert search.search(cdir, "the of a") == [] and search.search(cdir, "") == []
+
+
+def test_kind_filters_hits_to_profile_regime_or_mirror_documents(project: Path):
+    from compliance_register import frontmatter as fm, profile
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    fm.save(cdir / "profile.md", profile.empty(), "chargeback liability\n")
+    write(cdir, META, body="chargeback liability\n")
+    page = cdir / "mirror" / "x" / "y.md"; page.parent.mkdir(parents=True)
+    page.write_text("chargeback liability\n")
+    assert {h.kind for h in search.search(cdir, "chargeback liability")} == {"profile", "regime", "mirror"}
+    for kind in ("profile", "regime", "mirror"):
+        assert [h.kind for h in search.search(cdir, "chargeback liability", kind=kind)] == [kind]
+
+
+def test_a_corrupt_or_wrong_version_search_index_json_is_rebuilt_rather_than_reported(project: Path):
+    import json
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    write(cdir, META)
+    index = cdir / search.INDEX_FILE
+    index.write_text("{not json")
+    assert search.search(cdir, "record of processing")
+    assert json.loads(index.read_text())["version"] == search.TABLE_VERSION
+    stale = dict(search.build_table(cdir), version=search.TABLE_VERSION + 1, docs=[])  # right signature, wrong version
+    index.write_text(json.dumps(stale))
+    assert search.search(cdir, "record of processing")
+    assert json.loads(index.read_text())["version"] == search.TABLE_VERSION

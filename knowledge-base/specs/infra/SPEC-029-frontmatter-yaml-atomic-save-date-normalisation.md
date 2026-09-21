@@ -42,14 +42,16 @@ behaviors:
     locator: tests/test_frontmatter.py::test_loads_rejects_unterminated
   - behavior_id: BEH-249
     title: "A block whose YAML is not a mapping (e.g. a list) raises FrontmatterError"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_frontmatter.py::test_a_block_whose_yaml_is_not_a_mapping_raises_frontmattererror
   - behavior_id: BEH-250
     title: "A closing fence at end of file without a trailing newline is accepted and yields an empty body"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_frontmatter.py::test_a_closing_fence_at_end_of_file_without_a_trailing_newline_is_accepted_and_yields_an_empty_body
   - behavior_id: BEH-251
     title: "save leaves the target file starting with the fence and no *.tmp file behind in the directory"
     state: accepted
@@ -104,8 +106,8 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-246 loads parses a nested frontmatter block into a dict and body, and dump→loads round-trips both unchanged | accepted | `tests/test_frontmatter.py::test_loads_roundtrip` |
 | BEH-247 Text that does not start with a --- fence is returned as an empty dict and the unchanged body | accepted | `tests/test_frontmatter.py::test_loads_without_frontmatter` |
 | BEH-248 A block that opens with --- but never closes raises FrontmatterError | accepted | `tests/test_frontmatter.py::test_loads_rejects_unterminated` |
-| BEH-249 A block whose YAML is not a mapping (e.g. a list) raises FrontmatterError | confirmed | — (test owed) |
-| BEH-250 A closing fence at end of file without a trailing newline is accepted and yields an empty body | confirmed | — (test owed) |
+| BEH-249 A block whose YAML is not a mapping (e.g. a list) raises FrontmatterError | accepted | `tests/test_frontmatter.py::test_a_block_whose_yaml_is_not_a_mapping_raises_frontmattererror` |
+| BEH-250 A closing fence at end of file without a trailing newline is accepted and yields an empty body | accepted | `tests/test_frontmatter.py::test_a_closing_fence_at_end_of_file_without_a_trailing_newline_is_accepted_and_yields_an_empty_body` |
 | BEH-251 save leaves the target file starting with the fence and no *.tmp file behind in the directory | accepted | `tests/test_frontmatter.py::test_save_is_atomic` |
 | BEH-252 dump preserves the insertion order of keys instead of sorting them | accepted | `tests/test_frontmatter.py::test_dump_keeps_key_order` |
 | BEH-253 Unquoted YAML dates and datetimes, including inside nested lists, load as ISO strings and the result is JSON-serialisable | accepted | `tests/test_frontmatter.py::test_loads_normalises_dates` |
@@ -172,3 +174,4 @@ Design Decisions** below, not here.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Scan-generated from `frontmatter.py`, its tests, commit 933394e and design decision D22 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-249, BEH-250; promoted confirmed → accepted | tests owed |

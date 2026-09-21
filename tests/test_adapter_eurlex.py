@@ -29,14 +29,27 @@ def sparql_route(request):
     return (200, {"Content-Type": "text/csv"}, FIX.joinpath("sparql-resolve.csv").read_text())
 
 
-def client(consolidated_html=None):
+XHTML = {"Content-Type": "application/xhtml+xml;charset=UTF-8"}
+CELLAR_DOC = "https://publications.europa.eu/resource/cellar/5f2552c2-cc45-11e6-ad7c-01aa75ed71a1.0024.03/DOC_2"
+
+
+def client(consolidated_html=None, content_type=None):
+    """CELLAR as it really answers: the celex URL 303s to an http:// cellar URL
+    (upgraded to https by the client) that serves application/xhtml+xml."""
     return http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=FakeOpener({
         "https://publications.europa.eu/robots.txt": (404, {}, ""),
-        "https://eur-lex.europa.eu/robots.txt": (404, {}, ""),
         eurlex.SPARQL + "*": sparql_route,  # prefix route: the query string is long
-        "https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02011L0083-20220528":
-            (200, HTML, consolidated_html or FIX.joinpath("eurlex-consolidated.html").read_text()),
+        "https://publications.europa.eu/resource/celex/02011L0083-20220528": (303, {"Location": CELLAR_DOC.replace("https://", "http://")}, ""),
+        CELLAR_DOC: (200, content_type or XHTML, consolidated_html or FIX.joinpath("eurlex-consolidated.html").read_text()),
     }))
+
+
+def nl(html: str) -> str:
+    """The same document as CELLAR serves it in Dutch: Dutch title and disclaimer,
+    NL reference line, no English sentence anywhere."""
+    return (html.replace("Consolidated TEXT: 32011L0083 — EN — 28.05.2022", "Geconsolideerde TEKST: 32011L0083 — NL — 28.05.2022")
+                .replace("02011L0083 — EN — 28.05.2022", "02011L0083 — NL — 28.05.2022")
+                .replace("This text is meant purely as a documentation tool and has no legal effect.", "Onderstaande tekst dient louter ter informatie en is juridisch niet bindend."))
 
 
 def csv_client(csv_text):
@@ -82,6 +95,7 @@ def test_fetch_writes_articles_and_sets_version(project: Path):
     meta, body = fm.load(Path(f.written[0]))
     assert meta["consolidated_celex"] == "02011L0083-20220528" and meta["article"] == 1
     assert body.lstrip().startswith("> This text is meant purely as a documentation tool")
+    assert "Source: https://publications.europa.eu/resource/celex/02011L0083-20220528" in body.lstrip().splitlines()[0]
     banner = body.lstrip().splitlines()[0]
     assert "converted from HTML to Markdown and split per article by compliance-register" in banner  # CC-BY 4.0 §3(a)(1)(B): say it was modified
 
@@ -181,3 +195,70 @@ def test_g4_needs_the_consolidated_reference_line_not_the_title(project: Path):
     # a base CELEX glued to a leading digit is not the sector-0 form either
     glued = title_only.replace("32011L0083 — EN", "302011L0083 — EN")
     assert eurlex.fetch(src(), client(glued), cdir, today="2026-09-20").refused[0].startswith("G4")
+
+
+def test_fetch_reads_the_dutch_document_from_cellar_with_content_negotiation(project: Path):
+    """eur-lex.europa.eu answers 202-empty to every client (WAF); CELLAR serves the
+    consolidated XHTML in the requested language. Nothing in the guards may depend
+    on English wording."""
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    s = src(); s.config["language"] = "NL"
+    c = client(nl(FIX.joinpath("eurlex-consolidated.html").read_text()))
+    f = eurlex.fetch(s, c, cdir, today="2026-09-20")
+    assert f.refused == [] and f.version == "02011L0083-20220528" and any(w.endswith("/art_1.md") for w in f.written)
+    first = [r for r in c.opener.requests if "/resource/celex/" in r.full_url][0]
+    assert first.get_header("Accept") == "application/xhtml+xml" and first.get_header("Accept-language") == "nl"
+    assert all(r.full_url.startswith("https://") for r in c.opener.requests)
+    assert not any("eur-lex.europa.eu" in r.full_url for r in c.opener.requests)
+
+
+def test_g1_accepts_xhtml_and_refuses_the_202_empty_answer(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    c = http.Http(user_agent="t", delay_seconds=0, sleep=lambda s: None, opener=FakeOpener({
+        "https://publications.europa.eu/robots.txt": (404, {}, ""), eurlex.SPARQL + "*": sparql_route,
+        "https://publications.europa.eu/resource/celex/02011L0083-20220528": (202, HTML, ""),
+    }))
+    f = eurlex.fetch(src(), c, cdir, today="2026-09-20")
+    assert f.written == [] and f.refused == ["G1: not an HTML 200"]
+
+
+def test_g2_is_structural_not_english(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    real = nl(FIX.joinpath("eurlex-consolidated.html").read_text())
+    no_disclaimer = real.replace('class="disclaimer"', 'class="x"')
+    f = eurlex.fetch(src(), client(no_disclaimer), cdir, today="2026-09-20")
+    assert f.written == [] and f.refused[0].startswith("G2")
+
+
+def test_prefetch_returns_empty_when_no_eurlex_source_is_chosen_and_makes_no_request():
+    from compliance_register.mirror import adapters
+    calls = []
+    s = sources.Source.from_dict({"id": "nl-reg", "jurisdiction": "NL", "kind": "regulator", "url": "https://reg.test/", "tier": "page-hash"})
+    assert adapters.prefetch([s], lambda src: calls.append(src) or client(), today="2026-09-20") == {}
+    assert calls == []
+
+
+def test_fetch_skips_when_current_equals_last_version_and_force_is_false(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    c = client()
+    f = eurlex.fetch(src(last_version="02011L0083-20220528"), c, cdir, today="2026-09-20")
+    assert (f.skipped, f.written, f.version) == (1, [], None)
+    assert not any("/resource/celex/" in r.full_url for r in c.opener.requests)
+
+
+@pytest.mark.parametrize("ids", [[1, 2, 1], [1, 3, 2]])  # duplicated; out of order
+def test_g5_refuses_a_body_whose_article_anchors_are_duplicated_or_out_of_order(project: Path, ids):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    head, *rest = FIX.joinpath("eurlex-consolidated.html").read_text().split('id="art_')  # the fixture has art_1..3 in order
+    bad = head + "".join(f'id="art_{n}"' + r.split('"', 1)[1] for n, r in zip(ids, rest))
+    f = eurlex.fetch(src(), client(bad), cdir, today="2026-09-20")
+    assert f.written == [] and f.refused == ["G5: article anchors not unique and increasing"]
+
+
+def test_a_basket_over_100_celexes_is_resolved_in_more_than_one_get():
+    basket = []
+    for i in range(101):
+        s = src(); s.config = {"celex": f"32016R{i:04d}", "language": "EN"}; basket.append(s)
+    c = client()
+    resolved = eurlex.prefetch(basket, c, today="2026-09-20")
+    assert len(resolved) == 101 and len([r for r in c.opener.requests if r.full_url.startswith(eurlex.SPARQL)]) == 2

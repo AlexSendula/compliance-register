@@ -1,6 +1,6 @@
 # Project Overview
 
-> Last updated: 2026-09-20
+> Last updated: 2026-09-21
 
 ## What is compliance-register?
 
@@ -65,7 +65,7 @@ Regulatory obligation registers for software products — the artifact a complia
 
 | Service | Purpose | Notes |
 |---------|---------|-------|
-| EUR-Lex / CELLAR (SPARQL) | The only `api`-tier adapter shipped. One SPARQL resolve per run for the whole basket of CELEX numbers; the dated consolidated CELEX suffix is the change signal; `fetch` applies content guards G1–G5 before writing and chunks the act per article | `compliance_register/mirror/adapters/eurlex.py:1-4`, `compliance_register/mirror/adapters/eurlex.py:64-77`, `compliance_register/mirror/adapters/eurlex.py:184-196`, `compliance_register/mirror/adapters/eurlex.py:151`; query template `references/eurlex-resolve.sparql` |
+| EUR-Lex / CELLAR | The only `api`-tier adapter shipped, speaking CELLAR only (eur-lex.europa.eu's web front answers 202-empty to clients). One SPARQL resolve per run for the whole basket of CELEX numbers; the dated consolidated CELEX suffix is the change signal; `fetch` reads the act by content negotiation in the source's language, applies language-neutral content guards G1–G5 before writing and chunks it per article | `compliance_register/mirror/adapters/eurlex.py:1-4`, `compliance_register/mirror/adapters/eurlex.py:64-77`, `compliance_register/mirror/adapters/eurlex.py:184-196`, `compliance_register/mirror/adapters/eurlex.py:151`; query template `references/eurlex-resolve.sparql` |
 | Generic web sources (sitemap / feed / page-hash tiers) | Any legislative database, gazette, regulator page or contract page a human confirms into `sources.json`. Tiers are tried in the order api → sitemap → feed → page-hash → refuse; `page-hash` must fetch to compare and says so | `compliance_register/sources.py:17-21`, `compliance_register/mirror/adapters/__init__.py:11`, `compliance_register/mirror/adapters/pagehash.py:1-2`, sitemap fan-out caps `compliance_register/mirror/adapters/sitemap.py:13-14` |
 | freya-devkit (planned, read-only) | If present, may read the register — link a behaviour to an obligation, surface pending entries in `BACKLOG.md`. Nothing here gates a commit. The skill stays standalone and is not named `freya-*` | design repo `design/workflow.md` §Integration |
 | docs-mirror | Design lineage only: the scraping engine, tiering, sink guard and BM25 search follow its design. No runtime coupling; unrelated stores | `compliance_register/render.py:1-2`, `compliance_register/search.py:3-6`, `compliance_register/mirror/http.py:1-5` |

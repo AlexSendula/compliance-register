@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-> Last updated: 2026-09-20
+> Last updated: 2026-09-21
 
 Every message below is quoted from the code as it prints. Read the exit code first: `0` done · `1` failure (bad input, a validator found problems, a guard or HTTP refused something during `fetch`, an unreachable source during `check`) · `2` refused (the tool did not start, or made no request on purpose). The mapping lives in `compliance_register/cli.py:224-243` and `bin/compliance-register:9-26`. Everything untrusted that reaches the terminal passes through `printable()` (`compliance_register/render.py:48`), so a message showing `\x1b` or `‮` is a source that tried to repaint your terminal, not a display bug.
 
@@ -75,13 +75,16 @@ What to do: `fetch --source <id>` (only `fetch` advances `last_version`, `compli
 | Detail | Meaning | Do |
 |---|---|---|
 | `https://…: HTTP 503` / `HTTP 429` | server error or rate-limit, after 2 retries with 2 s and 6 s back-off (`compliance_register/mirror/http.py:20-21`, `:115-126`) | retry later; raise `delay_seconds` in `sources.json` if 429 repeats |
+| `https://…: <host> resolves to a private or local address (…)` | the confirmed name resolves to loopback, RFC 1918, link-local, CGNAT or another non-routable range (`compliance_register/mirror/http.py:200-226`) | do not add it to `allowed_hosts`; this is SEC-003 doing its job — confirm the source's real public host |
+| `https://…: cannot resolve <host>: …` | DNS failed after the retries, or the name is not valid IDNA (`compliance_register/mirror/http.py:200-226`) | check the spelling and your resolver; behind a mandatory proxy the tool cannot resolve at all (out of scope) |
 | `https://…: <urlopen error …>` / `timed out` | network / DNS / TLS (`compliance_register/mirror/http.py:122-123`) | check connectivity; a TLS error on macOS is the empty CA store above |
 | `https://…: disallowed by robots.txt` | the host forbids this path for our product token or the user agent sent (`compliance_register/mirror/http.py:156-157`) | see robots.txt below — do not bypass |
-| `robots.txt unreadable, rules unknown: …` | robots.txt answered 5xx, redirected somewhere we may not follow, or could not be reached — the rules are unknown, so nothing on that host is fetched this run (`compliance_register/mirror/http.py:101-110`) | retry later; it counts as unreachable, not as a move |
+| `robots.txt unreadable, rules unknown: …` | robots.txt answered 5xx, redirected somewhere we may not follow, or could not be reached — the rules are unknown, so nothing on that host is fetched this run (`compliance_register/mirror/http.py:173-181`) | retry later; it counts as unreachable, not as a move |
 | `https://…: host X not in allowed_hosts […]` | the page or a redirect hop left the allow-list (`compliance_register/mirror/http.py:154-155`) | add the host to `allowed_hosts` only if the redirect is legitimate |
-| `https://…: refuses https→http downgrade to …` / `more than 5 redirects` / `redirect without Location` | redirect judged per hop and refused (`compliance_register/mirror/http.py:143-159`) | the source's address is wrong or the site is broken; find the new canonical URL |
+| `more than 5 redirects` / `redirect without Location` | redirect judged per hop and refused; an `http://` target is upgraded to https instead of refused (`compliance_register/mirror/http.py:143-159`) | the source's address is wrong or the site is broken; find the new canonical URL |
 | `https://…: body exceeds 20000000 bytes` | over budget (`compliance_register/mirror/http.py:131-133`; listings are capped at 5 MB, `compliance_register/mirror/adapters/__init__.py:10`) | narrow the source (`config.include` for sitemaps) |
-| `DTD in XML listing` | a sitemap or feed carrying a DOCTYPE is refused before parsing (`compliance_register/mirror/adapters/__init__.py:53-59`) | the listing is not one we will read; pick another tier |
+| `listing is an HTML page, not XML (a bot challenge or error page served as 200?)` | the host answered the sitemap/feed URL with HTML — usually a WAF challenge; page-hash the pages you need instead, or retry later (`compliance_register/mirror/adapters/__init__.py:53-62`) | |
+| `DTD in XML listing` | a sitemap or feed carrying a DOCTYPE or entity declaration is refused before parsing (`compliance_register/mirror/adapters/__init__.py:53-62`) | the listing is not one we will read; pick another tier |
 | `https://…: not html` | page-hash tier got a 200 that does not open as an HTML document (`compliance_register/mirror/adapters/pagehash.py:19-20`, `:34`) | the URL serves a PDF/JSON/redirect page; fix the URL or the tier |
 | `SPARQL HTTP 503` / `SPARQL returned no rows for a non-empty basket (typed-literal trap?)` / `SPARQL returned N rows, none well-formed` | the one CELLAR resolve per run failed — every eurlex source in the basket reports it (`compliance_register/mirror/adapters/eurlex.py:41-48`, `:64-77`) | retry later; if it persists, `references/eurlex-resolve.sparql` no longer matches CELLAR's graph |
 | `32016R0679: no consolidation in the graph` | act never consolidated (nothing has amended it) or dropped from CELLAR (`compliance_register/mirror/adapters/eurlex.py:96-97`) | v1 does not mirror unconsolidated acts: cite the URL in the regime and keep `review_by` |
@@ -98,15 +101,15 @@ Output: `written N · skipped N · refused N` then one line per source with the 
 
 | Refusal | Meaning | Do |
 |---|---|---|
-| `G1: not an HTML 200` | status ≠ 200 or `Content-Type` not `text/html` | usually the language expression is not published yet; try `config.language: EN` |
-| `G2: documentation-tool marker missing (site chrome?)` | the consolidated-text banner is absent — this is a landing page, not the act | same as G1; or CELLAR points at a version EUR-Lex has not rendered |
+| `G1: not an HTML 200` | status ≠ 200 or `Content-Type` neither `text/html` nor `application/xhtml+xml`. CELLAR answers 404 for a language expression that is not published; eur-lex.europa.eu (no longer used) answered 202-empty to every client | try `config.language: EN`; if CELLAR itself is down, retry later |
+| `G2: consolidated-text disclaimer missing (site chrome?)` | the `class="disclaimer"` paragraph every consolidated text carries is absent — this is a landing page, not the act | same as G1; or CELLAR points at a version not rendered in that language |
 | `G3: no article anchors` | no `id="art_N"` — not an article-structured act | the act cannot be chunked per article; cite by URL |
 | `G4: header does not match requested CELEX/language/date` | the page's `<p class="reference">` line disagrees with the CELEX/lang/date we asked for | EUR-Lex served a different version; re-run `check` and look at `source-next` rows |
 | `G5: article anchors not unique and increasing` | malformed page | wait for EUR-Lex to fix it; never write a page whose articles cannot be addressed |
 | `resolve: …` / `resolve: no consolidation in force` | the SPARQL step failed or found nothing dated ≤ today (`compliance_register/mirror/adapters/eurlex.py:168-174`) | as for the `check` rows above |
 | `fetch: https://…: disallowed by robots.txt` | see next paragraph | |
 
-**robots.txt** is read once per host per client — redirects followed, 4xx = no rules, 5xx or a network failure = `robots.txt unreadable, rules unknown`, which makes the host unreachable for that run (`compliance_register/mirror/http.py:90-119`) — and consulted on every hop against both our product token and the user agent the source configured (`headers.user_agent` picks `default`, `neutral` or `browser` at `compliance_register/mirror/http.py:29-37`). A `Disallow` for our path is `HttpRefused` — `check` reports it unreachable, `fetch` refuses. There is no allow-list and no override flag, and adding one is the design decision D24 says no to. The correct record is `tier: refuse` in `sources.json`: the regime is still discovered and cites the URL, and its `review_by` becomes the only watch signal (`SKILL.md:134-137`).
+**robots.txt** is read once per host per client — redirects followed, even to another public host (publications.europa.eu sends its file to op.europa.eu), 4xx = no rules, 5xx or a network failure = `robots.txt unreadable, rules unknown`, which makes the host unreachable for that run (`compliance_register/mirror/http.py:160-189`) — matched per RFC 9309 (longest pattern wins, allow on a tie) and consulted on every hop against both our product token and the user agent the source configured (`headers.user_agent` picks `default`, `neutral` or `browser` at `compliance_register/mirror/http.py:29-37`). A `Disallow` for our path is `HttpRefused` — `check` reports it unreachable, `fetch` refuses. There is no allow-list and no override flag, and adding one is the design decision D24 says no to. The correct record is `tier: refuse` in `sources.json`: the regime is still discovered and cites the URL, and its `review_by` becomes the only watch signal (`SKILL.md:134-137`).
 
 **`tier: refuse — licence or robots forbid fetching`** (`compliance_register/fetch.py:31-36`): named with `--source` → exit 2, no request; unnamed in a plain `fetch` → skipped, exit unaffected.
 

@@ -98,3 +98,27 @@ def test_fan_out_is_capped_and_the_cap_is_reported(project: Path, monkeypatch):
     assert r.status == "moved" and len(r.changed) == 5 and "capped" in r.detail and "config.include" in r.detail
     assert sum(1 for q in c.opener.requests if q.full_url.startswith("https://reg.test/sm")) == 2  # 3rd child never needed: 5 pages reached
     assert sitemap.MAX_PAGES == 5 and sitemap.MAX_CHILDREN == 3
+
+
+def test_html_served_as_a_listing_is_named_as_such(project: Path):
+    """A bot-challenge or error page comes back 200 text/html with <!DOCTYPE html>;
+    'DTD in XML listing' sent the operator hunting for an entity that was never there."""
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    c = client({"https://reg.test/sitemap.xml": (200, {"Content-Type": "text/html"}, "<!DOCTYPE html><html><body>Checking your browser</body></html>")})
+    r = sitemap.check(src(), c, today="2026-09-20", cdir=cdir)
+    assert r.status == "unreachable" and "HTML page, not XML" in r.detail
+
+
+def test_check_downloads_no_page_bodies_on_the_sitemap_tier(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    c = client()
+    assert sitemap.check(src(), c, today="2026-09-20", cdir=cdir).status == "moved"
+    assert {q.full_url for q in c.opener.requests} == {"https://reg.test/robots.txt", "https://reg.test/sitemap.xml"}
+
+
+def test_force_refetches_pages_whose_lastmod_is_unchanged(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    sitemap.fetch(src(), client(), cdir, today="2026-09-20")
+    again = sitemap.fetch(src(), client(), cdir, today="2026-09-21")
+    forced = sitemap.fetch(src(), client(), cdir, today="2026-09-21", force=True)
+    assert (again.skipped, len(again.written)) == (2, 0) and (forced.skipped, len(forced.written)) == (0, 2)

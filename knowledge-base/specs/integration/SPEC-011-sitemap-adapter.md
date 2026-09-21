@@ -55,14 +55,16 @@ behaviors:
     locator: tests/test_adapter_sitemap.py::test_fan_out_is_capped_and_the_cap_is_reported
   - behavior_id: BEH-117
     title: "check downloads no page bodies on the sitemap tier"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_adapter_sitemap.py::test_check_downloads_no_page_bodies_on_the_sitemap_tier
   - behavior_id: BEH-118
     title: "--force refetches pages whose lastmod is unchanged"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_adapter_sitemap.py::test_force_refetches_pages_whose_lastmod_is_unchanged
 ---
 
 # Sitemap adapter: lastmod signal with capped fan-out
@@ -91,8 +93,8 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-114 a non-HTML page body is refused by URL and the other pages are still written | accepted | `tests/test_adapter_sitemap.py::test_fetch_refuses_non_html` |
 | BEH-115 a listing failure in fetch is a refusal and MANIFEST.json is still saved | accepted | `tests/test_adapter_sitemap.py::test_fetch_listing_failure_is_refused_and_manifest_still_saved` |
 | BEH-116 fan-out stops at MAX_PAGES/MAX_CHILDREN, unneeded children are never requested, and the detail names the cap and config.include | accepted | `tests/test_adapter_sitemap.py::test_fan_out_is_capped_and_the_cap_is_reported` |
-| BEH-117 check downloads no page bodies on the sitemap tier | confirmed | — (test owed) |
-| BEH-118 --force refetches pages whose lastmod is unchanged | confirmed | — (test owed) |
+| BEH-117 check downloads no page bodies on the sitemap tier | accepted | `tests/test_adapter_sitemap.py::test_check_downloads_no_page_bodies_on_the_sitemap_tier` |
+| BEH-118 --force refetches pages whose lastmod is unchanged | accepted | `tests/test_adapter_sitemap.py::test_force_refetches_pages_whose_lastmod_is_unchanged` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -145,3 +147,4 @@ Design Decisions** below, not here.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Inferred from code, tests and design repo (D18, D21); certainty 90 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-117, BEH-118; promoted confirmed → accepted | tests owed |

@@ -90,7 +90,7 @@ behaviors:
 
 `looks_like_html(text)` decides whether a body opens as an HTML document: it skips a BOM, leading whitespace, leading comments and an XML declaration, then checks that the first 200 characters start with `<!doctype html`, `<html` or `<head`. It is anchored to the start, not a substring search.
 
-`html_to_markdown(html, page_url)` slices the first `<article>` or `<main>` region if one has text, drops script/style/nav/footer/aside/form/svg/iframe/head subtrees, converts headings, paragraphs, lists, links (hrefs absolutised against `page_url`) and `<pre>` blocks (fence widened past any backtick run in the content, no markdown syntax emitted inside), and returns `None` — never raises — when the input is empty, the parser fails, nothing usable comes out, or the output still looks like HTML.
+`html_to_markdown(html, page_url)` slices the first `<article>` or `<main>` region if one has text, drops script/style/nav/footer/aside/svg/iframe/head subtrees and form controls (select, textarea, button, label, input — never a whole `<form>`, since wetten.overheid.nl wraps each act in one), drops an `aria-hidden` element and only that element, converts headings, paragraphs, lists, links (hrefs absolutised against `page_url`) and `<pre>` blocks (fence widened past any backtick run in the content, no markdown syntax emitted inside), and returns `None` — never raises — when the input is empty, the parser fails, nothing usable comes out, or the output still looks like HTML.
 
 The file is a verbatim copy of docs-mirror's `htmlmd.py` and carries that provenance comment at its head. Every adapter that stores a page (sitemap, feed, page-hash) routes the body through it; EUR-Lex chunks its own article markup and uses this module for text extraction inside each article.
 
@@ -162,3 +162,4 @@ Design Decisions** below, not here.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Inferred from code, tests and design repo (D21, plan B Task 3); certainty 90 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Re-vendored from docs-mirror 271a229: a form keeps its prose and loses only its controls; an aria-hidden element drops only itself (Dutch acts were mirrored as ~500 bytes of breadcrumb before) | nieuwbouw-tracker trial review |

@@ -36,9 +36,10 @@ behaviors:
     locator: tests/test_cli.py::test_status_json
   - behavior_id: BEH-178
     title: 'init does not append a duplicate .search-index.json line to an existing .gitignore'
-    state: confirmed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
+    locator: tests/test_cli.py::test_init_does_not_append_a_duplicate_search_index_json_line_to_an_existing_gitignore
 ---
 
 # init: idempotent scaffold of knowledge-base/compliance/
@@ -66,7 +67,7 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-175 init creates profile.md, regimes/, mirror/.gitignore (.private/), sources.json with schema 1 and an empty list, and adds .search-index.json to .gitignore | accepted | `tests/test_cli.py::test_init_scaffolds` |
 | BEH-176 Running init twice exits 0 and leaves existing files unchanged | accepted | `tests/test_cli.py::test_init_twice_is_safe` |
 | BEH-177 After init, status --json reports the profile as present with zero binding regimes | accepted | `tests/test_cli.py::test_status_json` |
-| BEH-178 init does not append a duplicate .search-index.json line to an existing .gitignore | confirmed | — (test owed) |
+| BEH-178 init does not append a duplicate .search-index.json line to an existing .gitignore | accepted | `tests/test_cli.py::test_init_does_not_append_a_duplicate_search_index_json_line_to_an_existing_gitignore` |
 
 ## Intentional Design Decisions
 
@@ -100,3 +101,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-178; promoted confirmed → accepted | tests owed |

@@ -31,14 +31,16 @@ behaviors:
     locator: tests/test_cli.py::test_profile_diff_ref_is_never_a_git_option
   - behavior_id: BEH-197
     title: 'profile.diff ignores keys outside DIMENSIONS and reports only known slugs'
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_profile.py::test_profile_diff_ignores_keys_outside_dimensions_and_reports_only_known_slugs
   - behavior_id: BEH-198
     title: 'diff without a current profile.md prints ''no profile.md'' to stderr and exits 1'
-    state: confirmed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
+    locator: tests/test_cli.py::test_diff_without_a_current_profile_md_prints_no_profile_md_to_stderr_and_exits_1
 ---
 
 # profile diff --against <file or git ref> with --end-of-options
@@ -55,8 +57,6 @@ D18 (incremental): `rescan` and the human reviewer want to know which dimensions
 
 `--end-of-options` exists because the ref is operator-typed and a value like `--output=/tmp/x` would otherwise be parsed by git as an option (commit 8ee0520), an argument-injection class the tool must not have.
 
-Open question: should git's stderr be passed through `render.printable` for consistency, given a git hook or a pathological ref name could contain control characters? Currently classified as operator-supplied.
-
 ## Behavior
 
 The observable acceptance behavior is owned by each behavior's **test**, not by
@@ -67,8 +67,8 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 |----------|-------|-------------|
 | BEH-195 diff --against <older profile file> prints exactly the slugs whose value changed (e.g. 'sector') and exits 0 | accepted | `tests/test_cli.py::test_profile_diff_against_file` |
 | BEH-196 A ref such as --output=/tmp/x is passed after --end-of-options and never as a git option; git failure relays stderr and exits 1 | accepted | `tests/test_cli.py::test_profile_diff_ref_is_never_a_git_option` |
-| BEH-197 profile.diff ignores keys outside DIMENSIONS and reports only known slugs | confirmed | — (test owed) |
-| BEH-198 diff without a current profile.md prints 'no profile.md' to stderr and exits 1 | confirmed | — (test owed) |
+| BEH-197 profile.diff ignores keys outside DIMENSIONS and reports only known slugs | accepted | `tests/test_profile.py::test_profile_diff_ignores_keys_outside_dimensions_and_reports_only_known_slugs` |
+| BEH-198 diff without a current profile.md prints 'no profile.md' to stderr and exits 1 | accepted | `tests/test_cli.py::test_diff_without_a_current_profile_md_prints_no_profile_md_to_stderr_and_exits_1` |
 
 ## Intentional Design Decisions
 
@@ -109,3 +109,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
 | 2026-09-21 | git's stderr is now escaped through `render.printable`; open question closed | G3 contradiction check, principle 10 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-197, BEH-198; promoted confirmed → accepted | tests owed |

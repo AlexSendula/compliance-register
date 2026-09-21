@@ -38,14 +38,16 @@ behaviors:
     locator: tests/test_cli.py::test_pending_output_escapes_terminal_controls
   - behavior_id: BEH-210
     title: 'printable returns printable non-ASCII text (e.g. ''café'', ''日本語'') unchanged and the same object identity'
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_render.py::test_printable_returns_printable_non_ascii_text_unchanged_and_the_same_object_identity
   - behavior_id: BEH-211
     title: 'printable maps \t, \n, \r to their mnemonics and codepoints above U+FFFF to \U followed by eight hex digits'
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_render.py::test_printable_maps_t_n_r_to_their_mnemonics_and_codepoints_above_u_ffff_to_u_followed_by_eight_hex_digits
 ---
 
 # render.printable: escape at the terminal sink
@@ -62,7 +64,7 @@ Principle 10 (from docs-mirror ADR-008): mirrored text is untrusted and a termin
 
 `isprintable` is used instead of `repr` because repr's quoting and doubled backslashes make a search result unreadable, and unreadable escaping is the kind that gets deleted. The Unicode category test is deliberately wider than any URL refusal set: over-escaping costs one `\xad` in a preview line, over-refusing costs a source.
 
-Open question: there is no `tests/test_render.py`; the unit-level behaviours are covered only indirectly through the CLI tests. Is a direct unit test wanted here, or is docs-mirror's own suite considered the owner?
+`tests/test_render.py` pins the unit-level behaviours directly (BEH-210, BEH-211); docs-mirror's suite remains the owner of the vendored implementation.
 
 ## Behavior
 
@@ -75,8 +77,8 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-207 ESC (U+001B) in a printed regime body is rendered as the four characters \x1b and no raw ESC byte reaches stdout | accepted | `tests/test_cli.py::test_search_output_escapes_terminal_controls` |
 | BEH-208 U+202E in a printed body is rendered as \u202e | accepted | `tests/test_cli.py::test_search_output_escapes_terminal_controls` |
 | BEH-209 A pending summary containing ESC is printed with \x1b[2J and exits 0 | accepted | `tests/test_cli.py::test_pending_output_escapes_terminal_controls` |
-| BEH-210 printable returns printable non-ASCII text (e.g. 'café', '日本語') unchanged and the same object identity | confirmed | — (test owed) |
-| BEH-211 printable maps \t, \n, \r to their mnemonics and codepoints above U+FFFF to \U followed by eight hex digits | confirmed | — (test owed) |
+| BEH-210 printable returns printable non-ASCII text (e.g. 'café', '日本語') unchanged and the same object identity | accepted | `tests/test_render.py::test_printable_returns_printable_non_ascii_text_unchanged_and_the_same_object_identity` |
+| BEH-211 printable maps \t, \n, \r to their mnemonics and codepoints above U+FFFF to \U followed by eight hex digits | accepted | `tests/test_render.py::test_printable_maps_t_n_r_to_their_mnemonics_and_codepoints_above_u_ffff_to_u_followed_by_eight_hex_digits` |
 
 ## Intentional Design Decisions
 
@@ -126,3 +128,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-210, BEH-211; promoted confirmed → accepted | tests owed |

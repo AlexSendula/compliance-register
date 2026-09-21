@@ -1,10 +1,32 @@
 {
   "version": 1,
-  "scanned_commit": "b3a4932",
+  "scanned_commit": "7128643",
   "report": "knowledge-base/security/codebase-security/2026-09-21.md",
   "findings": [
-    {"id": "SEC-001", "title": "Plaintext http accepted from listings and page-hash config", "severity": "medium", "status": "resolved", "file": "compliance_register/mirror/http.py", "line": 151},
-    {"id": "SEC-002", "title": "No untrusted-text rule for the agent that reads the mirror", "severity": "medium", "status": "resolved", "file": "SKILL.md", "line": 134},
-    {"id": "SEC-003", "title": "Confirmed hostname resolving to a private address is not caught", "severity": "low", "status": "open", "file": "compliance_register/sources.py", "line": 88, "spec_ref": "SPEC-007"}
+    {
+      "id": "SEC-001",
+      "title": "Plaintext http accepted from listings and page-hash config",
+      "severity": "medium",
+      "status": "resolved",
+      "file": "compliance_register/mirror/http.py",
+      "line": 226
+    },
+    {
+      "id": "SEC-002",
+      "title": "No untrusted-text rule for the agent that reads the mirror",
+      "severity": "medium",
+      "status": "resolved",
+      "file": "SKILL.md",
+      "line": 134
+    },
+    {
+      "id": "SEC-003",
+      "title": "Confirmed hostname resolving to a private address is not caught",
+      "severity": "low",
+      "status": "resolved",
+      "file": "compliance_register/mirror/http.py",
+      "line": 200,
+      "spec_ref": "SPEC-007"
+    }
   ]
 }

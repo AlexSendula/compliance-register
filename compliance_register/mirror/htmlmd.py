@@ -48,10 +48,10 @@ and each is rejected for a stated reason:
 is worse than `html2text` on tables and on code-fence languages. That is a
 real, permanent maintenance cost, accepted deliberately rather than waved past.
 """
+from __future__ import annotations
+
 # Copied verbatim from docs-mirror (AlexSendula/docs-mirror, docs_mirror/htmlmd.py).
 # Diff against upstream before editing; the only shared surface between the two skills.
-
-from __future__ import annotations
 
 import re
 from html import unescape
@@ -60,16 +60,28 @@ from urllib.parse import urljoin
 
 # Subtrees whose text is never page content. `nav`, `footer` and `aside` are
 # site chrome; `script`, `style`, `noscript` and `template` are not prose at
-# all; `svg` is markup whose text nodes are labels; `form` is interactive.
+# all; `svg` is markup whose text nodes are labels. A `form` is NOT dropped as
+# a whole: wetten.overheid.nl wraps every act in one, and dropping it dropped
+# the law — only its controls (`select`, `textarea`, `button`, `label`, and the
+# void `input`) are interactive; the prose between them is content.
 #
 # `nav`/`footer`/`aside` are dropped here even though `crawl.py` deliberately
 # does NOT strip them before link extraction — and the asymmetry is the point.
 # That pass is harvesting a link frontier and must not lose an address; this
 # one is producing prose for an agent to read, and a page whose every third
 # line is a sidebar link is what `qc`'s `nav_only` rule exists to fail.
+# Elements that never have an end tag (HTML void elements). One of these carrying
+# `aria-hidden="true"` is skipped on its own; it cannot open a drop that an end
+# tag would have to close.
+_VOID = frozenset((
+    "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta",
+    "source", "track", "wbr",
+))
+
 _DROP = frozenset((
     "script", "style", "noscript", "template", "svg", "iframe",
-    "form", "nav", "footer", "aside", "head",
+    "nav", "footer", "aside", "head",
+    "select", "textarea", "button", "label", "input",
 ))
 
 # Emitted as-is, with their content escaped rather than interpreted.
@@ -186,6 +198,7 @@ class _Converter(HTMLParser):
         self.page_url = page_url
         self._out: list[str] = []
         self._drop_depth = 0
+        self._drop_tag = ""
         self._pre_depth = 0
         # Index in `_out` of the opening fence, so its width can be widened
         # once the block's content is known. See `_fence_for`.
@@ -252,16 +265,18 @@ class _Converter(HTMLParser):
     # -- parser callbacks ------------------------------------------------
     def handle_starttag(self, tag, attrs):
         if self._drop_depth:
-            if tag in _DROP:
+            if tag == self._drop_tag:
                 self._drop_depth += 1
-            return
-        if tag in _DROP:
-            self._drop_depth = 1
             return
         a = dict(attrs)
         # `aria-hidden` marks decorative chrome — anchor icons, separators.
-        if a.get("aria-hidden") == "true":
-            self._drop_depth = 1
+        # The drop is closed by the end tag of the element that opened it, and
+        # only that one: closing it on any `_DROP` end tag let a
+        # `<div aria-hidden="true">` swallow the rest of the document. A void
+        # element has no end tag, so it is skipped without opening a drop.
+        if tag in _DROP or a.get("aria-hidden") == "true":
+            if tag not in _VOID:
+                self._drop_tag, self._drop_depth = tag, 1
             return
         if tag == "body":
             self._seen_body = True
@@ -332,7 +347,7 @@ class _Converter(HTMLParser):
 
     def handle_endtag(self, tag):
         if self._drop_depth:
-            if tag in _DROP:
+            if tag == self._drop_tag:
                 self._drop_depth -= 1
             return
         if tag in _PRE:

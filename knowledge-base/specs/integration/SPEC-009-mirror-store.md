@@ -76,9 +76,10 @@ behaviors:
     locator: tests/test_poisoned_files_do_not_brick.py::test_manifest_rows_that_are_not_dicts_are_dropped
   - behavior_id: BEH-102
     title: "a jurisdiction or source id that is not a safe path component raises UnsafePath"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_store.py::test_a_jurisdiction_or_source_id_that_is_not_a_safe_path_component_raises_unsafe_path
 ---
 
 # Mirror store: source directories, provenance frontmatter, per-source manifest
@@ -112,7 +113,7 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-099 content_hash is identical for texts that differ only in whitespace | accepted | `tests/test_store.py::test_content_hash_ignores_whitespace` |
 | BEH-100 writing a private page ensures mirror/.gitignore lists .private/ exactly once and preserves existing lines; a public page does not touch it | accepted | `tests/test_store.py::test_private_page_ensures_mirror_gitignore` |
 | BEH-101 manifest rows that are not dicts are dropped on load and treated as needing refresh | accepted | `tests/test_poisoned_files_do_not_brick.py::test_manifest_rows_that_are_not_dicts_are_dropped` |
-| BEH-102 a jurisdiction or source id that is not a safe path component raises UnsafePath | confirmed | — (test owed) |
+| BEH-102 a jurisdiction or source id that is not a safe path component raises UnsafePath | accepted | `tests/test_store.py::test_a_jurisdiction_or_source_id_that_is_not_a_safe_path_component_raises_unsafe_path` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -177,3 +178,4 @@ Design Decisions** below, not here.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Inferred from code, tests and design repo (D20, D23); certainty 92 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-102; promoted confirmed → accepted | tests owed |

@@ -67,3 +67,22 @@ def test_guard_refusal_writes_one_source_unreachable_and_exits_1(project: Path):
     entries = [e for e in pending.list_open(cdir) if e["kind"] == "source-unreachable"]
     assert len(entries) == 1 and entries[0]["source"] == "nl-reg" and "https://reg.test/a" in entries[0]["summary"]
     assert entries[0]["severity"] == "info" and entries[0]["affects"] == ["COOKIES"]
+
+
+def test_force_refetches_sources_whose_version_or_lastmod_is_unchanged(project: Path):
+    cdir, factory = setup(project)
+    fetch.run(cdir, ids=None, force=False, today="2026-09-20", client_factory=factory)
+    again = fetch.run(cdir, ids=None, force=False, today="2026-09-21", client_factory=factory)
+    forced = fetch.run(cdir, ids=None, force=True, today="2026-09-21", client_factory=factory)
+    assert (again["written"], again["skipped"]) == (0, 1) and (forced["written"], forced["skipped"]) == (1, 0)
+    assert sources.load(cdir)[0].last_fetched == "2026-09-21"
+
+
+def test_an_unnamed_confirmed_tier_refuse_source_is_reported_in_details_without_changing_the_exit_code(project: Path):
+    cdir, factory = setup(project)
+    srcs = sources.load(cdir)
+    srcs.append(sources.Source.from_dict(dict(srcs[0].to_dict(), id="nl-closed", tier="refuse", url="https://closed.test/")))
+    sources.save(cdir, srcs)
+    rep = fetch.run(cdir, ids=None, force=False, today="2026-09-20", client_factory=factory)
+    assert rep["exit"] == 0 and rep["written"] == 1 and rep["refused"] == ["nl-closed"]
+    assert rep["details"]["nl-closed"].startswith("tier: refuse")

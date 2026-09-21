@@ -103,7 +103,7 @@ Keep all four identical — nothing checks that they agree.
 
 ```bash
 # 1. green
-python3 -m pytest -q                     # 200 passed, no network (pyproject.toml:13-15)
+python3 -m pytest -q                     # 307 passed, no network (pyproject.toml:13-15)
 
 # 2. skill shape (Agent Skills spec)
 npx -y skills-ref validate .

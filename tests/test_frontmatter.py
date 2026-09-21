@@ -58,3 +58,12 @@ def test_loads_normalises_dates():
     assert meta["confirmed_at"] == "2026-09-20"
     assert meta["sources"][0]["retrieved"] == "2026-09-20T10:00:00"
     json.dumps(meta)
+
+
+def test_a_block_whose_yaml_is_not_a_mapping_raises_frontmattererror():
+    with pytest.raises(fm.FrontmatterError):
+        fm.loads("---\n- a\n- b\n---\nbody\n")
+
+
+def test_a_closing_fence_at_end_of_file_without_a_trailing_newline_is_accepted_and_yields_an_empty_body():
+    assert fm.loads("---\nid: X\n---") == ({"id": "X"}, "")

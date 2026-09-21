@@ -62,9 +62,10 @@ behaviors:
     locator: tests/test_poisoned_files_do_not_brick.py::test_corrupt_sources_json_is_a_typed_error_and_exit_1
   - behavior_id: BEH-219
     title: 'load returns an empty list when sources.json does not exist'
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_sources.py::test_load_returns_an_empty_list_when_sources_json_does_not_exist
 ---
 
 # sources.json model: Source dataclass, defaults, atomic load/save, typed SourcesError
@@ -98,7 +99,7 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-216 A bare-string allowed_hosts is wrapped into a one-element list | accepted | `tests/test_sources.py::test_allowed_hosts_string_is_wrapped_and_bad_shapes_refused` |
 | BEH-217 get() raises KeyError for an unknown id | accepted | `tests/test_sources.py::test_get_unknown` |
 | BEH-218 load raises SourcesError on invalid JSON and on a top-level list | accepted | `tests/test_poisoned_files_do_not_brick.py::test_corrupt_sources_json_is_a_typed_error_and_exit_1` |
-| BEH-219 load returns an empty list when sources.json does not exist | confirmed | — (test owed) |
+| BEH-219 load returns an empty list when sources.json does not exist | accepted | `tests/test_sources.py::test_load_returns_an_empty_list_when_sources_json_does_not_exist` |
 
 ## Intentional Design Decisions
 
@@ -147,3 +148,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-219; promoted confirmed → accepted | tests owed |

@@ -54,6 +54,9 @@ def parse_xml(body: bytes) -> ET.Element:
     """ET.fromstring behind one guard: a listing carrying a DTD is refused
     before expat sees it (entity expansion is the only XML risk left on a
     modern expat, and a listing never legitimately needs one)."""
+    head = body[:4096].lstrip()
+    if head[:15].lower().startswith(b"<!doctype html") or head[:6].lower().startswith(b"<html"):
+        raise HttpRefused("listing is an HTML page, not XML (a bot challenge or error page served as 200?)")
     if b"<!DOCTYPE" in body[:4096] or b"<!ENTITY" in body:
         raise HttpRefused("DTD in XML listing")
     return ET.fromstring(body)

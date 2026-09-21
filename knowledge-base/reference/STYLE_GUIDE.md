@@ -93,7 +93,7 @@ Four-space indent, double quotes throughout, no line-length limit (a lookup tabl
 - A test name is a sentence about behaviour, not a function name: `test_check_unreachable_is_info_never_fresh` (`tests/test_check.py:38`), `test_robots_has_no_bypass_switch` (`tests/test_http.py:65`), `test_validation_problem_exits_2_before_any_request` (`tests/test_fetch.py:32`).
 - One shared fixture, `project` — a tmp dir with an empty `knowledge-base/` (`tests/conftest.py:5-9`). Each file defines its own small `client()` / `write()` helper and module-level sample dicts (`EURLEX`, `META`) that other files import (`tests/test_http.py:9-10`, `tests/test_poisoned_files_do_not_brick.py:9-12`).
 - No network, ever: `tests/fakehttp.py` routes `url → (status, headers, body)` with a trailing `*` prefix match and records every request (`tests/fakehttp.py:8-26`). `@pytest.mark.parametrize` is used for value sets (`tests/test_sources.py:69`).
-- Run: `python3 -m pytest -q` from the repo root; 200 tests, well under a second (`pyproject.toml:13-15`).
+- Run: `python3 -m pytest -q` from the repo root; 307 tests, under a second (`pyproject.toml:13-15`).
 
 ## Markdown
 

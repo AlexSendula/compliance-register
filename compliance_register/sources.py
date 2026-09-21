@@ -3,13 +3,14 @@ each source is fetched and watched. Discovered by the agent, confirmed by a
 human, nothing hardcoded (D17)."""
 from __future__ import annotations
 
-import ipaddress
 import json
 import os
 import tempfile
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from urllib.parse import urlsplit
+
+from .mirror.http import is_private_host
 
 from .mirror.adapters import NAMES as ADAPTERS  # the adapter modules import Source; the registry names do not
 
@@ -89,7 +90,7 @@ def validate(s: Source) -> list[str]:
         p.append(f"{s.id}: allowed_hosts must be a list of hostnames")
     else:
         for h in s.allowed_hosts:
-            if _is_private_host(h):
+            if is_private_host(h):
                 p.append(f"{s.id}: allowed_hosts must not include local or private addresses ({h})")
     if s.adapter == "eurlex":
         from .mirror.adapters import eurlex  # adapters import Source; keep the cycle lazy
@@ -113,16 +114,6 @@ def refusals(chosen: list[Source], ids: list[str] | None) -> dict[str, str]:
         if problems:
             out[s.id] = "; ".join(problems)
     return out
-
-
-def _is_private_host(host: str) -> bool:
-    if host.lower() == "localhost":
-        return True
-    try:
-        ip = ipaddress.ip_address(host.strip("[]"))
-    except ValueError:
-        return False
-    return ip.is_loopback or ip.is_private or ip.is_link_local or ip.is_reserved or ip.is_unspecified
 
 
 def load(cdir: Path) -> list[Source]:

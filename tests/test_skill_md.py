@@ -1,5 +1,6 @@
 import json
 import re
+import tomllib
 from pathlib import Path
 
 import yaml
@@ -150,3 +151,35 @@ def test_skill_md_documents_pending_kinds_severities_and_the_api_endpoint_rule()
     assert "carries the endpoint" in mirror and "never ship" in mirror and "sources.json" in mirror
     regimes_method = (ROOT / "references" / "method-discover-regimes.md").read_text()
     assert "profile diff" not in regimes_method and "rescan" in regimes_method
+
+
+def test_version_is_identical_in_all_four_places():
+    from compliance_register import __version__
+    plugin = json.loads((ROOT / ".claude-plugin" / "plugin.json").read_text())
+    pyproject = tomllib.loads((ROOT / "pyproject.toml").read_text())
+    fm = frontmatter((ROOT / "SKILL.md").read_text())
+    assert {__version__, plugin["version"], pyproject["project"]["version"], fm["metadata"]["version"]} == {__version__}
+
+
+def test_sparql_template_has_values_placeholder_and_no_instrument_celex():
+    from compliance_register.mirror.adapters import eurlex
+    text = (ROOT / "references" / "eurlex-resolve.sparql").read_text()
+    assert "{{VALUES}}" in text and not _CELEX.search(text)
+    query = eurlex._query(["32016R0679", "32011L0083"])
+    assert "{{VALUES}}" not in query and '"32016R0679"^^xsd:string "32011L0083"^^xsd:string' in query
+
+
+def test_checklist_slugs_match_profile_dimensions_in_order():
+    from compliance_register import profile
+    text = (ROOT / "references" / "dimensions-checklist.md").read_text()
+    section = text.split("## Slugs", 1)[1].split("\n## ", 1)[0]
+    assert re.findall(r"`([a-z_]+)`", section) == list(profile.DIMENSIONS) and len(profile.DIMENSIONS) == 15
+
+
+def test_every_checklist_dimension_carries_the_five_fixed_lines():
+    text = (ROOT / "references" / "dimensions-checklist.md").read_text()
+    dims = re.split(r"\n## \d+\. ", text)[1:]
+    assert len(dims) == 15
+    for d in dims:
+        labels = re.findall(r"^- \*\*(.+?)\*\*", d, re.M)
+        assert labels == ["Ask", "Decides", "Code may propose", "Trap", "Found in"], d.splitlines()[0]

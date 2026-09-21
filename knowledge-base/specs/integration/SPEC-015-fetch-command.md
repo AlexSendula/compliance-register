@@ -64,14 +64,16 @@ behaviors:
     locator: tests/test_cli.py::test_today_must_be_an_iso_date
   - behavior_id: BEH-151
     title: "--force refetches sources whose version or lastmod is unchanged"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_fetch.py::test_force_refetches_sources_whose_version_or_lastmod_is_unchanged
   - behavior_id: BEH-152
     title: "an unnamed confirmed tier: refuse source is reported in details without changing the exit code"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_fetch.py::test_an_unnamed_confirmed_tier_refuse_source_is_reported_in_details_without_changing_the_exit_code
 ---
 
 # fetch command: acquire confirmed sources into the mirror
@@ -103,8 +105,8 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-148 a named source that is not confirmed is refused with exit 2 and no request | accepted | `tests/test_fetch.py::test_named_unconfirmed_source_is_refused` |
 | BEH-149 a guard refusal exits 1 and writes exactly one source-unreachable info entry with affects, across two runs | accepted | `tests/test_fetch.py::test_guard_refusal_writes_one_source_unreachable_and_exits_1` |
 | BEH-150 fetch --today rejects a non-ISO date with exit 1 | accepted | `tests/test_cli.py::test_today_must_be_an_iso_date` |
-| BEH-151 --force refetches sources whose version or lastmod is unchanged | confirmed | — (test owed) |
-| BEH-152 an unnamed confirmed tier: refuse source is reported in details without changing the exit code | confirmed | — (test owed) |
+| BEH-151 --force refetches sources whose version or lastmod is unchanged | accepted | `tests/test_fetch.py::test_force_refetches_sources_whose_version_or_lastmod_is_unchanged` |
+| BEH-152 an unnamed confirmed tier: refuse source is reported in details without changing the exit code | accepted | `tests/test_fetch.py::test_an_unnamed_confirmed_tier_refuse_source_is_reported_in_details_without_changing_the_exit_code` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -160,3 +162,4 @@ Design Decisions** below, not here.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Inferred from code, tests and design repo (D19, D24, D29); certainty 92 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-151, BEH-152; promoted confirmed → accepted | tests owed |

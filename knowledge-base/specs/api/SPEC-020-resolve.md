@@ -23,20 +23,23 @@ behaviors:
     adapter: pytest
     locator: tests/test_cli.py::test_resolve_and_pending
   - behavior_id: BEH-188
-    title: 'resolve with an id that is not open prints ''unknown pending id'' to stderr and exits 1'
-    state: confirmed
-    level: component
+    title: "resolve with an id that is not in pending.jsonl prints 'unknown pending id' to stderr and exits 1"
+    state: accepted
+    level: unit
     adapter: pytest
+    locator: tests/test_cli.py::test_resolve_with_an_id_that_is_not_open_prints_unknown_pending_id_to_stderr_and_exits_1
   - behavior_id: BEH-189
     title: 'resolve without --by, or with an action outside applied/dismissed/deferred, is an argparse error and exits 1'
-    state: confirmed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
+    locator: tests/test_cli.py::test_resolve_without_by_or_with_an_action_outside_applied_dismissed_deferred_is_an_argparse_error_and_exits_1
   - behavior_id: BEH-190
     title: 'The success line prints the id and the --by name through printable'
-    state: confirmed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
+    locator: tests/test_cli.py::test_the_success_line_prints_the_id_and_the_by_name_through_printable
 ---
 
 # resolve: record a named human's decision on a pending entry
@@ -60,9 +63,9 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | Behavior | State | Verified by |
 |----------|-------|-------------|
 | BEH-187 resolve <id> --action applied --by <name> --note <text> exits 0 and the entry no longer appears in pending --json | accepted | `tests/test_cli.py::test_resolve_and_pending` |
-| BEH-188 resolve with an id that is not open prints 'unknown pending id' to stderr and exits 1 | confirmed | — (test owed) |
-| BEH-189 resolve without --by, or with an action outside applied/dismissed/deferred, is an argparse error and exits 1 | confirmed | — (test owed) |
-| BEH-190 The success line prints the id and the --by name through printable | confirmed | — (test owed) |
+| BEH-188 resolve with an id that is not in pending.jsonl prints 'unknown pending id' to stderr and exits 1 | accepted | `tests/test_cli.py::test_resolve_with_an_id_that_is_not_open_prints_unknown_pending_id_to_stderr_and_exits_1` |
+| BEH-189 resolve without --by, or with an action outside applied/dismissed/deferred, is an argparse error and exits 1 | accepted | `tests/test_cli.py::test_resolve_without_by_or_with_an_action_outside_applied_dismissed_deferred_is_an_argparse_error_and_exits_1` |
+| BEH-190 The success line prints the id and the --by name through printable | accepted | `tests/test_cli.py::test_the_success_line_prints_the_id_and_the_by_name_through_printable` |
 
 ## Intentional Design Decisions
 
@@ -102,3 +105,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-188, BEH-189, BEH-190; promoted confirmed → accepted (BEH-188 retitled to the unknown-id case its test pins; the already-resolved case is BEH-025) | tests owed |

@@ -72,19 +72,22 @@ behaviors:
     locator: tests/test_cli.py::test_search_output_escapes_terminal_controls
   - behavior_id: BEH-058
     title: "a query that tokenizes to nothing returns no hits"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_search.py::test_a_query_that_tokenizes_to_nothing_returns_no_hits
   - behavior_id: BEH-059
     title: "--kind filters hits to profile, regime or mirror documents"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_search.py::test_kind_filters_hits_to_profile_regime_or_mirror_documents
   - behavior_id: BEH-060
     title: "a corrupt or wrong-version .search-index.json is rebuilt rather than reported"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_search.py::test_a_corrupt_or_wrong_version_search_index_json_is_rebuilt_rather_than_reported
 ---
 
 # Search: BM25 over compliance markdown with a signature-keyed derived index
@@ -121,9 +124,9 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-055 a hit whose indexed path resolves outside the compliance dir is dropped before its file is read | accepted | `tests/test_search.py::test_poisoned_index_path_outside_cdir_is_skipped` |
 | BEH-056 `search <query> --json` exits 0 and returns hits with absolute paths | accepted | `tests/test_cli.py::test_search_cli` |
 | BEH-057 `search` terminal output escapes ESC and U+202E in snippets and paths | accepted | `tests/test_cli.py::test_search_output_escapes_terminal_controls` |
-| BEH-058 a query that tokenizes to nothing returns no hits | confirmed | — (test owed) |
-| BEH-059 --kind filters hits to profile, regime or mirror documents | confirmed | — (test owed) |
-| BEH-060 a corrupt or wrong-version .search-index.json is rebuilt rather than reported | confirmed | — (test owed) |
+| BEH-058 a query that tokenizes to nothing returns no hits | accepted | `tests/test_search.py::test_a_query_that_tokenizes_to_nothing_returns_no_hits` |
+| BEH-059 --kind filters hits to profile, regime or mirror documents | accepted | `tests/test_search.py::test_kind_filters_hits_to_profile_regime_or_mirror_documents` |
+| BEH-060 a corrupt or wrong-version .search-index.json is rebuilt rather than reported | accepted | `tests/test_search.py::test_a_corrupt_or_wrong_version_search_index_json_is_rebuilt_rather_than_reported` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -193,3 +196,4 @@ Design Decisions** below, not here.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan; certainty 89 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-058, BEH-059, BEH-060; promoted confirmed → accepted | tests owed |

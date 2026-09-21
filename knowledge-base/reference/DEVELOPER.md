@@ -10,7 +10,7 @@ How to work on the `compliance-register` skill: get it running, test it, install
 git clone https://github.com/AlexSendula/compliance-register   # not yet published — use the local checkout for now
 cd compliance-register
 python3 -m pip install -r requirements-dev.txt                    # pytest + PyYAML
-python3 -m pytest -q                                              # 200 passed, no network
+python3 -m pytest -q                                              # 307 passed, no network
 
 # run the launcher against a scratch project: any directory with a knowledge-base/ inside it
 mkdir -p /tmp/scratch/knowledge-base && cd /tmp/scratch

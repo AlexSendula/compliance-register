@@ -196,3 +196,13 @@ def test_moved_row_records_the_full_changed_count_when_truncated(project: Path):
     check.run(cdir, ids=None, today="2026-09-20", client_factory=factory)
     row = pending.list_open(cdir)[0]
     assert len(row["changed"]) == 20 and row["changed_total"] == 25
+
+
+def test_a_tier_refuse_source_is_silently_excluded_from_selection_and_does_not_affect_the_exit_code(project: Path):
+    cdir, factory = setup(project)
+    srcs = sources.load(cdir)
+    srcs.append(sources.Source.from_dict(dict(srcs[0].to_dict(), id="nl-closed", tier="refuse", url="https://closed.test/")))
+    sources.save(cdir, srcs)
+    rep = check.run(cdir, ids=None, today="2026-09-20", client_factory=factory)
+    assert rep["exit"] == 0 and rep["moved"] == 1 and "nl-closed" not in rep["details"]
+    assert sources.load(cdir)[1].last_checked is None

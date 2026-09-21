@@ -111,14 +111,16 @@ behaviors:
     locator: tests/test_cli.py::test_today_must_be_an_iso_date
   - behavior_id: BEH-167
     title: "check --json prints the report as JSON with the three counts and details"
-    state: confirmed
-    level: component
-    adapter: pytest
-  - behavior_id: BEH-168
-    title: "a tier: refuse source is silently excluded from selection and does not affect the exit code"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_cli.py::test_check_json_prints_the_report_as_json_with_the_three_counts_and_details
+  - behavior_id: BEH-168
+    title: "a tier: refuse source is silently excluded from selection and does not affect the exit code"
+    state: accepted
+    level: unit
+    adapter: pytest
+    locator: tests/test_check.py::test_a_tier_refuse_source_is_silently_excluded_from_selection_and_does_not_affect_the_exit_code
   - behavior_id: BEH-284
     title: "an unreadable profile.md becomes a detail line and never denies the check report"
     state: accepted
@@ -171,8 +173,8 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-164 exit is 1 when any source was unreachable and 0 when sources only moved | accepted | `tests/test_check.py::test_unreachable_source_exits_1` |
 | BEH-165 a regime with wrong-shaped sources/applies does not break _affects or the run | accepted | `tests/test_poisoned_files_do_not_brick.py::test_regime_with_wrong_shaped_sources_and_applies_is_reported_not_fatal` |
 | BEH-166 check --today rejects a non-ISO date with exit 1 | accepted | `tests/test_cli.py::test_today_must_be_an_iso_date` |
-| BEH-167 check --json prints the report as JSON with the three counts and details | confirmed | — (test owed) |
-| BEH-168 a tier: refuse source is silently excluded from selection and does not affect the exit code | confirmed | — (test owed) |
+| BEH-167 check --json prints the report as JSON with the three counts and details | accepted | `tests/test_cli.py::test_check_json_prints_the_report_as_json_with_the_three_counts_and_details` |
+| BEH-168 a tier: refuse source is silently excluded from selection and does not affect the exit code | accepted | `tests/test_check.py::test_a_tier_refuse_source_is_silently_excluded_from_selection_and_does_not_affect_the_exit_code` |
 | BEH-284 an unreadable profile.md becomes a detail line and never denies the check report | accepted | `tests/test_check.py::test_corrupt_profile_does_not_deny_the_check_report` |
 | BEH-286 a moved row truncated to 20 changed URLs records the full count in changed_total | accepted | `tests/test_check.py::test_moved_row_records_the_full_changed_count_when_truncated` |
 
@@ -253,3 +255,4 @@ Design Decisions** below, not here.
 | 2026-09-21 | An unreadable profile.md is a `details['profile.md']` line, not an abort; BEH-284 added | G2 principle checkpoint, principle 9 |
 | 2026-09-21 | `changed_total` added beside the truncated `changed` list; BEH-286 added | G3 contradiction check, principle 9 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-167, BEH-168; promoted confirmed → accepted | tests owed |

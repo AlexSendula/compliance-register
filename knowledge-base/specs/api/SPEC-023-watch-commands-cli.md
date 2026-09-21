@@ -66,9 +66,10 @@ behaviors:
     locator: tests/test_fetch.py::test_guard_refusal_writes_one_source_unreachable_and_exits_1
   - behavior_id: BEH-206
     title: 'check text output ends with ''see: compliance-register pending'' only when moved or unreachable is non-zero'
-    state: confirmed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
+    locator: tests/test_cli.py::test_check_text_output_ends_with_see_compliance_register_pending_only_when_moved_or_unreachable_is_non_zero
 ---
 
 # Watch commands at the CLI: fetch, check, rescan — exit relay, --today injection, text summaries
@@ -106,7 +107,7 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-203 check exits 1 when at least one source is unreachable and 0 when every source is fresh or moved | accepted | `tests/test_check.py::test_unreachable_source_exits_1` |
 | BEH-204 fetch exits 2 when a refuse-tier source is named with --source | accepted | `tests/test_fetch.py::test_fetch_refuses_refuse_tier` |
 | BEH-205 fetch exits 1 and writes one source-unreachable entry when a guard refuses a page | accepted | `tests/test_fetch.py::test_guard_refusal_writes_one_source_unreachable_and_exits_1` |
-| BEH-206 check text output ends with 'see: compliance-register pending' only when moved or unreachable is non-zero | confirmed | — (test owed) |
+| BEH-206 check text output ends with 'see: compliance-register pending' only when moved or unreachable is non-zero | accepted | `tests/test_cli.py::test_check_text_output_ends_with_see_compliance_register_pending_only_when_moved_or_unreachable_is_non_zero` |
 
 ## Intentional Design Decisions
 
@@ -157,3 +158,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-206; promoted confirmed → accepted | tests owed |

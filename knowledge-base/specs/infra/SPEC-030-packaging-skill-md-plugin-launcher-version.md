@@ -90,14 +90,16 @@ behaviors:
     locator: tests/test_http.py::test_user_agent_strings
   - behavior_id: BEH-266
     title: "The version in __init__.py, pyproject.toml, plugin.json and SKILL.md metadata are identical"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_skill_md.py::test_version_is_identical_in_all_four_places
   - behavior_id: BEH-267
     title: "Running the launcher under Python older than 3.12 exits 2 with a message naming the found version, before importing the package"
-    state: confirmed
+    state: accepted
     level: component
     adapter: pytest
+    locator: tests/test_launcher.py::test_old_python_guard_is_deterministic_via_a_patched_version_info
 ---
 
 # Packaging: SKILL.md contract, plugin manifests, path launcher and version
@@ -132,8 +134,8 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-262 The SKILL.md Mirror section states the EUR-Lex v1 narrowings (never-consolidated acts cited by URL, language not pre-checked, G1/G2) and no eurlex-language.sparql ships | accepted | `tests/test_skill_md.py::test_skill_md_states_eurlex_v1_narrowings` |
 | BEH-263 Running the launcher with --version exits 0 and prints 'compliance-register <version>' | deprecated | `tests/test_launcher.py::test_launcher_prints_version` |
 | BEH-265 The default HTTP User-Agent string embeds __version__ and the contact address | accepted | `tests/test_http.py::test_user_agent_strings` |
-| BEH-266 The version in __init__.py, pyproject.toml, plugin.json and SKILL.md metadata are identical | confirmed | — (test owed) |
-| BEH-267 Running the launcher under Python older than 3.12 exits 2 with a message naming the found version, before importing the package | confirmed | — (test owed) |
+| BEH-266 The version in __init__.py, pyproject.toml, plugin.json and SKILL.md metadata are identical | accepted | `tests/test_skill_md.py::test_version_is_identical_in_all_four_places` |
+| BEH-267 Running the launcher under Python older than 3.12 exits 2 with a message naming the found version, before importing the package | accepted | `tests/test_launcher.py::test_old_python_guard_is_deterministic_via_a_patched_version_info` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -196,3 +198,4 @@ Design Decisions** below, not here.
 | 2026-09-20 | Initial spec | Scan-generated from SKILL.md, the plugin manifests, `bin/compliance-register`, their tests, commits 2162bb0 and 6233e6e, and design decisions D25, D29 |
 | 2026-09-20 | Removed BEH-264 (duplicate of SPEC-027 BEH-230, same title and locator) | verify pass |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed); --version duplicate deprecated in favour of BEH-229 | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-266, BEH-267; promoted confirmed → accepted | tests owed |

@@ -4,7 +4,7 @@ title: "Feed adapter: RSS/Atom, new entry id as the signal"
 category: integration
 tags: [integration, mirror, adapter, feed, rss, atom]
 status: implemented
-certainty: 85
+certainty: 92
 created: 2026-09-20
 updated: 2026-09-21
 related_code:
@@ -29,19 +29,22 @@ behaviors:
     locator: tests/test_adapter_feed.py::test_fetch_listing_failure_is_refused_not_raised
   - behavior_id: BEH-121
     title: "an Atom feed's entries are normalised with the alternate link and id"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_adapter_feed.py::test_an_atom_feeds_entries_are_normalised_with_the_alternate_link_and_id
   - behavior_id: BEH-122
     title: "an entry without a guid falls back to its link as id"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_adapter_feed.py::test_an_entry_without_a_guid_falls_back_to_its_link_as_id
   - behavior_id: BEH-123
     title: "a non-HTML entry page is refused by link and the other entries are still written"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_adapter_feed.py::test_a_non_html_entry_page_is_refused_by_link_and_the_other_entries_are_still_written
   - behavior_id: BEH-285
     title: "a feed that yields no usable entries is unreachable, never fresh"
     state: accepted
@@ -62,7 +65,7 @@ behaviors:
 
 workflow.md tier table: feed is the tier for regulators such as AZOP that publish news as RSS/Atom; the change signal is "RSS/Atom entries", i.e. a new entry, and check downloads no page bodies (D18). Principle 9: a listing failure is a refusal string and the manifest is saved regardless. Keying by id rather than link means a republished link with a new guid is a new entry, which is how feeds signal change. Principle 4: an unreachable feed is unreachable, never fresh.
 
-[NEEDS CLARIFICATION: Atom parsing has no test or fixture; the RSS path is the only one exercised. Certainty is held at 85 until an Atom fixture pins BEH-121.]
+Atom parsing is pinned by an inline Atom fixture (BEH-121: `rel=self` before `rel=alternate`, `<updated>` only).
 
 ## Behavior
 
@@ -74,9 +77,9 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 |----------|-------|-------------|
 | BEH-119 check on an empty manifest is moved with the entry ids; fetch writes one page per entry; the next check is fresh | accepted | `tests/test_adapter_feed.py::test_check_then_fetch_then_fresh` |
 | BEH-120 a 5xx on the feed makes fetch refuse the listing without raising | accepted | `tests/test_adapter_feed.py::test_fetch_listing_failure_is_refused_not_raised` |
-| BEH-121 an Atom feed's entries are normalised with the alternate link and id | confirmed | — (test owed) |
-| BEH-122 an entry without a guid falls back to its link as id | confirmed | — (test owed) |
-| BEH-123 a non-HTML entry page is refused by link and the other entries are still written | confirmed | — (test owed) |
+| BEH-121 an Atom feed's entries are normalised with the alternate link and id | accepted | `tests/test_adapter_feed.py::test_an_atom_feeds_entries_are_normalised_with_the_alternate_link_and_id` |
+| BEH-122 an entry without a guid falls back to its link as id | accepted | `tests/test_adapter_feed.py::test_an_entry_without_a_guid_falls_back_to_its_link_as_id` |
+| BEH-123 a non-HTML entry page is refused by link and the other entries are still written | accepted | `tests/test_adapter_feed.py::test_a_non_html_entry_page_is_refused_by_link_and_the_other_entries_are_still_written` |
 | BEH-285 a feed that yields no usable entries is unreachable, never fresh | accepted | `tests/test_adapter_feed.py::test_feed_with_no_usable_entries_is_unreachable_not_fresh` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
@@ -116,3 +119,4 @@ Design Decisions** below, not here.
 | 2026-09-20 | Initial spec | Inferred from code, tests and design repo (D18, D21); certainty 85 — Atom path untested |
 | 2026-09-21 | A listing with no usable entries is `unreachable`, not `fresh`; BEH-285 added | G3 contradiction check, principle 4 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Tests written for BEH-121, BEH-122, BEH-123; promoted confirmed → accepted | tests owed |

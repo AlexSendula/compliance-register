@@ -109,3 +109,8 @@ def test_validate_refuses_unknown_adapter():
     assert any("adapter" in p and "bwb" in p for p in sources.validate(s))
     for name in ("eurlex", "sitemap", "feed", "pagehash"):
         assert not any("unknown adapter" in p for p in sources.validate(sources.Source.from_dict(dict(EURLEX, adapter=name))))
+
+
+def test_load_returns_an_empty_list_when_sources_json_does_not_exist(project: Path):
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    assert sources.load(cdir) == []

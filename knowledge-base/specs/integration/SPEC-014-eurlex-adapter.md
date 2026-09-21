@@ -16,6 +16,7 @@ related_code:
   - tests/fixtures/eurlex-chrome.html
   - tests/fixtures/sparql-resolve.csv
 intentional_decisions:
+  - "Consolidated text is read from CELLAR by content negotiation, never from eur-lex.europa.eu, and the guards are language-neutral"
   - "A header-only or all-malformed SPARQL response is unreachable, never 'no consolidation'"
   - "Zero rows for one CELEX is unreachable even when last_version is None"
   - "Server rows are shape-checked before becoming paths or URLs; malformed rows are dropped, never index-split"
@@ -104,19 +105,40 @@ behaviors:
     locator: tests/test_adapter_eurlex.py::test_g4_needs_the_consolidated_reference_line_not_the_title
   - behavior_id: BEH-141
     title: "fetch skips (skipped=1, nothing written) when current equals last_version and force is false"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_adapter_eurlex.py::test_fetch_skips_when_current_equals_last_version_and_force_is_false
   - behavior_id: BEH-142
     title: "G5 refuses a body whose article anchors are duplicated or out of order"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_adapter_eurlex.py::test_g5_refuses_a_body_whose_article_anchors_are_duplicated_or_out_of_order
   - behavior_id: BEH-143
     title: "a basket over 100 CELEXes is resolved in more than one GET"
-    state: confirmed
+    state: accepted
     level: unit
     adapter: pytest
+    locator: tests/test_adapter_eurlex.py::test_a_basket_over_100_celexes_is_resolved_in_more_than_one_get
+  - behavior_id: BEH-293
+    title: "fetch reads the Dutch consolidated act from CELLAR with Accept/Accept-Language, over https only, never from eur-lex.europa.eu"
+    state: accepted
+    level: unit
+    adapter: pytest
+    locator: tests/test_adapter_eurlex.py::test_fetch_reads_the_dutch_document_from_cellar_with_content_negotiation
+  - behavior_id: BEH-294
+    title: "G1 accepts application/xhtml+xml and refuses the 202-empty answer"
+    state: accepted
+    level: unit
+    adapter: pytest
+    locator: tests/test_adapter_eurlex.py::test_g1_accepts_xhtml_and_refuses_the_202_empty_answer
+  - behavior_id: BEH-295
+    title: "G2 is the structural disclaimer paragraph, not an English sentence"
+    state: accepted
+    level: unit
+    adapter: pytest
+    locator: tests/test_adapter_eurlex.py::test_g2_is_structural_not_english
 ---
 
 # EUR-Lex adapter: SPARQL resolve, consolidated CELEX signal, guards, per-article chunking
@@ -127,11 +149,11 @@ behaviors:
 
 `check` reports moved when the current consolidated CELEX differs from `source.last_version`, fresh when equal, unreachable on any failure, a missing config key, or zero rows for the CELEX (never fresh with version None).
 
-`fetch` skips when current equals last_version unless forced, GETs `https://eur-lex.europa.eu/legal-content/{LANG}/TXT/HTML/?uri=CELEX:{current}`, then applies guards G1 (200 + text/html), G2 (documentation-tool marker present), G3 (at least one `id="art_N"`), G4 (`<p class="reference">` header equals sector-0 CELEX, language and date of the requested version), G5 (anchors unique and increasing); on any failure nothing is written and version stays None. On success it splits `<div class="eli-subdivision" id="art_N">` into `<current>/art_N.md` files with a CC-BY modification banner and per-article metadata, records each in the manifest (saved in `finally`) and returns `version = current`.
+`fetch` skips when current equals last_version unless forced, GETs `https://publications.europa.eu/resource/celex/{current}` with `Accept: application/xhtml+xml` and `Accept-Language: {lang}` (CELLAR answers 303 to the cellar document, which the client follows at https), then applies guards G1 (200 + text/html or application/xhtml+xml), G2 (the structural `class="disclaimer"` paragraph present — never a sentence in one language), G3 (at least one `id="art_N"`), G4 (`<p class="reference">` header equals sector-0 CELEX, language and date of the requested version), G5 (anchors unique and increasing); on any failure nothing is written and version stays None. On success it splits `<div class="eli-subdivision" id="art_N">` into `<current>/art_N.md` files with a CC-BY modification banner and per-article metadata, records each in the manifest (saved in `finally`) and returns `version = current`.
 
 ## Why
 
-D28 and principle 2: the adapter carries only the protocol (SPARQL endpoint and HTML URL template); every instrument's CELEX is discovered into sources.json. The research spec (impl-eurlex-adapter-spec.md) verified both traps: without `^^xsd:string` CELLAR returns HTTP 200 with a header-only CSV, and EUR-Lex returns 200 with site chrome (later 404) for a missing language version — so a header-only CSV is unreachable, never "no consolidation", and five content guards run before a byte is written. Commit f577c33: server rows become directory names and URL parameters, so they are shape-checked first (principle 10). Commit 5851970: a never-consolidated act is unreachable, never fresh with version None (principle 4). Commit adef55a: N sources cost one SPARQL request. Commit cb0aea0: the banner states the text was converted and split, as CC-BY 4.0 §3(a)(1)(B) requires (principle 7: licence-gated data). Commit 41f4c32: G4 anchors on the reference line because the `<title>` repeats the base CELEX, which rejected every real page.
+D28 and principle 2: the adapter carries only the protocol (the CELLAR SPARQL and resource endpoints); every instrument's CELEX is discovered into sources.json. The research spec (impl-eurlex-adapter-spec.md) verified both traps: without `^^xsd:string` CELLAR returns HTTP 200 with a header-only CSV, and EUR-Lex returns 200 with site chrome (later 404) for a missing language version — so a header-only CSV is unreachable, never "no consolidation", and five content guards run before a byte is written. Commit f577c33: server rows become directory names and URL parameters, so they are shape-checked first (principle 10). Commit 5851970: a never-consolidated act is unreachable, never fresh with version None (principle 4). Commit adef55a: N sources cost one SPARQL request. Commit cb0aea0: the banner states the text was converted and split, as CC-BY 4.0 §3(a)(1)(B) requires (principle 7: licence-gated data). Commit 41f4c32: G4 anchors on the reference line because the `<title>` repeats the base CELEX, which rejected every real page.
 
 ## Behavior
 
@@ -154,14 +176,25 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | BEH-138 zero rows for the requested CELEX is unreachable with version None even when last_version is None | accepted | `tests/test_adapter_eurlex.py::test_zero_rows_for_this_celex_is_unreachable_even_without_last_version` |
 | BEH-139 a check run over two eurlex sources issues exactly one SPARQL request | accepted | `tests/test_adapter_eurlex.py::test_check_run_issues_one_sparql_query_for_all_eurlex_sources` |
 | BEH-140 G4 accepts the real reference line and refuses a body whose only header is the base-CELEX title or a glued digit | accepted | `tests/test_adapter_eurlex.py::test_g4_needs_the_consolidated_reference_line_not_the_title` |
-| BEH-141 fetch skips (skipped=1, nothing written) when current equals last_version and force is false | confirmed | — (test owed) |
-| BEH-142 G5 refuses a body whose article anchors are duplicated or out of order | confirmed | — (test owed) |
-| BEH-143 a basket over 100 CELEXes is resolved in more than one GET | confirmed | — (test owed) |
+| BEH-141 fetch skips (skipped=1, nothing written) when current equals last_version and force is false | accepted | `tests/test_adapter_eurlex.py::test_fetch_skips_when_current_equals_last_version_and_force_is_false` |
+| BEH-142 G5 refuses a body whose article anchors are duplicated or out of order | accepted | `tests/test_adapter_eurlex.py::test_g5_refuses_a_body_whose_article_anchors_are_duplicated_or_out_of_order` |
+| BEH-143 a basket over 100 CELEXes is resolved in more than one GET | accepted | `tests/test_adapter_eurlex.py::test_a_basket_over_100_celexes_is_resolved_in_more_than_one_get` |
+| BEH-293 fetch reads the Dutch consolidated act from CELLAR with Accept/Accept-Language, over https only, never from eur-lex.europa.eu | accepted | `tests/test_adapter_eurlex.py::test_fetch_reads_the_dutch_document_from_cellar_with_content_negotiation` |
+| BEH-294 G1 accepts application/xhtml+xml and refuses the 202-empty answer | accepted | `tests/test_adapter_eurlex.py::test_g1_accepts_xhtml_and_refuses_the_202_empty_answer` |
+| BEH-295 G2 is the structural disclaimer paragraph, not an English sentence | accepted | `tests/test_adapter_eurlex.py::test_g2_is_structural_not_english` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
 
 ## Intentional Design Decisions
+
+### Consolidated text is read from CELLAR by content negotiation, never from eur-lex.europa.eu, and the guards are language-neutral
+
+**Decision**: `fetch` asks `publications.europa.eu/resource/celex/<consolidated CELEX>` with `Accept: application/xhtml+xml` and `Accept-Language: <lang>`; G1 accepts `application/xhtml+xml`; G2 looks for the `class="disclaimer"` paragraph rather than the English "documentation tool" sentence.
+
+**Rationale**: eur-lex.europa.eu answers HTTP 202 with an empty body to every non-browser client (and to browser User-Agents without its JavaScript challenge), so the adapter as first shipped could not fetch a single act — found by the nieuwbouw-tracker trial. CELLAR is the Publications Office's machine interface and the API this adapter already speaks for resolve (D28); it serves the same CONVEX-generated XHTML with the same `art_N` anchors. The Dutch document carries no English sentence, so a guard tied to one language would refuse every other language (principle 2's spirit: nothing baked in that is true for one jurisdiction only).
+
+**Security Scan Note**: The content host is the SPARQL host and is appended to the source's `allowed_hosts` for this fetch only; `test_fetch_reads_the_dutch_document_from_cellar_with_content_negotiation` asserts no request reaches eur-lex.europa.eu and every request is https.
 
 ### A header-only or all-malformed SPARQL response is unreachable, never 'no consolidation'
 
@@ -236,3 +269,5 @@ Design Decisions** below, not here.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Inferred from code, tests, research spec and design repo (D28); certainty 94 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
+| 2026-09-21 | Content fetched from CELLAR by content negotiation (eur-lex.europa.eu answers 202-empty); G1 accepts xhtml, G2 structural; BEH-132/133 re-verified under INTENT-001; BEH-293..295 added | nieuwbouw-tracker trial review |
+| 2026-09-21 | Tests written for BEH-141, BEH-142, BEH-143; promoted confirmed → accepted | tests owed |
