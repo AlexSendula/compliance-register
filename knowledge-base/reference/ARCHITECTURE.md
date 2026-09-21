@@ -163,4 +163,4 @@ Written by `init` (`compliance_register/cli.py:22-40`) and the commands; everyth
 - `SKILL.md` — command table, exit codes, agent rules
 - `references/method-*.md` — the four stages as the agent runs them
 - `references/dimensions-checklist.md` — the 15 profile questions
-- Design repo `/Users/main/Documents/projects/compliance-devkit/design/` — workflow v0.2, decisions D1–D29
+- Design repo `compliance-devkit` (sibling checkout, `design/`) — workflow v0.2, decisions D1–D29
