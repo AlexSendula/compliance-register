@@ -17,34 +17,34 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-119
     title: "check on an empty manifest is moved with the entry ids; fetch writes one page per entry; the next check is fresh"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_feed.py::test_check_then_fetch_then_fresh
   - behavior_id: BEH-120
     title: "a 5xx on the feed makes fetch refuse the listing without raising"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_feed.py::test_fetch_listing_failure_is_refused_not_raised
   - behavior_id: BEH-121
     title: "an Atom feed's entries are normalised with the alternate link and id"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-122
     title: "an entry without a guid falls back to its link as id"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-123
     title: "a non-HTML entry page is refused by link and the other entries are still written"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-285
     title: "a feed that yields no usable entries is unreachable, never fresh"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_feed.py::test_feed_with_no_usable_entries_is_unreachable_not_fresh
@@ -72,12 +72,12 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-119 check on an empty manifest is moved with the entry ids; fetch writes one page per entry; the next check is fresh | proposed | `tests/test_adapter_feed.py::test_check_then_fetch_then_fresh` |
-| BEH-120 a 5xx on the feed makes fetch refuse the listing without raising | proposed | `tests/test_adapter_feed.py::test_fetch_listing_failure_is_refused_not_raised` |
-| BEH-121 an Atom feed's entries are normalised with the alternate link and id | proposed | — (test owed) |
-| BEH-122 an entry without a guid falls back to its link as id | proposed | — (test owed) |
-| BEH-123 a non-HTML entry page is refused by link and the other entries are still written | proposed | — (test owed) |
-| BEH-285 a feed that yields no usable entries is unreachable, never fresh | proposed | `tests/test_adapter_feed.py::test_feed_with_no_usable_entries_is_unreachable_not_fresh` |
+| BEH-119 check on an empty manifest is moved with the entry ids; fetch writes one page per entry; the next check is fresh | accepted | `tests/test_adapter_feed.py::test_check_then_fetch_then_fresh` |
+| BEH-120 a 5xx on the feed makes fetch refuse the listing without raising | accepted | `tests/test_adapter_feed.py::test_fetch_listing_failure_is_refused_not_raised` |
+| BEH-121 an Atom feed's entries are normalised with the alternate link and id | confirmed | — (test owed) |
+| BEH-122 an entry without a guid falls back to its link as id | confirmed | — (test owed) |
+| BEH-123 a non-HTML entry page is refused by link and the other entries are still written | confirmed | — (test owed) |
+| BEH-285 a feed that yields no usable entries is unreachable, never fresh | accepted | `tests/test_adapter_feed.py::test_feed_with_no_usable_entries_is_unreachable_not_fresh` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -115,3 +115,4 @@ Design Decisions** below, not here.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Inferred from code, tests and design repo (D18, D21); certainty 85 — Atom path untested |
 | 2026-09-21 | A listing with no usable entries is `unreachable`, not `fresh`; BEH-285 added | G3 contradiction check, principle 4 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

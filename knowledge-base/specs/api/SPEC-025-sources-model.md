@@ -6,7 +6,7 @@ tags: [api, sources, model, D17, D24, D28, principle-2, principle-9]
 status: implemented
 certainty: 92
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/sources.py
   - compliance_register/mirror/adapters/__init__.py
@@ -20,49 +20,49 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-212
     title: 'A source round-trips through load/save with last_version preserved and adapter eurlex kept'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_sources.py::test_roundtrip
   - behavior_id: BEH-213
     title: 'A `robots` key is dropped on load and the module exposes no ROBOTS constant'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_sources.py::test_no_robots_field_or_posture
   - behavior_id: BEH-214
     title: 'adapter defaults from tier: page-hash → pagehash'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_sources.py::test_default_adapter_from_tier
   - behavior_id: BEH-215
     title: 'allowed_hosts defaults to the URL''s hostname when absent'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_sources.py::test_allowed_hosts_defaults_to_url_host
   - behavior_id: BEH-216
     title: 'A bare-string allowed_hosts is wrapped into a one-element list'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_sources.py::test_allowed_hosts_string_is_wrapped_and_bad_shapes_refused
   - behavior_id: BEH-217
     title: 'get() raises KeyError for an unknown id'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_sources.py::test_get_unknown
   - behavior_id: BEH-218
     title: 'load raises SourcesError on invalid JSON and on a top-level list'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_poisoned_files_do_not_brick.py::test_corrupt_sources_json_is_a_typed_error_and_exit_1
   - behavior_id: BEH-219
     title: 'load returns an empty list when sources.json does not exist'
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
 ---
@@ -91,14 +91,14 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-212 A source round-trips through load/save with last_version preserved and adapter eurlex kept | proposed | `tests/test_sources.py::test_roundtrip` |
-| BEH-213 A `robots` key is dropped on load and the module exposes no ROBOTS constant | proposed | `tests/test_sources.py::test_no_robots_field_or_posture` |
-| BEH-214 adapter defaults from tier: page-hash → pagehash | proposed | `tests/test_sources.py::test_default_adapter_from_tier` |
-| BEH-215 allowed_hosts defaults to the URL's hostname when absent | proposed | `tests/test_sources.py::test_allowed_hosts_defaults_to_url_host` |
-| BEH-216 A bare-string allowed_hosts is wrapped into a one-element list | proposed | `tests/test_sources.py::test_allowed_hosts_string_is_wrapped_and_bad_shapes_refused` |
-| BEH-217 get() raises KeyError for an unknown id | proposed | `tests/test_sources.py::test_get_unknown` |
-| BEH-218 load raises SourcesError on invalid JSON and on a top-level list | proposed | `tests/test_poisoned_files_do_not_brick.py::test_corrupt_sources_json_is_a_typed_error_and_exit_1` |
-| BEH-219 load returns an empty list when sources.json does not exist | proposed | — (test owed) |
+| BEH-212 A source round-trips through load/save with last_version preserved and adapter eurlex kept | accepted | `tests/test_sources.py::test_roundtrip` |
+| BEH-213 A `robots` key is dropped on load and the module exposes no ROBOTS constant | accepted | `tests/test_sources.py::test_no_robots_field_or_posture` |
+| BEH-214 adapter defaults from tier: page-hash → pagehash | accepted | `tests/test_sources.py::test_default_adapter_from_tier` |
+| BEH-215 allowed_hosts defaults to the URL's hostname when absent | accepted | `tests/test_sources.py::test_allowed_hosts_defaults_to_url_host` |
+| BEH-216 A bare-string allowed_hosts is wrapped into a one-element list | accepted | `tests/test_sources.py::test_allowed_hosts_string_is_wrapped_and_bad_shapes_refused` |
+| BEH-217 get() raises KeyError for an unknown id | accepted | `tests/test_sources.py::test_get_unknown` |
+| BEH-218 load raises SourcesError on invalid JSON and on a top-level list | accepted | `tests/test_poisoned_files_do_not_brick.py::test_corrupt_sources_json_is_a_typed_error_and_exit_1` |
+| BEH-219 load returns an empty list when sources.json does not exist | confirmed | — (test owed) |
 
 ## Intentional Design Decisions
 
@@ -146,3 +146,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

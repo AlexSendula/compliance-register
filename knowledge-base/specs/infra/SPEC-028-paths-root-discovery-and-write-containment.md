@@ -6,7 +6,7 @@ tags: [infra, paths, security, containment]
 status: implemented
 certainty: 92
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/paths.py
   - tests/test_paths.py
@@ -24,65 +24,65 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-235
     title: "find_root returns the nearest ancestor that contains knowledge-base/ when started from a nested directory"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_paths.py::test_find_root_walks_up
   - behavior_id: BEH-236
     title: "find_root raises NotAProject when no ancestor of the start directory has knowledge-base/"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_paths.py::test_find_root_refuses_outside_project
   - behavior_id: BEH-237
     title: "compliance_dir(root) is exactly <root>/knowledge-base/compliance"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_paths.py::test_compliance_dir
   - behavior_id: BEH-238
     title: "contained resolves a relative child path under the base and returns the absolute target"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_paths.py::test_contained_accepts_child
   - behavior_id: BEH-239
     title: "contained raises UnsafePath when a relative target uses ../ to leave the base"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_paths.py::test_contained_refuses_escape
   - behavior_id: BEH-240
     title: "contained follows symlinks: a link inside the base that resolves outside it is refused, and the base itself is accepted"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-241
     title: "safe_component rejects ../x, a/b, trailing space, empty string, a leading dot, and internal whitespace"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_paths.py::test_safe_component_rejects
   - behavior_id: BEH-242
     title: "safe_component accepts plain ASCII names with dots, dashes and digits such as GDPR and eu-eurlex-32016R0679"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_paths.py::test_safe_component_accepts
   - behavior_id: BEH-243
     title: "safe_component rejects non-ASCII characters and names longer than 128 characters (128 accepted, 129 refused)"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-244
     title: "Any command run outside a project exits 2 and the stderr message names knowledge-base"
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_outside_project_exits_2
   - behavior_id: BEH-245
     title: "A mirror page relpath that escapes the source directory is refused with UnsafePath before anything is written"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_store.py::test_write_page_refuses_escape
@@ -108,17 +108,17 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-235 find_root returns the nearest ancestor that contains knowledge-base/ when started from a nested directory | proposed | `tests/test_paths.py::test_find_root_walks_up` |
-| BEH-236 find_root raises NotAProject when no ancestor of the start directory has knowledge-base/ | proposed | `tests/test_paths.py::test_find_root_refuses_outside_project` |
-| BEH-237 compliance_dir(root) is exactly <root>/knowledge-base/compliance | proposed | `tests/test_paths.py::test_compliance_dir` |
-| BEH-238 contained resolves a relative child path under the base and returns the absolute target | proposed | `tests/test_paths.py::test_contained_accepts_child` |
-| BEH-239 contained raises UnsafePath when a relative target uses ../ to leave the base | proposed | `tests/test_paths.py::test_contained_refuses_escape` |
-| BEH-240 contained follows symlinks: a link inside the base that resolves outside it is refused, and the base itself is accepted | proposed | — (test owed) |
-| BEH-241 safe_component rejects ../x, a/b, trailing space, empty string, a leading dot, and internal whitespace | proposed | `tests/test_paths.py::test_safe_component_rejects` |
-| BEH-242 safe_component accepts plain ASCII names with dots, dashes and digits such as GDPR and eu-eurlex-32016R0679 | proposed | `tests/test_paths.py::test_safe_component_accepts` |
-| BEH-243 safe_component rejects non-ASCII characters and names longer than 128 characters (128 accepted, 129 refused) | proposed | — (test owed) |
-| BEH-244 Any command run outside a project exits 2 and the stderr message names knowledge-base | proposed | `tests/test_cli.py::test_outside_project_exits_2` |
-| BEH-245 A mirror page relpath that escapes the source directory is refused with UnsafePath before anything is written | proposed | `tests/test_store.py::test_write_page_refuses_escape` |
+| BEH-235 find_root returns the nearest ancestor that contains knowledge-base/ when started from a nested directory | accepted | `tests/test_paths.py::test_find_root_walks_up` |
+| BEH-236 find_root raises NotAProject when no ancestor of the start directory has knowledge-base/ | accepted | `tests/test_paths.py::test_find_root_refuses_outside_project` |
+| BEH-237 compliance_dir(root) is exactly <root>/knowledge-base/compliance | accepted | `tests/test_paths.py::test_compliance_dir` |
+| BEH-238 contained resolves a relative child path under the base and returns the absolute target | accepted | `tests/test_paths.py::test_contained_accepts_child` |
+| BEH-239 contained raises UnsafePath when a relative target uses ../ to leave the base | accepted | `tests/test_paths.py::test_contained_refuses_escape` |
+| BEH-240 contained follows symlinks: a link inside the base that resolves outside it is refused, and the base itself is accepted | confirmed | — (test owed) |
+| BEH-241 safe_component rejects ../x, a/b, trailing space, empty string, a leading dot, and internal whitespace | accepted | `tests/test_paths.py::test_safe_component_rejects` |
+| BEH-242 safe_component accepts plain ASCII names with dots, dashes and digits such as GDPR and eu-eurlex-32016R0679 | accepted | `tests/test_paths.py::test_safe_component_accepts` |
+| BEH-243 safe_component rejects non-ASCII characters and names longer than 128 characters (128 accepted, 129 refused) | confirmed | — (test owed) |
+| BEH-244 Any command run outside a project exits 2 and the stderr message names knowledge-base | accepted | `tests/test_cli.py::test_outside_project_exits_2` |
+| BEH-245 A mirror page relpath that escapes the source directory is refused with UnsafePath before anything is written | accepted | `tests/test_store.py::test_write_page_refuses_escape` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -171,3 +171,4 @@ Design Decisions** below, not here.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Scan-generated from `paths.py`, its tests and design decisions D20, D23, D29 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

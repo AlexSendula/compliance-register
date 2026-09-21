@@ -6,7 +6,7 @@ tags: [integration, mirror, adapter, sitemap, lastmod, cap]
 status: implemented
 certainty: 90
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/mirror/adapters/sitemap.py
   - tests/test_adapter_sitemap.py
@@ -19,48 +19,48 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-111
     title: "check on an empty manifest reports moved with every included page and excludes URLs outside config.include"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_sitemap.py::test_check_on_empty_manifest_is_moved
   - behavior_id: BEH-112
     title: "fetch writes one .md per page with lastmod in the manifest and a following check is fresh"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_sitemap.py::test_fetch_writes_and_check_becomes_fresh
   - behavior_id: BEH-113
     title: "a 5xx on the sitemap makes check unreachable"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_sitemap.py::test_check_unreachable_when_sitemap_fails
   - behavior_id: BEH-114
     title: "a non-HTML page body is refused by URL and the other pages are still written"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_sitemap.py::test_fetch_refuses_non_html
   - behavior_id: BEH-115
     title: "a listing failure in fetch is a refusal and MANIFEST.json is still saved"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_sitemap.py::test_fetch_listing_failure_is_refused_and_manifest_still_saved
   - behavior_id: BEH-116
     title: "fan-out stops at MAX_PAGES/MAX_CHILDREN, unneeded children are never requested, and the detail names the cap and config.include"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_sitemap.py::test_fan_out_is_capped_and_the_cap_is_reported
   - behavior_id: BEH-117
     title: "check downloads no page bodies on the sitemap tier"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-118
     title: "--force refetches pages whose lastmod is unchanged"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
 ---
@@ -85,14 +85,14 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-111 check on an empty manifest reports moved with every included page and excludes URLs outside config.include | proposed | `tests/test_adapter_sitemap.py::test_check_on_empty_manifest_is_moved` |
-| BEH-112 fetch writes one .md per page with lastmod in the manifest and a following check is fresh | proposed | `tests/test_adapter_sitemap.py::test_fetch_writes_and_check_becomes_fresh` |
-| BEH-113 a 5xx on the sitemap makes check unreachable | proposed | `tests/test_adapter_sitemap.py::test_check_unreachable_when_sitemap_fails` |
-| BEH-114 a non-HTML page body is refused by URL and the other pages are still written | proposed | `tests/test_adapter_sitemap.py::test_fetch_refuses_non_html` |
-| BEH-115 a listing failure in fetch is a refusal and MANIFEST.json is still saved | proposed | `tests/test_adapter_sitemap.py::test_fetch_listing_failure_is_refused_and_manifest_still_saved` |
-| BEH-116 fan-out stops at MAX_PAGES/MAX_CHILDREN, unneeded children are never requested, and the detail names the cap and config.include | proposed | `tests/test_adapter_sitemap.py::test_fan_out_is_capped_and_the_cap_is_reported` |
-| BEH-117 check downloads no page bodies on the sitemap tier | proposed | — (test owed) |
-| BEH-118 --force refetches pages whose lastmod is unchanged | proposed | — (test owed) |
+| BEH-111 check on an empty manifest reports moved with every included page and excludes URLs outside config.include | accepted | `tests/test_adapter_sitemap.py::test_check_on_empty_manifest_is_moved` |
+| BEH-112 fetch writes one .md per page with lastmod in the manifest and a following check is fresh | accepted | `tests/test_adapter_sitemap.py::test_fetch_writes_and_check_becomes_fresh` |
+| BEH-113 a 5xx on the sitemap makes check unreachable | accepted | `tests/test_adapter_sitemap.py::test_check_unreachable_when_sitemap_fails` |
+| BEH-114 a non-HTML page body is refused by URL and the other pages are still written | accepted | `tests/test_adapter_sitemap.py::test_fetch_refuses_non_html` |
+| BEH-115 a listing failure in fetch is a refusal and MANIFEST.json is still saved | accepted | `tests/test_adapter_sitemap.py::test_fetch_listing_failure_is_refused_and_manifest_still_saved` |
+| BEH-116 fan-out stops at MAX_PAGES/MAX_CHILDREN, unneeded children are never requested, and the detail names the cap and config.include | accepted | `tests/test_adapter_sitemap.py::test_fan_out_is_capped_and_the_cap_is_reported` |
+| BEH-117 check downloads no page bodies on the sitemap tier | confirmed | — (test owed) |
+| BEH-118 --force refetches pages whose lastmod is unchanged | confirmed | — (test owed) |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -144,3 +144,4 @@ Design Decisions** below, not here.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Inferred from code, tests and design repo (D18, D21); certainty 90 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

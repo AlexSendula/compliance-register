@@ -6,7 +6,7 @@ tags: [pending, resolutions, jsonl, append-only, record-surface-delegate, D19, D
 status: implemented
 certainty: 93
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/pending.py
   - compliance_register/cli.py
@@ -24,61 +24,61 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-023
     title: "add assigns sequential chg-NNNN ids and appends one JSON line per entry with affects and source"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_pending.py::test_add_assigns_sequential_ids
   - behavior_id: BEH-024
     title: "list_open excludes entries that have a row in resolutions.jsonl, and resolve appends {id, resolved, by, action, note}"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_pending.py::test_list_open_excludes_resolved
   - behavior_id: BEH-025
     title: "resolving an already-resolved id raises ValueError"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_pending.py::test_resolve_twice_fails
   - behavior_id: BEH-026
     title: "add rejects a kind outside KINDS (and a severity outside SEVERITIES) with ValueError"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_pending.py::test_unknown_kind_rejected
   - behavior_id: BEH-027
     title: "the next id continues from the maximum id across both files, so a hand-deleted resolved line never frees its id"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_pending.py::test_ids_continue_from_max_id_not_line_count
   - behavior_id: BEH-028
     title: "a non-JSON line or a row without an id is skipped, counted by unreadable(), and surfaced by status"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_poisoned_files_do_not_brick.py::test_pending_skips_unreadable_lines_and_status_counts_them
   - behavior_id: BEH-029
     title: "a pending row without a string kind and severity is unreadable, and `pending` still lists the good rows"
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_poisoned_files_do_not_brick.py::test_pending_entry_without_kind_or_severity_is_unreadable
   - behavior_id: BEH-030
     title: "resolve raises KeyError for an id that is not in pending.jsonl"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-031
     title: "`resolve <id> --action applied --by X` exits 0 and the id disappears from `pending --json`"
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_resolve_and_pending
   - behavior_id: BEH-032
     title: "`pending` output passes every field through render.printable so ESC and bidi controls are escaped"
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_pending_output_escapes_terminal_controls
 ---
@@ -111,16 +111,16 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-023 add assigns sequential chg-NNNN ids and appends one JSON line per entry with affects and source | proposed | `tests/test_pending.py::test_add_assigns_sequential_ids` |
-| BEH-024 list_open excludes entries that have a row in resolutions.jsonl, and resolve appends {id, resolved, by, action, note} | proposed | `tests/test_pending.py::test_list_open_excludes_resolved` |
-| BEH-025 resolving an already-resolved id raises ValueError | proposed | `tests/test_pending.py::test_resolve_twice_fails` |
-| BEH-026 add rejects a kind outside KINDS (and a severity outside SEVERITIES) with ValueError | proposed | `tests/test_pending.py::test_unknown_kind_rejected` |
-| BEH-027 the next id continues from the maximum id across both files, so a hand-deleted resolved line never frees its id | proposed | `tests/test_pending.py::test_ids_continue_from_max_id_not_line_count` |
-| BEH-028 a non-JSON line or a row without an id is skipped, counted by unreadable(), and surfaced by status | proposed | `tests/test_poisoned_files_do_not_brick.py::test_pending_skips_unreadable_lines_and_status_counts_them` |
-| BEH-029 a pending row without a string kind and severity is unreadable, and `pending` still lists the good rows | proposed | `tests/test_poisoned_files_do_not_brick.py::test_pending_entry_without_kind_or_severity_is_unreadable` |
-| BEH-030 resolve raises KeyError for an id that is not in pending.jsonl | proposed | — (test owed) |
-| BEH-031 `resolve <id> --action applied --by X` exits 0 and the id disappears from `pending --json` | proposed | `tests/test_cli.py::test_resolve_and_pending` |
-| BEH-032 `pending` output passes every field through render.printable so ESC and bidi controls are escaped | proposed | `tests/test_cli.py::test_pending_output_escapes_terminal_controls` |
+| BEH-023 add assigns sequential chg-NNNN ids and appends one JSON line per entry with affects and source | accepted | `tests/test_pending.py::test_add_assigns_sequential_ids` |
+| BEH-024 list_open excludes entries that have a row in resolutions.jsonl, and resolve appends {id, resolved, by, action, note} | accepted | `tests/test_pending.py::test_list_open_excludes_resolved` |
+| BEH-025 resolving an already-resolved id raises ValueError | accepted | `tests/test_pending.py::test_resolve_twice_fails` |
+| BEH-026 add rejects a kind outside KINDS (and a severity outside SEVERITIES) with ValueError | accepted | `tests/test_pending.py::test_unknown_kind_rejected` |
+| BEH-027 the next id continues from the maximum id across both files, so a hand-deleted resolved line never frees its id | accepted | `tests/test_pending.py::test_ids_continue_from_max_id_not_line_count` |
+| BEH-028 a non-JSON line or a row without an id is skipped, counted by unreadable(), and surfaced by status | accepted | `tests/test_poisoned_files_do_not_brick.py::test_pending_skips_unreadable_lines_and_status_counts_them` |
+| BEH-029 a pending row without a string kind and severity is unreadable, and `pending` still lists the good rows | accepted | `tests/test_poisoned_files_do_not_brick.py::test_pending_entry_without_kind_or_severity_is_unreadable` |
+| BEH-030 resolve raises KeyError for an id that is not in pending.jsonl | confirmed | — (test owed) |
+| BEH-031 `resolve <id> --action applied --by X` exits 0 and the id disappears from `pending --json` | accepted | `tests/test_cli.py::test_resolve_and_pending` |
+| BEH-032 `pending` output passes every field through render.printable so ESC and bidi controls are escaped | accepted | `tests/test_cli.py::test_pending_output_escapes_terminal_controls` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -182,3 +182,4 @@ Design Decisions** below, not here.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan; certainty 93 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

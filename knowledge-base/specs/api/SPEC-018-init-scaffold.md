@@ -6,7 +6,7 @@ tags: [api, cli, init, D20, D23, principle-7]
 status: implemented
 certainty: 93
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/cli.py
   - compliance_register/profile.py
@@ -18,25 +18,25 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-175
     title: 'init creates profile.md, regimes/, mirror/.gitignore (.private/), sources.json with schema 1 and an empty list, and adds .search-index.json to .gitignore'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_init_scaffolds
   - behavior_id: BEH-176
     title: 'Running init twice exits 0 and leaves existing files unchanged'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_init_twice_is_safe
   - behavior_id: BEH-177
     title: 'After init, status --json reports the profile as present with zero binding regimes'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_status_json
   - behavior_id: BEH-178
     title: 'init does not append a duplicate .search-index.json line to an existing .gitignore'
-    state: proposed
+    state: confirmed
     level: component
     adapter: pytest
 ---
@@ -63,10 +63,10 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-175 init creates profile.md, regimes/, mirror/.gitignore (.private/), sources.json with schema 1 and an empty list, and adds .search-index.json to .gitignore | proposed | `tests/test_cli.py::test_init_scaffolds` |
-| BEH-176 Running init twice exits 0 and leaves existing files unchanged | proposed | `tests/test_cli.py::test_init_twice_is_safe` |
-| BEH-177 After init, status --json reports the profile as present with zero binding regimes | proposed | `tests/test_cli.py::test_status_json` |
-| BEH-178 init does not append a duplicate .search-index.json line to an existing .gitignore | proposed | — (test owed) |
+| BEH-175 init creates profile.md, regimes/, mirror/.gitignore (.private/), sources.json with schema 1 and an empty list, and adds .search-index.json to .gitignore | accepted | `tests/test_cli.py::test_init_scaffolds` |
+| BEH-176 Running init twice exits 0 and leaves existing files unchanged | accepted | `tests/test_cli.py::test_init_twice_is_safe` |
+| BEH-177 After init, status --json reports the profile as present with zero binding regimes | accepted | `tests/test_cli.py::test_status_json` |
+| BEH-178 init does not append a duplicate .search-index.json line to an existing .gitignore | confirmed | — (test owed) |
 
 ## Intentional Design Decisions
 
@@ -99,3 +99,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

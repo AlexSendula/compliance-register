@@ -6,7 +6,7 @@ tags: [infra, frontmatter, yaml, atomic-write]
 status: implemented
 certainty: 90
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/frontmatter.py
   - tests/test_frontmatter.py
@@ -24,53 +24,53 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-246
     title: "loads parses a nested frontmatter block into a dict and body, and dump→loads round-trips both unchanged"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_frontmatter.py::test_loads_roundtrip
   - behavior_id: BEH-247
     title: "Text that does not start with a --- fence is returned as an empty dict and the unchanged body"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_frontmatter.py::test_loads_without_frontmatter
   - behavior_id: BEH-248
     title: "A block that opens with --- but never closes raises FrontmatterError"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_frontmatter.py::test_loads_rejects_unterminated
   - behavior_id: BEH-249
     title: "A block whose YAML is not a mapping (e.g. a list) raises FrontmatterError"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-250
     title: "A closing fence at end of file without a trailing newline is accepted and yields an empty body"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-251
     title: "save leaves the target file starting with the fence and no *.tmp file behind in the directory"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_frontmatter.py::test_save_is_atomic
   - behavior_id: BEH-252
     title: "dump preserves the insertion order of keys instead of sorting them"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_frontmatter.py::test_dump_keeps_key_order
   - behavior_id: BEH-253
     title: "Unquoted YAML dates and datetimes, including inside nested lists, load as ISO strings and the result is JSON-serialisable"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_frontmatter.py::test_loads_normalises_dates
   - behavior_id: BEH-254
     title: "A regime file with a malformed frontmatter block is reported as a problem by regimes.load_all rather than raising through the loader"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_poisoned_files_do_not_brick.py::test_regime_with_bad_frontmatter_is_reported_not_fatal
@@ -101,15 +101,15 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-246 loads parses a nested frontmatter block into a dict and body, and dump→loads round-trips both unchanged | proposed | `tests/test_frontmatter.py::test_loads_roundtrip` |
-| BEH-247 Text that does not start with a --- fence is returned as an empty dict and the unchanged body | proposed | `tests/test_frontmatter.py::test_loads_without_frontmatter` |
-| BEH-248 A block that opens with --- but never closes raises FrontmatterError | proposed | `tests/test_frontmatter.py::test_loads_rejects_unterminated` |
-| BEH-249 A block whose YAML is not a mapping (e.g. a list) raises FrontmatterError | proposed | — (test owed) |
-| BEH-250 A closing fence at end of file without a trailing newline is accepted and yields an empty body | proposed | — (test owed) |
-| BEH-251 save leaves the target file starting with the fence and no *.tmp file behind in the directory | proposed | `tests/test_frontmatter.py::test_save_is_atomic` |
-| BEH-252 dump preserves the insertion order of keys instead of sorting them | proposed | `tests/test_frontmatter.py::test_dump_keeps_key_order` |
-| BEH-253 Unquoted YAML dates and datetimes, including inside nested lists, load as ISO strings and the result is JSON-serialisable | proposed | `tests/test_frontmatter.py::test_loads_normalises_dates` |
-| BEH-254 A regime file with a malformed frontmatter block is reported as a problem by regimes.load_all rather than raising through the loader | proposed | `tests/test_poisoned_files_do_not_brick.py::test_regime_with_bad_frontmatter_is_reported_not_fatal` |
+| BEH-246 loads parses a nested frontmatter block into a dict and body, and dump→loads round-trips both unchanged | accepted | `tests/test_frontmatter.py::test_loads_roundtrip` |
+| BEH-247 Text that does not start with a --- fence is returned as an empty dict and the unchanged body | accepted | `tests/test_frontmatter.py::test_loads_without_frontmatter` |
+| BEH-248 A block that opens with --- but never closes raises FrontmatterError | accepted | `tests/test_frontmatter.py::test_loads_rejects_unterminated` |
+| BEH-249 A block whose YAML is not a mapping (e.g. a list) raises FrontmatterError | confirmed | — (test owed) |
+| BEH-250 A closing fence at end of file without a trailing newline is accepted and yields an empty body | confirmed | — (test owed) |
+| BEH-251 save leaves the target file starting with the fence and no *.tmp file behind in the directory | accepted | `tests/test_frontmatter.py::test_save_is_atomic` |
+| BEH-252 dump preserves the insertion order of keys instead of sorting them | accepted | `tests/test_frontmatter.py::test_dump_keeps_key_order` |
+| BEH-253 Unquoted YAML dates and datetimes, including inside nested lists, load as ISO strings and the result is JSON-serialisable | accepted | `tests/test_frontmatter.py::test_loads_normalises_dates` |
+| BEH-254 A regime file with a malformed frontmatter block is reported as a problem by regimes.load_all rather than raising through the loader | accepted | `tests/test_poisoned_files_do_not_brick.py::test_regime_with_bad_frontmatter_is_reported_not_fatal` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -171,3 +171,4 @@ Design Decisions** below, not here.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Scan-generated from `frontmatter.py`, its tests, commit 933394e and design decision D22 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

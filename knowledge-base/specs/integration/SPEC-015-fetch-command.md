@@ -6,7 +6,7 @@ tags: [integration, fetch, mirror, pending, exit-codes]
 status: implemented
 certainty: 92
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/fetch.py
   - compliance_register/cli.py
@@ -22,54 +22,54 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-144
     title: "a confirmed source is fetched, written pages land under mirror/<jur>/<id>, and last_fetched is set"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_fetch.py::test_fetch_writes_and_updates_source
   - behavior_id: BEH-145
     title: "naming a tier: refuse source lists it as refused and exits 2"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_fetch.py::test_fetch_refuses_refuse_tier
   - behavior_id: BEH-146
     title: "an adapter exception is a refusal naming the exception, the run continues and last_fetched stays None"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_fetch.py::test_adapter_exception_is_refused_and_run_continues
   - behavior_id: BEH-147
     title: "a validation problem exits 2 before any request is made"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_fetch.py::test_validation_problem_exits_2_before_any_request
   - behavior_id: BEH-148
     title: "a named source that is not confirmed is refused with exit 2 and no request"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_fetch.py::test_named_unconfirmed_source_is_refused
   - behavior_id: BEH-149
     title: "a guard refusal exits 1 and writes exactly one source-unreachable info entry with affects, across two runs"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_fetch.py::test_guard_refusal_writes_one_source_unreachable_and_exits_1
   - behavior_id: BEH-150
     title: "fetch --today rejects a non-ISO date with exit 1"
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_today_must_be_an_iso_date
   - behavior_id: BEH-151
     title: "--force refetches sources whose version or lastmod is unchanged"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-152
     title: "an unnamed confirmed tier: refuse source is reported in details without changing the exit code"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
 ---
@@ -96,15 +96,15 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-144 a confirmed source is fetched, written pages land under mirror/<jur>/<id>, and last_fetched is set | proposed | `tests/test_fetch.py::test_fetch_writes_and_updates_source` |
-| BEH-145 naming a tier: refuse source lists it as refused and exits 2 | proposed | `tests/test_fetch.py::test_fetch_refuses_refuse_tier` |
-| BEH-146 an adapter exception is a refusal naming the exception, the run continues and last_fetched stays None | proposed | `tests/test_fetch.py::test_adapter_exception_is_refused_and_run_continues` |
-| BEH-147 a validation problem exits 2 before any request is made | proposed | `tests/test_fetch.py::test_validation_problem_exits_2_before_any_request` |
-| BEH-148 a named source that is not confirmed is refused with exit 2 and no request | proposed | `tests/test_fetch.py::test_named_unconfirmed_source_is_refused` |
-| BEH-149 a guard refusal exits 1 and writes exactly one source-unreachable info entry with affects, across two runs | proposed | `tests/test_fetch.py::test_guard_refusal_writes_one_source_unreachable_and_exits_1` |
-| BEH-150 fetch --today rejects a non-ISO date with exit 1 | proposed | `tests/test_cli.py::test_today_must_be_an_iso_date` |
-| BEH-151 --force refetches sources whose version or lastmod is unchanged | proposed | — (test owed) |
-| BEH-152 an unnamed confirmed tier: refuse source is reported in details without changing the exit code | proposed | — (test owed) |
+| BEH-144 a confirmed source is fetched, written pages land under mirror/<jur>/<id>, and last_fetched is set | accepted | `tests/test_fetch.py::test_fetch_writes_and_updates_source` |
+| BEH-145 naming a tier: refuse source lists it as refused and exits 2 | accepted | `tests/test_fetch.py::test_fetch_refuses_refuse_tier` |
+| BEH-146 an adapter exception is a refusal naming the exception, the run continues and last_fetched stays None | accepted | `tests/test_fetch.py::test_adapter_exception_is_refused_and_run_continues` |
+| BEH-147 a validation problem exits 2 before any request is made | accepted | `tests/test_fetch.py::test_validation_problem_exits_2_before_any_request` |
+| BEH-148 a named source that is not confirmed is refused with exit 2 and no request | accepted | `tests/test_fetch.py::test_named_unconfirmed_source_is_refused` |
+| BEH-149 a guard refusal exits 1 and writes exactly one source-unreachable info entry with affects, across two runs | accepted | `tests/test_fetch.py::test_guard_refusal_writes_one_source_unreachable_and_exits_1` |
+| BEH-150 fetch --today rejects a non-ISO date with exit 1 | accepted | `tests/test_cli.py::test_today_must_be_an_iso_date` |
+| BEH-151 --force refetches sources whose version or lastmod is unchanged | confirmed | — (test owed) |
+| BEH-152 an unnamed confirmed tier: refuse source is reported in details without changing the exit code | confirmed | — (test owed) |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -159,3 +159,4 @@ Design Decisions** below, not here.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Inferred from code, tests and design repo (D19, D24, D29); certainty 92 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

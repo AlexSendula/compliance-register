@@ -6,7 +6,7 @@ tags: [api, sources, validate, ssrf, https, D7, D28, D29, principle-3, principle
 status: implemented
 certainty: 93
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/sources.py
   - compliance_register/mirror/adapters/__init__.py
@@ -25,55 +25,55 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-220
     title: 'localhost, 127.0.0.1, ::1, 10.0.0.5, 192.168.1.1, 169.254.169.254, 0.0.0.0 and fe80::1 in allowed_hosts each produce an allowed_hosts problem naming the host'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_sources.py::test_validate_refuses_private_hosts
   - behavior_id: BEH-221
     title: 'A public IP and a public hostname in allowed_hosts validate clean'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_sources.py::test_validate_allows_public_ip_and_names
   - behavior_id: BEH-222
     title: 'An http:// url produces a problem mentioning https'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_sources.py::test_validate_requires_https
   - behavior_id: BEH-223
     title: 'An unknown adapter name (e.g. bwb) is refused; each registry name is accepted'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_sources.py::test_validate_refuses_unknown_adapter
   - behavior_id: BEH-224
     title: 'api tier with no adapter is refused with a message naming eurlex; licence.redistribute ''yes'' is refused'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_sources.py::test_validate_rules
   - behavior_id: BEH-225
     title: 'eurlex config: celex must match the base CELEX pattern and language must be a known code; language is optional'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_sources.py::test_validate_eurlex_celex_and_language_shape
   - behavior_id: BEH-226
     title: 'allowed_hosts that is a dict, a list with a non-string, a list with an empty string, or an int is refused'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_sources.py::test_allowed_hosts_string_is_wrapped_and_bad_shapes_refused
   - behavior_id: BEH-227
     title: 'check with a validation problem exits 2 and the fake opener records zero requests'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_validation_problem_exits_2_before_any_request
   - behavior_id: BEH-228
     title: 'fetch --source naming an unconfirmed source exits 2 with ''required confirmation missing'' and no request'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_fetch.py::test_named_unconfirmed_source_is_refused
@@ -112,15 +112,15 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-220 localhost, 127.0.0.1, ::1, 10.0.0.5, 192.168.1.1, 169.254.169.254, 0.0.0.0 and fe80::1 in allowed_hosts each produce an allowed_hosts problem naming the host | proposed | `tests/test_sources.py::test_validate_refuses_private_hosts` |
-| BEH-221 A public IP and a public hostname in allowed_hosts validate clean | proposed | `tests/test_sources.py::test_validate_allows_public_ip_and_names` |
-| BEH-222 An http:// url produces a problem mentioning https | proposed | `tests/test_sources.py::test_validate_requires_https` |
-| BEH-223 An unknown adapter name (e.g. bwb) is refused; each registry name is accepted | proposed | `tests/test_sources.py::test_validate_refuses_unknown_adapter` |
-| BEH-224 api tier with no adapter is refused with a message naming eurlex; licence.redistribute 'yes' is refused | proposed | `tests/test_sources.py::test_validate_rules` |
-| BEH-225 eurlex config: celex must match the base CELEX pattern and language must be a known code; language is optional | proposed | `tests/test_sources.py::test_validate_eurlex_celex_and_language_shape` |
-| BEH-226 allowed_hosts that is a dict, a list with a non-string, a list with an empty string, or an int is refused | proposed | `tests/test_sources.py::test_allowed_hosts_string_is_wrapped_and_bad_shapes_refused` |
-| BEH-227 check with a validation problem exits 2 and the fake opener records zero requests | proposed | `tests/test_check.py::test_validation_problem_exits_2_before_any_request` |
-| BEH-228 fetch --source naming an unconfirmed source exits 2 with 'required confirmation missing' and no request | proposed | `tests/test_fetch.py::test_named_unconfirmed_source_is_refused` |
+| BEH-220 localhost, 127.0.0.1, ::1, 10.0.0.5, 192.168.1.1, 169.254.169.254, 0.0.0.0 and fe80::1 in allowed_hosts each produce an allowed_hosts problem naming the host | accepted | `tests/test_sources.py::test_validate_refuses_private_hosts` |
+| BEH-221 A public IP and a public hostname in allowed_hosts validate clean | accepted | `tests/test_sources.py::test_validate_allows_public_ip_and_names` |
+| BEH-222 An http:// url produces a problem mentioning https | accepted | `tests/test_sources.py::test_validate_requires_https` |
+| BEH-223 An unknown adapter name (e.g. bwb) is refused; each registry name is accepted | accepted | `tests/test_sources.py::test_validate_refuses_unknown_adapter` |
+| BEH-224 api tier with no adapter is refused with a message naming eurlex; licence.redistribute 'yes' is refused | accepted | `tests/test_sources.py::test_validate_rules` |
+| BEH-225 eurlex config: celex must match the base CELEX pattern and language must be a known code; language is optional | accepted | `tests/test_sources.py::test_validate_eurlex_celex_and_language_shape` |
+| BEH-226 allowed_hosts that is a dict, a list with a non-string, a list with an empty string, or an int is refused | accepted | `tests/test_sources.py::test_allowed_hosts_string_is_wrapped_and_bad_shapes_refused` |
+| BEH-227 check with a validation problem exits 2 and the fake opener records zero requests | accepted | `tests/test_check.py::test_validation_problem_exits_2_before_any_request` |
+| BEH-228 fetch --source naming an unconfirmed source exits 2 with 'required confirmation missing' and no request | accepted | `tests/test_fetch.py::test_named_unconfirmed_source_is_refused` |
 
 ## Intentional Design Decisions
 
@@ -181,3 +181,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
 | 2026-09-20 | `config.language` is a two-letter key of `eurlex.LANG3`, not a three-letter code | Cross-check against `sources.validate` and `references/method-discover-sources.md` |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

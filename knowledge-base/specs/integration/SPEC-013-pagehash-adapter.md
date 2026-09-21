@@ -16,28 +16,28 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-124
     title: "fetch writes every URL under .private/ for a non-redistributable source; an unchanged page is fresh; a changed body is moved naming the URL and the detail says it fetched"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_pagehash.py::test_fetch_then_fresh_then_moved
   - behavior_id: BEH-125
     title: "check is unreachable when a URL fails and no other URL changed"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-126
     title: "a non-HTML body is reported as 'not html' and counts as unreachable"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-127
     title: "config.urls absent falls back to the source URL"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-280
     title: "check names every unreachable URL in the detail even when another URL changed"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_pagehash.py::test_check_names_unreachable_urls_even_when_another_changed
@@ -63,11 +63,11 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-124 fetch writes every URL under .private/ for a non-redistributable source; an unchanged page is fresh; a changed body is moved naming the URL and the detail says it fetched | proposed | `tests/test_adapter_pagehash.py::test_fetch_then_fresh_then_moved` |
-| BEH-125 check is unreachable when a URL fails and no other URL changed | proposed | — (test owed) |
-| BEH-126 a non-HTML body is reported as 'not html' and counts as unreachable | proposed | — (test owed) |
-| BEH-127 config.urls absent falls back to the source URL | proposed | — (test owed) |
-| BEH-280 check names every unreachable URL in the detail even when another URL changed | proposed | `tests/test_adapter_pagehash.py::test_check_names_unreachable_urls_even_when_another_changed` |
+| BEH-124 fetch writes every URL under .private/ for a non-redistributable source; an unchanged page is fresh; a changed body is moved naming the URL and the detail says it fetched | accepted | `tests/test_adapter_pagehash.py::test_fetch_then_fresh_then_moved` |
+| BEH-125 check is unreachable when a URL fails and no other URL changed | confirmed | — (test owed) |
+| BEH-126 a non-HTML body is reported as 'not html' and counts as unreachable | confirmed | — (test owed) |
+| BEH-127 config.urls absent falls back to the source URL | confirmed | — (test owed) |
+| BEH-280 check names every unreachable URL in the detail even when another URL changed | accepted | `tests/test_adapter_pagehash.py::test_check_names_unreachable_urls_even_when_another_changed` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -106,3 +106,4 @@ Design Decisions** below, not here.
 | 2026-09-20 | Initial spec | Inferred from code, tests and design repo (D24); certainty 88 |
 | 2026-09-20 | Only fresh/moved details carry the "fetches to compare" prefix; unreachable lists the failures | Cross-check against `pagehash.check` |
 | 2026-09-21 | moved/fresh details now also name every unreachable URL; BEH-280 added | G2 principle checkpoint, principle 4 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

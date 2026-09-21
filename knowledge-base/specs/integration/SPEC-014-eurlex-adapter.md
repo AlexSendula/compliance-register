@@ -6,7 +6,7 @@ tags: [integration, mirror, adapter, eurlex, sparql, celex, guards]
 status: implemented
 certainty: 94
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/mirror/adapters/eurlex.py
   - references/eurlex-resolve.sparql
@@ -26,95 +26,95 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-128
     title: "the SPARQL endpoint is https and every request in a resolve is https"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_eurlex.py::test_sparql_endpoint_is_https
   - behavior_id: BEH-129
     title: "resolve picks the latest consolidation dated <= today as current and the earliest future one as next"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_eurlex.py::test_resolve_applies_today_client_side
   - behavior_id: BEH-130
     title: "check is moved (with version and next_version) when last_version differs and fresh when it matches"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_eurlex.py::test_check_moved_then_fresh
   - behavior_id: BEH-131
     title: "a header-only CSV makes check unreachable"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_eurlex.py::test_header_only_csv_is_unreachable
   - behavior_id: BEH-132
     title: "fetch writes <current>/art_N.md with consolidated metadata, a CC-BY modification banner, and sets version"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_eurlex.py::test_fetch_writes_articles_and_sets_version
   - behavior_id: BEH-133
     title: "a 200 body that is site chrome is refused by G2/G3 with nothing written and version None"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_eurlex.py::test_fetch_refuses_site_chrome
   - behavior_id: BEH-134
     title: "chunk() yields ## Article / ### subtitle headings with no space-only or triple-blank lines"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_eurlex.py::test_chunk_headings_and_whitespace_on_real_markup
   - behavior_id: BEH-135
     title: "a source config without celex is unreachable naming the key, not a KeyError"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_eurlex.py::test_check_with_missing_config_is_unreachable_not_raised
   - behavior_id: BEH-136
     title: "malformed CSV rows (path-shaped CELEX, non-ISO date) are dropped and never split"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_eurlex.py::test_resolve_drops_malformed_rows_and_never_splits_them
   - behavior_id: BEH-137
     title: "a CSV whose rows are all malformed raises HttpUnreachable"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_eurlex.py::test_resolve_all_rows_malformed_is_unreachable
   - behavior_id: BEH-138
     title: "zero rows for the requested CELEX is unreachable with version None even when last_version is None"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_eurlex.py::test_zero_rows_for_this_celex_is_unreachable_even_without_last_version
   - behavior_id: BEH-139
     title: "a check run over two eurlex sources issues exactly one SPARQL request"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_eurlex.py::test_check_run_issues_one_sparql_query_for_all_eurlex_sources
   - behavior_id: BEH-140
     title: "G4 accepts the real reference line and refuses a body whose only header is the base-CELEX title or a glued digit"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_eurlex.py::test_g4_needs_the_consolidated_reference_line_not_the_title
   - behavior_id: BEH-141
     title: "fetch skips (skipped=1, nothing written) when current equals last_version and force is false"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-142
     title: "G5 refuses a body whose article anchors are duplicated or out of order"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-143
     title: "a basket over 100 CELEXes is resolved in more than one GET"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
 ---
@@ -141,22 +141,22 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-128 the SPARQL endpoint is https and every request in a resolve is https | proposed | `tests/test_adapter_eurlex.py::test_sparql_endpoint_is_https` |
-| BEH-129 resolve picks the latest consolidation dated <= today as current and the earliest future one as next | proposed | `tests/test_adapter_eurlex.py::test_resolve_applies_today_client_side` |
-| BEH-130 check is moved (with version and next_version) when last_version differs and fresh when it matches | proposed | `tests/test_adapter_eurlex.py::test_check_moved_then_fresh` |
-| BEH-131 a header-only CSV makes check unreachable | proposed | `tests/test_adapter_eurlex.py::test_header_only_csv_is_unreachable` |
-| BEH-132 fetch writes <current>/art_N.md with consolidated metadata, a CC-BY modification banner, and sets version | proposed | `tests/test_adapter_eurlex.py::test_fetch_writes_articles_and_sets_version` |
-| BEH-133 a 200 body that is site chrome is refused by G2/G3 with nothing written and version None | proposed | `tests/test_adapter_eurlex.py::test_fetch_refuses_site_chrome` |
-| BEH-134 chunk() yields ## Article / ### subtitle headings with no space-only or triple-blank lines | proposed | `tests/test_adapter_eurlex.py::test_chunk_headings_and_whitespace_on_real_markup` |
-| BEH-135 a source config without celex is unreachable naming the key, not a KeyError | proposed | `tests/test_adapter_eurlex.py::test_check_with_missing_config_is_unreachable_not_raised` |
-| BEH-136 malformed CSV rows (path-shaped CELEX, non-ISO date) are dropped and never split | proposed | `tests/test_adapter_eurlex.py::test_resolve_drops_malformed_rows_and_never_splits_them` |
-| BEH-137 a CSV whose rows are all malformed raises HttpUnreachable | proposed | `tests/test_adapter_eurlex.py::test_resolve_all_rows_malformed_is_unreachable` |
-| BEH-138 zero rows for the requested CELEX is unreachable with version None even when last_version is None | proposed | `tests/test_adapter_eurlex.py::test_zero_rows_for_this_celex_is_unreachable_even_without_last_version` |
-| BEH-139 a check run over two eurlex sources issues exactly one SPARQL request | proposed | `tests/test_adapter_eurlex.py::test_check_run_issues_one_sparql_query_for_all_eurlex_sources` |
-| BEH-140 G4 accepts the real reference line and refuses a body whose only header is the base-CELEX title or a glued digit | proposed | `tests/test_adapter_eurlex.py::test_g4_needs_the_consolidated_reference_line_not_the_title` |
-| BEH-141 fetch skips (skipped=1, nothing written) when current equals last_version and force is false | proposed | — (test owed) |
-| BEH-142 G5 refuses a body whose article anchors are duplicated or out of order | proposed | — (test owed) |
-| BEH-143 a basket over 100 CELEXes is resolved in more than one GET | proposed | — (test owed) |
+| BEH-128 the SPARQL endpoint is https and every request in a resolve is https | accepted | `tests/test_adapter_eurlex.py::test_sparql_endpoint_is_https` |
+| BEH-129 resolve picks the latest consolidation dated <= today as current and the earliest future one as next | accepted | `tests/test_adapter_eurlex.py::test_resolve_applies_today_client_side` |
+| BEH-130 check is moved (with version and next_version) when last_version differs and fresh when it matches | accepted | `tests/test_adapter_eurlex.py::test_check_moved_then_fresh` |
+| BEH-131 a header-only CSV makes check unreachable | accepted | `tests/test_adapter_eurlex.py::test_header_only_csv_is_unreachable` |
+| BEH-132 fetch writes <current>/art_N.md with consolidated metadata, a CC-BY modification banner, and sets version | accepted | `tests/test_adapter_eurlex.py::test_fetch_writes_articles_and_sets_version` |
+| BEH-133 a 200 body that is site chrome is refused by G2/G3 with nothing written and version None | accepted | `tests/test_adapter_eurlex.py::test_fetch_refuses_site_chrome` |
+| BEH-134 chunk() yields ## Article / ### subtitle headings with no space-only or triple-blank lines | accepted | `tests/test_adapter_eurlex.py::test_chunk_headings_and_whitespace_on_real_markup` |
+| BEH-135 a source config without celex is unreachable naming the key, not a KeyError | accepted | `tests/test_adapter_eurlex.py::test_check_with_missing_config_is_unreachable_not_raised` |
+| BEH-136 malformed CSV rows (path-shaped CELEX, non-ISO date) are dropped and never split | accepted | `tests/test_adapter_eurlex.py::test_resolve_drops_malformed_rows_and_never_splits_them` |
+| BEH-137 a CSV whose rows are all malformed raises HttpUnreachable | accepted | `tests/test_adapter_eurlex.py::test_resolve_all_rows_malformed_is_unreachable` |
+| BEH-138 zero rows for the requested CELEX is unreachable with version None even when last_version is None | accepted | `tests/test_adapter_eurlex.py::test_zero_rows_for_this_celex_is_unreachable_even_without_last_version` |
+| BEH-139 a check run over two eurlex sources issues exactly one SPARQL request | accepted | `tests/test_adapter_eurlex.py::test_check_run_issues_one_sparql_query_for_all_eurlex_sources` |
+| BEH-140 G4 accepts the real reference line and refuses a body whose only header is the base-CELEX title or a glued digit | accepted | `tests/test_adapter_eurlex.py::test_g4_needs_the_consolidated_reference_line_not_the_title` |
+| BEH-141 fetch skips (skipped=1, nothing written) when current equals last_version and force is false | confirmed | — (test owed) |
+| BEH-142 G5 refuses a body whose article anchors are duplicated or out of order | confirmed | — (test owed) |
+| BEH-143 a basket over 100 CELEXes is resolved in more than one GET | confirmed | — (test owed) |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -235,3 +235,4 @@ Design Decisions** below, not here.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Inferred from code, tests, research spec and design repo (D28); certainty 94 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

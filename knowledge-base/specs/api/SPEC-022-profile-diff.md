@@ -19,24 +19,24 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-195
     title: 'diff --against <older profile file> prints exactly the slugs whose value changed (e.g. ''sector'') and exits 0'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_profile_diff_against_file
   - behavior_id: BEH-196
     title: 'A ref such as --output=/tmp/x is passed after --end-of-options and never as a git option; git failure relays stderr and exits 1'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_profile_diff_ref_is_never_a_git_option
   - behavior_id: BEH-197
     title: 'profile.diff ignores keys outside DIMENSIONS and reports only known slugs'
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-198
     title: 'diff without a current profile.md prints ''no profile.md'' to stderr and exits 1'
-    state: proposed
+    state: confirmed
     level: component
     adapter: pytest
 ---
@@ -65,10 +65,10 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-195 diff --against <older profile file> prints exactly the slugs whose value changed (e.g. 'sector') and exits 0 | proposed | `tests/test_cli.py::test_profile_diff_against_file` |
-| BEH-196 A ref such as --output=/tmp/x is passed after --end-of-options and never as a git option; git failure relays stderr and exits 1 | proposed | `tests/test_cli.py::test_profile_diff_ref_is_never_a_git_option` |
-| BEH-197 profile.diff ignores keys outside DIMENSIONS and reports only known slugs | proposed | — (test owed) |
-| BEH-198 diff without a current profile.md prints 'no profile.md' to stderr and exits 1 | proposed | — (test owed) |
+| BEH-195 diff --against <older profile file> prints exactly the slugs whose value changed (e.g. 'sector') and exits 0 | accepted | `tests/test_cli.py::test_profile_diff_against_file` |
+| BEH-196 A ref such as --output=/tmp/x is passed after --end-of-options and never as a git option; git failure relays stderr and exits 1 | accepted | `tests/test_cli.py::test_profile_diff_ref_is_never_a_git_option` |
+| BEH-197 profile.diff ignores keys outside DIMENSIONS and reports only known slugs | confirmed | — (test owed) |
+| BEH-198 diff without a current profile.md prints 'no profile.md' to stderr and exits 1 | confirmed | — (test owed) |
 
 ## Intentional Design Decisions
 
@@ -108,3 +108,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
 | 2026-09-21 | git's stderr is now escaped through `render.printable`; open question closed | G3 contradiction check, principle 10 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

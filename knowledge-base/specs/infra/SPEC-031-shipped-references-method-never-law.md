@@ -6,7 +6,7 @@ tags: [infra, references, method, template, principle-2]
 status: implemented
 certainty: 85
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - references/dimensions-checklist.md
   - references/regime-template.md
@@ -31,47 +31,47 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-268
     title: "regime-template.md ships id: EXAMPLE, angle-bracket placeholders, EXAMPLE-001, the Obligations section and a Rules list, and contains no CELEX, ISO date or 'Art. N' citation"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_skill_md.py::test_regime_template_ships_placeholders_not_law
   - behavior_id: BEH-269
     title: "method-discover-sources.md names every agent-written sources.Source field, every KINDS/TIERS/STATUSES value, every adapter config key, and says robots.txt is always honoured"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_skill_md.py::test_method_discover_sources_names_every_source_field
   - behavior_id: BEH-270
     title: "method-profile.md routes profile changes through rescan, never '--against HEAD~1', and bars repo name as evidence for any answer while allowing locale indicia"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_skill_md.py::test_method_profile_makes_rescan_the_baseline_and_bars_repo_name_as_evidence
   - behavior_id: BEH-271
     title: "method-discover-regimes.md mentions rescan and never 'profile diff' for the re-run loop"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_skill_md.py::test_skill_md_documents_pending_kinds_severities_and_the_api_endpoint_rule
   - behavior_id: BEH-272
     title: "No line of SKILL.md, README.md or any references/*.md contains a CELEX number, ISO date, 'Art. N' citation or http(s) URL, except dimensions-checklist lines carrying '**Found in**'"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_skill_md.py::test_shipped_docs_carry_no_law_fact_or_source_address
   - behavior_id: BEH-273
     title: "eurlex-resolve.sparql contains a {{VALUES}} placeholder that the eurlex adapter replaces with quoted CELEX strings, and the file names no instrument CELEX"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-274
     title: "The Slugs section of dimensions-checklist.md lists the fifteen slugs in the same order as profile.DIMENSIONS"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-275
     title: "Every dimension in dimensions-checklist.md carries the five fixed lines Ask, Decides, Code may propose, Trap and Found in"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
 ---
@@ -101,14 +101,14 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-268 regime-template.md ships id: EXAMPLE, angle-bracket placeholders, EXAMPLE-001, the Obligations section and a Rules list, and contains no CELEX, ISO date or 'Art. N' citation | proposed | `tests/test_skill_md.py::test_regime_template_ships_placeholders_not_law` |
-| BEH-269 method-discover-sources.md names every agent-written sources.Source field, every KINDS/TIERS/STATUSES value, every adapter config key, and says robots.txt is always honoured | proposed | `tests/test_skill_md.py::test_method_discover_sources_names_every_source_field` |
-| BEH-270 method-profile.md routes profile changes through rescan, never '--against HEAD~1', and bars repo name as evidence for any answer while allowing locale indicia | proposed | `tests/test_skill_md.py::test_method_profile_makes_rescan_the_baseline_and_bars_repo_name_as_evidence` |
-| BEH-271 method-discover-regimes.md mentions rescan and never 'profile diff' for the re-run loop | proposed | `tests/test_skill_md.py::test_skill_md_documents_pending_kinds_severities_and_the_api_endpoint_rule` |
-| BEH-272 No line of SKILL.md, README.md or any references/*.md contains a CELEX number, ISO date, 'Art. N' citation or http(s) URL, except dimensions-checklist lines carrying '**Found in**' | proposed | `tests/test_skill_md.py::test_shipped_docs_carry_no_law_fact_or_source_address` |
-| BEH-273 eurlex-resolve.sparql contains a {{VALUES}} placeholder that the eurlex adapter replaces with quoted CELEX strings, and the file names no instrument CELEX | proposed | — (test owed) |
-| BEH-274 The Slugs section of dimensions-checklist.md lists the fifteen slugs in the same order as profile.DIMENSIONS | proposed | — (test owed) |
-| BEH-275 Every dimension in dimensions-checklist.md carries the five fixed lines Ask, Decides, Code may propose, Trap and Found in | proposed | — (test owed) |
+| BEH-268 regime-template.md ships id: EXAMPLE, angle-bracket placeholders, EXAMPLE-001, the Obligations section and a Rules list, and contains no CELEX, ISO date or 'Art. N' citation | accepted | `tests/test_skill_md.py::test_regime_template_ships_placeholders_not_law` |
+| BEH-269 method-discover-sources.md names every agent-written sources.Source field, every KINDS/TIERS/STATUSES value, every adapter config key, and says robots.txt is always honoured | accepted | `tests/test_skill_md.py::test_method_discover_sources_names_every_source_field` |
+| BEH-270 method-profile.md routes profile changes through rescan, never '--against HEAD~1', and bars repo name as evidence for any answer while allowing locale indicia | accepted | `tests/test_skill_md.py::test_method_profile_makes_rescan_the_baseline_and_bars_repo_name_as_evidence` |
+| BEH-271 method-discover-regimes.md mentions rescan and never 'profile diff' for the re-run loop | accepted | `tests/test_skill_md.py::test_skill_md_documents_pending_kinds_severities_and_the_api_endpoint_rule` |
+| BEH-272 No line of SKILL.md, README.md or any references/*.md contains a CELEX number, ISO date, 'Art. N' citation or http(s) URL, except dimensions-checklist lines carrying '**Found in**' | accepted | `tests/test_skill_md.py::test_shipped_docs_carry_no_law_fact_or_source_address` |
+| BEH-273 eurlex-resolve.sparql contains a {{VALUES}} placeholder that the eurlex adapter replaces with quoted CELEX strings, and the file names no instrument CELEX | confirmed | — (test owed) |
+| BEH-274 The Slugs section of dimensions-checklist.md lists the fifteen slugs in the same order as profile.DIMENSIONS | confirmed | — (test owed) |
+| BEH-275 Every dimension in dimensions-checklist.md carries the five fixed lines Ask, Decides, Code may propose, Trap and Found in | confirmed | — (test owed) |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -170,3 +170,4 @@ Design Decisions** below, not here.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Scan-generated from `references/`, `tests/test_skill_md.py`, commits e0b28a4, 4c139a8, bb06b9d and design decisions D4, D5, D17, D18, D19, D28 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

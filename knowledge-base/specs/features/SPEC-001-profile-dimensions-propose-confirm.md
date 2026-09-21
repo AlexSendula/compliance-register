@@ -24,66 +24,66 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-001
     title: "DIMENSIONS is exactly 15 slugs with establishment first, directed_activity second and time_change last"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_profile.py::test_dimensions_are_fifteen_and_ordered
   - behavior_id: BEH-002
     title: "empty() seeds every dimension as status unanswered with value null and no evidence"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_profile.py::test_empty_has_every_dimension_unanswered
   - behavior_id: BEH-003
     title: "validate reports each unanswered dimension and each confirmed answer whose value is null"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_profile.py::test_validate_flags_missing_and_null
   - behavior_id: BEH-004
     title: "validate returns no problems when all 15 are confirmed with values and confirmed_by/confirmed_at are set"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_profile.py::test_validate_ok
   - behavior_id: BEH-005
     title: "validate rejects an answer whose status is not one of unanswered/proposed/confirmed and a key that is not a known dimension"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-006
     title: "validate requires confirmed_by and confirmed_at only once every answer is confirmed"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-007
     title: "diff lists the dimensions whose value changed, in dimension order"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_profile.py::test_diff_lists_changed_dimensions
   - behavior_id: BEH-008
     title: "load returns None when profile.md is absent and a Profile with meta and body when present"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_profile.py::test_load_reads_file
   - behavior_id: BEH-009
     title: "`profile validate` on a freshly initialised profile exits 1 and prints the unanswered dimensions"
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_profile_validate_fails_on_fresh_profile
   - behavior_id: BEH-010
     title: "`profile diff --against <file>` prints only the changed slugs and exits 0"
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_profile_diff_against_file
   - behavior_id: BEH-011
     title: "`profile diff --against <ref>` invokes git show with --end-of-options so the ref is never parsed as a git option"
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_profile_diff_ref_is_never_a_git_option
 ---
@@ -112,17 +112,17 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-001 DIMENSIONS is exactly 15 slugs with establishment first, directed_activity second and time_change last | proposed | `tests/test_profile.py::test_dimensions_are_fifteen_and_ordered` |
-| BEH-002 empty() seeds every dimension as status unanswered with value null and no evidence | proposed | `tests/test_profile.py::test_empty_has_every_dimension_unanswered` |
-| BEH-003 validate reports each unanswered dimension and each confirmed answer whose value is null | proposed | `tests/test_profile.py::test_validate_flags_missing_and_null` |
-| BEH-004 validate returns no problems when all 15 are confirmed with values and confirmed_by/confirmed_at are set | proposed | `tests/test_profile.py::test_validate_ok` |
-| BEH-005 validate rejects an answer whose status is not one of unanswered/proposed/confirmed and a key that is not a known dimension | proposed | — (test owed) |
-| BEH-006 validate requires confirmed_by and confirmed_at only once every answer is confirmed | proposed | — (test owed) |
-| BEH-007 diff lists the dimensions whose value changed, in dimension order | proposed | `tests/test_profile.py::test_diff_lists_changed_dimensions` |
-| BEH-008 load returns None when profile.md is absent and a Profile with meta and body when present | proposed | `tests/test_profile.py::test_load_reads_file` |
-| BEH-009 `profile validate` on a freshly initialised profile exits 1 and prints the unanswered dimensions | proposed | `tests/test_cli.py::test_profile_validate_fails_on_fresh_profile` |
-| BEH-010 `profile diff --against <file>` prints only the changed slugs and exits 0 | proposed | `tests/test_cli.py::test_profile_diff_against_file` |
-| BEH-011 `profile diff --against <ref>` invokes git show with --end-of-options so the ref is never parsed as a git option | proposed | `tests/test_cli.py::test_profile_diff_ref_is_never_a_git_option` |
+| BEH-001 DIMENSIONS is exactly 15 slugs with establishment first, directed_activity second and time_change last | accepted | `tests/test_profile.py::test_dimensions_are_fifteen_and_ordered` |
+| BEH-002 empty() seeds every dimension as status unanswered with value null and no evidence | accepted | `tests/test_profile.py::test_empty_has_every_dimension_unanswered` |
+| BEH-003 validate reports each unanswered dimension and each confirmed answer whose value is null | accepted | `tests/test_profile.py::test_validate_flags_missing_and_null` |
+| BEH-004 validate returns no problems when all 15 are confirmed with values and confirmed_by/confirmed_at are set | accepted | `tests/test_profile.py::test_validate_ok` |
+| BEH-005 validate rejects an answer whose status is not one of unanswered/proposed/confirmed and a key that is not a known dimension | confirmed | — (test owed) |
+| BEH-006 validate requires confirmed_by and confirmed_at only once every answer is confirmed | confirmed | — (test owed) |
+| BEH-007 diff lists the dimensions whose value changed, in dimension order | accepted | `tests/test_profile.py::test_diff_lists_changed_dimensions` |
+| BEH-008 load returns None when profile.md is absent and a Profile with meta and body when present | accepted | `tests/test_profile.py::test_load_reads_file` |
+| BEH-009 `profile validate` on a freshly initialised profile exits 1 and prints the unanswered dimensions | accepted | `tests/test_cli.py::test_profile_validate_fails_on_fresh_profile` |
+| BEH-010 `profile diff --against <file>` prints only the changed slugs and exits 0 | accepted | `tests/test_cli.py::test_profile_diff_against_file` |
+| BEH-011 `profile diff --against <ref>` invokes git show with --end-of-options so the ref is never parsed as a git option | accepted | `tests/test_cli.py::test_profile_diff_ref_is_never_a_git_option` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -186,3 +186,4 @@ Design Decisions** below, not here.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan; certainty 93 |
 | 2026-09-21 | `load` absorbs an unreadable profile.md into `Profile.problems`; `validate` takes them through | P4b drift check after f34d2fa |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

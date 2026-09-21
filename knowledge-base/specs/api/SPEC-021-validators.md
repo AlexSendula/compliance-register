@@ -6,7 +6,7 @@ tags: [api, cli, validate, principle-3, principle-9]
 status: implemented
 certainty: 90
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/cli.py
   - compliance_register/profile.py
@@ -19,24 +19,24 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-191
     title: 'profile validate on the profile init writes exits 1 and lists unanswered dimensions'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_profile_validate_fails_on_fresh_profile
   - behavior_id: BEH-192
     title: 'sources validate exits 0 on an empty sources.json and exits 1 naming https and adapter problems for an http api-tier source without adapter'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_sources_validate_cli
   - behavior_id: BEH-193
     title: 'profile validate without a profile.md prints ''no profile.md — run init'' to stderr and exits 1'
-    state: proposed
+    state: confirmed
     level: component
     adapter: pytest
   - behavior_id: BEH-194
     title: 'regimes validate exits 1 and prints ''<id>: <problem>'' for a regime whose frontmatter does not parse, while still loading the others'
-    state: proposed
+    state: confirmed
     level: component
     adapter: pytest
 ---
@@ -63,10 +63,10 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-191 profile validate on the profile init writes exits 1 and lists unanswered dimensions | proposed | `tests/test_cli.py::test_profile_validate_fails_on_fresh_profile` |
-| BEH-192 sources validate exits 0 on an empty sources.json and exits 1 naming https and adapter problems for an http api-tier source without adapter | proposed | `tests/test_cli.py::test_sources_validate_cli` |
-| BEH-193 profile validate without a profile.md prints 'no profile.md — run init' to stderr and exits 1 | proposed | — (test owed) |
-| BEH-194 regimes validate exits 1 and prints '<id>: <problem>' for a regime whose frontmatter does not parse, while still loading the others | proposed | — (test owed) |
+| BEH-191 profile validate on the profile init writes exits 1 and lists unanswered dimensions | accepted | `tests/test_cli.py::test_profile_validate_fails_on_fresh_profile` |
+| BEH-192 sources validate exits 0 on an empty sources.json and exits 1 naming https and adapter problems for an http api-tier source without adapter | accepted | `tests/test_cli.py::test_sources_validate_cli` |
+| BEH-193 profile validate without a profile.md prints 'no profile.md — run init' to stderr and exits 1 | confirmed | — (test owed) |
+| BEH-194 regimes validate exits 1 and prints '<id>: <problem>' for a regime whose frontmatter does not parse, while still loading the others | confirmed | — (test owed) |
 
 ## Intentional Design Decisions
 
@@ -99,3 +99,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

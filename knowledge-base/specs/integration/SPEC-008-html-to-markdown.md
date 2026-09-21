@@ -6,7 +6,7 @@ tags: [integration, mirror, htmlmd, markdown, vendored, stdlib]
 status: implemented
 certainty: 90
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/mirror/htmlmd.py
   - tests/test_htmlmd.py
@@ -18,67 +18,67 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-082
     title: "the real EUR-Lex consolidated fixture converts to markdown with no residual tags"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_htmlmd.py::test_eurlex_fixture_converts_to_readable_markdown
   - behavior_id: BEH-083
     title: "a document opening with doctype, <html>, BOM, comments or an XML declaration is detected as HTML"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_htmlmd.py::test_a_document_is_detected
   - behavior_id: BEH-084
     title: "ordinary markdown, empty text and prose mentioning <html> mid-sentence are not HTML"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_htmlmd.py::test_ordinary_markdown_is_not
   - behavior_id: BEH-085
     title: "markdown containing a full HTML document inside an html fence is not HTML"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_htmlmd.py::test_markdown_documenting_html_is_not_html
   - behavior_id: BEH-086
     title: "script and footer content never reach the markdown; the h1 and prose do"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_htmlmd.py::test_a_page_converts_to_readable_markdown
   - behavior_id: BEH-087
     title: "root-relative hrefs are absolutised against page_url"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_htmlmd.py::test_relative_links_are_absolutised
   - behavior_id: BEH-088
     title: "an empty body or empty input returns None rather than an empty string"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_htmlmd.py::test_a_document_with_no_recoverable_text_is_refused
   - behavior_id: BEH-089
     title: "a <pre> built from token-line divs and <br> keeps one line per line"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_htmlmd.py::test_a_code_block_built_from_token_line_divs_keeps_its_lines
   - behavior_id: BEH-090
     title: "no markdown emphasis syntax is emitted inside a fence"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_htmlmd.py::test_no_markdown_syntax_is_emitted_inside_a_fence
   - behavior_id: BEH-091
     title: "a code sample containing ``` widens the fence to four backticks"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_htmlmd.py::test_a_code_sample_containing_a_fence_does_not_end_the_block
   - behavior_id: BEH-092
     title: "a nested <pre> does not open a second fence"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_htmlmd.py::test_a_nested_pre_does_not_open_a_second_fence
@@ -108,17 +108,17 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-082 the real EUR-Lex consolidated fixture converts to markdown with no residual tags | proposed | `tests/test_htmlmd.py::test_eurlex_fixture_converts_to_readable_markdown` |
-| BEH-083 a document opening with doctype, <html>, BOM, comments or an XML declaration is detected as HTML | proposed | `tests/test_htmlmd.py::test_a_document_is_detected` |
-| BEH-084 ordinary markdown, empty text and prose mentioning <html> mid-sentence are not HTML | proposed | `tests/test_htmlmd.py::test_ordinary_markdown_is_not` |
-| BEH-085 markdown containing a full HTML document inside an html fence is not HTML | proposed | `tests/test_htmlmd.py::test_markdown_documenting_html_is_not_html` |
-| BEH-086 script and footer content never reach the markdown; the h1 and prose do | proposed | `tests/test_htmlmd.py::test_a_page_converts_to_readable_markdown` |
-| BEH-087 root-relative hrefs are absolutised against page_url | proposed | `tests/test_htmlmd.py::test_relative_links_are_absolutised` |
-| BEH-088 an empty body or empty input returns None rather than an empty string | proposed | `tests/test_htmlmd.py::test_a_document_with_no_recoverable_text_is_refused` |
-| BEH-089 a <pre> built from token-line divs and <br> keeps one line per line | proposed | `tests/test_htmlmd.py::test_a_code_block_built_from_token_line_divs_keeps_its_lines` |
-| BEH-090 no markdown emphasis syntax is emitted inside a fence | proposed | `tests/test_htmlmd.py::test_no_markdown_syntax_is_emitted_inside_a_fence` |
-| BEH-091 a code sample containing ``` widens the fence to four backticks | proposed | `tests/test_htmlmd.py::test_a_code_sample_containing_a_fence_does_not_end_the_block` |
-| BEH-092 a nested <pre> does not open a second fence | proposed | `tests/test_htmlmd.py::test_a_nested_pre_does_not_open_a_second_fence` |
+| BEH-082 the real EUR-Lex consolidated fixture converts to markdown with no residual tags | accepted | `tests/test_htmlmd.py::test_eurlex_fixture_converts_to_readable_markdown` |
+| BEH-083 a document opening with doctype, <html>, BOM, comments or an XML declaration is detected as HTML | accepted | `tests/test_htmlmd.py::test_a_document_is_detected` |
+| BEH-084 ordinary markdown, empty text and prose mentioning <html> mid-sentence are not HTML | accepted | `tests/test_htmlmd.py::test_ordinary_markdown_is_not` |
+| BEH-085 markdown containing a full HTML document inside an html fence is not HTML | accepted | `tests/test_htmlmd.py::test_markdown_documenting_html_is_not_html` |
+| BEH-086 script and footer content never reach the markdown; the h1 and prose do | accepted | `tests/test_htmlmd.py::test_a_page_converts_to_readable_markdown` |
+| BEH-087 root-relative hrefs are absolutised against page_url | accepted | `tests/test_htmlmd.py::test_relative_links_are_absolutised` |
+| BEH-088 an empty body or empty input returns None rather than an empty string | accepted | `tests/test_htmlmd.py::test_a_document_with_no_recoverable_text_is_refused` |
+| BEH-089 a <pre> built from token-line divs and <br> keeps one line per line | accepted | `tests/test_htmlmd.py::test_a_code_block_built_from_token_line_divs_keeps_its_lines` |
+| BEH-090 no markdown emphasis syntax is emitted inside a fence | accepted | `tests/test_htmlmd.py::test_no_markdown_syntax_is_emitted_inside_a_fence` |
+| BEH-091 a code sample containing ``` widens the fence to four backticks | accepted | `tests/test_htmlmd.py::test_a_code_sample_containing_a_fence_does_not_end_the_block` |
+| BEH-092 a nested <pre> does not open a second fence | accepted | `tests/test_htmlmd.py::test_a_nested_pre_does_not_open_a_second_fence` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -161,3 +161,4 @@ Design Decisions** below, not here.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Inferred from code, tests and design repo (D21, plan B Task 3); certainty 90 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

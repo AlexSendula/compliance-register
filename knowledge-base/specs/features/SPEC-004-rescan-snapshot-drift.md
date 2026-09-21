@@ -25,71 +25,71 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-033
     title: "the first rescan writes profile.snapshot.json and reports zero entries"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_rescan.py::test_first_rescan_snapshots_without_entries
   - behavior_id: BEH-034
     title: "a confirmed dimension that becomes falsy raises regime-gone (major) for each binds/undetermined regime whose applies.triggered_by names it"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_rescan.py::test_removed_trigger_marks_regime_gone
   - behavior_id: BEH-035
     title: "a confirmed dimension that gains or changes a value raises one regime-new (info) entry naming the dimension"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_rescan.py::test_new_answer_asks_for_discover
   - behavior_id: BEH-036
     title: "a proposed answer is stored as null in the snapshot, and confirming it later is reported as a change"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_rescan.py::test_snapshot_holds_only_confirmed_values
   - behavior_id: BEH-037
     title: "an invalid profile returns exit 2 with the problems and writes no snapshot"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_rescan.py::test_invalid_profile_is_refused_with_exit_2
   - behavior_id: BEH-038
     title: "`rescan` on a fresh profile exits 2 and names the unanswered dimensions on stderr"
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_rescan_cli_exits_2_on_invalid_profile
   - behavior_id: BEH-039
     title: "a regime whose applies is not a mapping does not break rescan; the drift is still reported"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_poisoned_files_do_not_brick.py::test_regime_with_wrong_shaped_sources_and_applies_is_reported_not_fatal
   - behavior_id: BEH-040
     title: "run returns error 'no profile.md' when the profile is absent"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-041
     title: "ruled-out and no-longer-applies regimes never receive a regime-gone entry"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-042
     title: "`--today` must be YYYY-MM-DD; any other string exits 1"
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_today_must_be_an_iso_date
   - behavior_id: BEH-281
     title: "a corrupt profile.snapshot.json is refused by name with exit 1 and the baseline is left untouched"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_rescan.py::test_corrupt_snapshot_is_refused_with_a_message
   - behavior_id: BEH-282
     title: "an unreadable profile.md is refused with exit 2 and the problem named"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_rescan.py::test_corrupt_profile_is_refused_with_a_message
@@ -109,18 +109,18 @@ this spec — link to it here, never copy the scenario steps (single source of
 truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-033 the first rescan writes profile.snapshot.json and reports zero entries | proposed | `tests/test_rescan.py::test_first_rescan_snapshots_without_entries` |
-| BEH-034 a confirmed dimension that becomes falsy raises regime-gone (major) for each binds/undetermined regime whose applies.triggered_by names it | proposed | `tests/test_rescan.py::test_removed_trigger_marks_regime_gone` |
-| BEH-035 a confirmed dimension that gains or changes a value raises one regime-new (info) entry naming the dimension | proposed | `tests/test_rescan.py::test_new_answer_asks_for_discover` |
-| BEH-036 a proposed answer is stored as null in the snapshot, and confirming it later is reported as a change | proposed | `tests/test_rescan.py::test_snapshot_holds_only_confirmed_values` |
-| BEH-037 an invalid profile returns exit 2 with the problems and writes no snapshot | proposed | `tests/test_rescan.py::test_invalid_profile_is_refused_with_exit_2` |
-| BEH-038 `rescan` on a fresh profile exits 2 and names the unanswered dimensions on stderr | proposed | `tests/test_cli.py::test_rescan_cli_exits_2_on_invalid_profile` |
-| BEH-039 a regime whose applies is not a mapping does not break rescan; the drift is still reported | proposed | `tests/test_poisoned_files_do_not_brick.py::test_regime_with_wrong_shaped_sources_and_applies_is_reported_not_fatal` |
-| BEH-040 run returns error 'no profile.md' when the profile is absent | proposed | — (test owed) |
-| BEH-041 ruled-out and no-longer-applies regimes never receive a regime-gone entry | proposed | — (test owed) |
-| BEH-042 `--today` must be YYYY-MM-DD; any other string exits 1 | proposed | `tests/test_cli.py::test_today_must_be_an_iso_date` |
-| BEH-281 a corrupt profile.snapshot.json is refused by name with exit 1 and the baseline is left untouched | proposed | `tests/test_rescan.py::test_corrupt_snapshot_is_refused_with_a_message` |
-| BEH-282 an unreadable profile.md is refused with exit 2 and the problem named | proposed | `tests/test_rescan.py::test_corrupt_profile_is_refused_with_a_message` |
+| BEH-033 the first rescan writes profile.snapshot.json and reports zero entries | accepted | `tests/test_rescan.py::test_first_rescan_snapshots_without_entries` |
+| BEH-034 a confirmed dimension that becomes falsy raises regime-gone (major) for each binds/undetermined regime whose applies.triggered_by names it | accepted | `tests/test_rescan.py::test_removed_trigger_marks_regime_gone` |
+| BEH-035 a confirmed dimension that gains or changes a value raises one regime-new (info) entry naming the dimension | accepted | `tests/test_rescan.py::test_new_answer_asks_for_discover` |
+| BEH-036 a proposed answer is stored as null in the snapshot, and confirming it later is reported as a change | accepted | `tests/test_rescan.py::test_snapshot_holds_only_confirmed_values` |
+| BEH-037 an invalid profile returns exit 2 with the problems and writes no snapshot | accepted | `tests/test_rescan.py::test_invalid_profile_is_refused_with_exit_2` |
+| BEH-038 `rescan` on a fresh profile exits 2 and names the unanswered dimensions on stderr | accepted | `tests/test_cli.py::test_rescan_cli_exits_2_on_invalid_profile` |
+| BEH-039 a regime whose applies is not a mapping does not break rescan; the drift is still reported | accepted | `tests/test_poisoned_files_do_not_brick.py::test_regime_with_wrong_shaped_sources_and_applies_is_reported_not_fatal` |
+| BEH-040 run returns error 'no profile.md' when the profile is absent | confirmed | — (test owed) |
+| BEH-041 ruled-out and no-longer-applies regimes never receive a regime-gone entry | confirmed | — (test owed) |
+| BEH-042 `--today` must be YYYY-MM-DD; any other string exits 1 | accepted | `tests/test_cli.py::test_today_must_be_an_iso_date` |
+| BEH-281 a corrupt profile.snapshot.json is refused by name with exit 1 and the baseline is left untouched | accepted | `tests/test_rescan.py::test_corrupt_snapshot_is_refused_with_a_message` |
+| BEH-282 an unreadable profile.md is refused with exit 2 and the problem named | accepted | `tests/test_rescan.py::test_corrupt_profile_is_refused_with_a_message` |
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
 ## Intentional Design Decisions
@@ -154,3 +154,4 @@ Design Decisions** below, not here.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan; certainty 91 |
 | 2026-09-21 | A corrupt snapshot is refused by name (exit 1) instead of raising; an unreadable profile.md is refused through `validate` (exit 2); BEH-281, BEH-282 added | G2 principle checkpoint, principle 9 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

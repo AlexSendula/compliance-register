@@ -6,7 +6,7 @@ tags: [api, cli, exit-codes, D29, principle-9, principle-10]
 status: implemented
 certainty: 92
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/cli.py
   - compliance_register/paths.py
@@ -20,37 +20,37 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-169
     title: 'Running any command outside a directory tree that contains knowledge-base/ exits 2 with a message naming knowledge-base'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_outside_project_exits_2
   - behavior_id: BEH-170
     title: 'A malformed argument (e.g. --today tomorrow) exits 1, not argparse''s 2, and the argparse message reaches stderr'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_today_must_be_an_iso_date
   - behavior_id: BEH-171
     title: '--version prints ''compliance-register <version>'' to stdout and exits 0'
-    state: proposed
+    state: deprecated
     level: component
     adapter: pytest
     locator: tests/test_launcher.py::test_launcher_prints_version
   - behavior_id: BEH-172
     title: 'Invoking the CLI with no subcommand prints help to stderr and exits 1'
-    state: proposed
+    state: confirmed
     level: component
     adapter: pytest
   - behavior_id: BEH-173
     title: 'A corrupt sources.json surfaces as ''error: sources.json: ...'' on stderr with exit 1 from check'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_poisoned_files_do_not_brick.py::test_corrupt_sources_json_is_a_typed_error_and_exit_1
   - behavior_id: BEH-174
     title: 'A profile diff whose git ref cannot be read exits 1 and relays git''s stderr'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_profile_diff_ref_is_never_a_git_option
 ---
@@ -79,12 +79,12 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-169 Running any command outside a directory tree that contains knowledge-base/ exits 2 with a message naming knowledge-base | proposed | `tests/test_cli.py::test_outside_project_exits_2` |
-| BEH-170 A malformed argument (e.g. --today tomorrow) exits 1, not argparse's 2, and the argparse message reaches stderr | proposed | `tests/test_cli.py::test_today_must_be_an_iso_date` |
-| BEH-171 --version prints 'compliance-register <version>' to stdout and exits 0 | proposed | `tests/test_launcher.py::test_launcher_prints_version` |
-| BEH-172 Invoking the CLI with no subcommand prints help to stderr and exits 1 | proposed | — (test owed) |
-| BEH-173 A corrupt sources.json surfaces as 'error: sources.json: ...' on stderr with exit 1 from check | proposed | `tests/test_poisoned_files_do_not_brick.py::test_corrupt_sources_json_is_a_typed_error_and_exit_1` |
-| BEH-174 A profile diff whose git ref cannot be read exits 1 and relays git's stderr | proposed | `tests/test_cli.py::test_profile_diff_ref_is_never_a_git_option` |
+| BEH-169 Running any command outside a directory tree that contains knowledge-base/ exits 2 with a message naming knowledge-base | accepted | `tests/test_cli.py::test_outside_project_exits_2` |
+| BEH-170 A malformed argument (e.g. --today tomorrow) exits 1, not argparse's 2, and the argparse message reaches stderr | accepted | `tests/test_cli.py::test_today_must_be_an_iso_date` |
+| BEH-171 --version prints 'compliance-register <version>' to stdout and exits 0 | deprecated | `tests/test_launcher.py::test_launcher_prints_version` |
+| BEH-172 Invoking the CLI with no subcommand prints help to stderr and exits 1 | confirmed | — (test owed) |
+| BEH-173 A corrupt sources.json surfaces as 'error: sources.json: ...' on stderr with exit 1 from check | accepted | `tests/test_poisoned_files_do_not_brick.py::test_corrupt_sources_json_is_a_typed_error_and_exit_1` |
+| BEH-174 A profile diff whose git ref cannot be read exits 1 and relays git's stderr | accepted | `tests/test_cli.py::test_profile_diff_ref_is_never_a_git_option` |
 
 ## Intentional Design Decisions
 
@@ -136,3 +136,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed); --version duplicate deprecated in favour of BEH-229 | First behaviour review after the freya wrap-up |

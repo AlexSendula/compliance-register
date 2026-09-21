@@ -6,7 +6,7 @@ tags: [infra, packaging, skill-md, plugin, launcher, version]
 status: implemented
 certainty: 88
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - SKILL.md
   - README.md
@@ -30,72 +30,72 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-255
     title: "SKILL.md frontmatter has name equal to the repo directory 'compliance-register' in kebab-case ≤64 chars, a 1–1024 char description containing 'TRIGGER when', license MIT, and the file is under 500 lines"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_skill_md.py::test_skill_md_frontmatter_matches_spec
   - behavior_id: BEH-256
     title: "SKILL.md never contains the verdict phrases 'you are compliant' or 'is compliant'"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_skill_md.py::test_skill_md_never_says_compliant_as_a_verdict
   - behavior_id: BEH-257
     title: "plugin.json name is 'compliance-register' with skills ['.'], and marketplace.json's single plugin has the same name and source '.'"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_skill_md.py::test_plugin_and_marketplace_agree
   - behavior_id: BEH-258
     title: "Every references/*.md path mentioned in SKILL.md exists on disk"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_skill_md.py::test_every_reference_linked_from_skill_md_exists
   - behavior_id: BEH-259
     title: "The SKILL.md Commands section names every subcommand reachable from cli.build_parser, states that stage names are not CLI commands, and gives the check/fetch/rescan exit-code rules"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_skill_md.py::test_skill_md_commands_table_covers_the_whole_cli
   - behavior_id: BEH-260
     title: "README lists every CLI command as 'compliance-register <name>' and names .last-check, profile.snapshot.json, mirror/.private/, .search-index.json and MANIFEST.json"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_skill_md.py::test_readme_matches_the_cli_and_lists_engine_files
   - behavior_id: BEH-261
     title: "The SKILL.md Pending section names every pending.KINDS and pending.SEVERITIES value and the Mirror section states that api adapters carry only their endpoint"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_skill_md.py::test_skill_md_documents_pending_kinds_severities_and_the_api_endpoint_rule
   - behavior_id: BEH-262
     title: "The SKILL.md Mirror section states the EUR-Lex v1 narrowings (never-consolidated acts cited by URL, language not pre-checked, G1/G2) and no eurlex-language.sparql ships"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_skill_md.py::test_skill_md_states_eurlex_v1_narrowings
   - behavior_id: BEH-263
     title: "Running the launcher with --version exits 0 and prints 'compliance-register <version>'"
-    state: proposed
+    state: deprecated
     level: component
     adapter: pytest
     locator: tests/test_launcher.py::test_launcher_prints_version
   - behavior_id: BEH-265
     title: "The default HTTP User-Agent string embeds __version__ and the contact address"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_user_agent_strings
   - behavior_id: BEH-266
     title: "The version in __init__.py, pyproject.toml, plugin.json and SKILL.md metadata are identical"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-267
     title: "Running the launcher under Python older than 3.12 exits 2 with a message naming the found version, before importing the package"
-    state: proposed
+    state: confirmed
     level: component
     adapter: pytest
 ---
@@ -122,18 +122,18 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-255 SKILL.md frontmatter has name equal to the repo directory 'compliance-register' in kebab-case ≤64 chars, a 1–1024 char description containing 'TRIGGER when', license MIT, and the file is under 500 lines | proposed | `tests/test_skill_md.py::test_skill_md_frontmatter_matches_spec` |
-| BEH-256 SKILL.md never contains the verdict phrases 'you are compliant' or 'is compliant' | proposed | `tests/test_skill_md.py::test_skill_md_never_says_compliant_as_a_verdict` |
-| BEH-257 plugin.json name is 'compliance-register' with skills ['.'], and marketplace.json's single plugin has the same name and source '.' | proposed | `tests/test_skill_md.py::test_plugin_and_marketplace_agree` |
-| BEH-258 Every references/*.md path mentioned in SKILL.md exists on disk | proposed | `tests/test_skill_md.py::test_every_reference_linked_from_skill_md_exists` |
-| BEH-259 The SKILL.md Commands section names every subcommand reachable from cli.build_parser, states that stage names are not CLI commands, and gives the check/fetch/rescan exit-code rules | proposed | `tests/test_skill_md.py::test_skill_md_commands_table_covers_the_whole_cli` |
-| BEH-260 README lists every CLI command as 'compliance-register <name>' and names .last-check, profile.snapshot.json, mirror/.private/, .search-index.json and MANIFEST.json | proposed | `tests/test_skill_md.py::test_readme_matches_the_cli_and_lists_engine_files` |
-| BEH-261 The SKILL.md Pending section names every pending.KINDS and pending.SEVERITIES value and the Mirror section states that api adapters carry only their endpoint | proposed | `tests/test_skill_md.py::test_skill_md_documents_pending_kinds_severities_and_the_api_endpoint_rule` |
-| BEH-262 The SKILL.md Mirror section states the EUR-Lex v1 narrowings (never-consolidated acts cited by URL, language not pre-checked, G1/G2) and no eurlex-language.sparql ships | proposed | `tests/test_skill_md.py::test_skill_md_states_eurlex_v1_narrowings` |
-| BEH-263 Running the launcher with --version exits 0 and prints 'compliance-register <version>' | proposed | `tests/test_launcher.py::test_launcher_prints_version` |
-| BEH-265 The default HTTP User-Agent string embeds __version__ and the contact address | proposed | `tests/test_http.py::test_user_agent_strings` |
-| BEH-266 The version in __init__.py, pyproject.toml, plugin.json and SKILL.md metadata are identical | proposed | — (test owed) |
-| BEH-267 Running the launcher under Python older than 3.12 exits 2 with a message naming the found version, before importing the package | proposed | — (test owed) |
+| BEH-255 SKILL.md frontmatter has name equal to the repo directory 'compliance-register' in kebab-case ≤64 chars, a 1–1024 char description containing 'TRIGGER when', license MIT, and the file is under 500 lines | accepted | `tests/test_skill_md.py::test_skill_md_frontmatter_matches_spec` |
+| BEH-256 SKILL.md never contains the verdict phrases 'you are compliant' or 'is compliant' | accepted | `tests/test_skill_md.py::test_skill_md_never_says_compliant_as_a_verdict` |
+| BEH-257 plugin.json name is 'compliance-register' with skills ['.'], and marketplace.json's single plugin has the same name and source '.' | accepted | `tests/test_skill_md.py::test_plugin_and_marketplace_agree` |
+| BEH-258 Every references/*.md path mentioned in SKILL.md exists on disk | accepted | `tests/test_skill_md.py::test_every_reference_linked_from_skill_md_exists` |
+| BEH-259 The SKILL.md Commands section names every subcommand reachable from cli.build_parser, states that stage names are not CLI commands, and gives the check/fetch/rescan exit-code rules | accepted | `tests/test_skill_md.py::test_skill_md_commands_table_covers_the_whole_cli` |
+| BEH-260 README lists every CLI command as 'compliance-register <name>' and names .last-check, profile.snapshot.json, mirror/.private/, .search-index.json and MANIFEST.json | accepted | `tests/test_skill_md.py::test_readme_matches_the_cli_and_lists_engine_files` |
+| BEH-261 The SKILL.md Pending section names every pending.KINDS and pending.SEVERITIES value and the Mirror section states that api adapters carry only their endpoint | accepted | `tests/test_skill_md.py::test_skill_md_documents_pending_kinds_severities_and_the_api_endpoint_rule` |
+| BEH-262 The SKILL.md Mirror section states the EUR-Lex v1 narrowings (never-consolidated acts cited by URL, language not pre-checked, G1/G2) and no eurlex-language.sparql ships | accepted | `tests/test_skill_md.py::test_skill_md_states_eurlex_v1_narrowings` |
+| BEH-263 Running the launcher with --version exits 0 and prints 'compliance-register <version>' | deprecated | `tests/test_launcher.py::test_launcher_prints_version` |
+| BEH-265 The default HTTP User-Agent string embeds __version__ and the contact address | accepted | `tests/test_http.py::test_user_agent_strings` |
+| BEH-266 The version in __init__.py, pyproject.toml, plugin.json and SKILL.md metadata are identical | confirmed | — (test owed) |
+| BEH-267 Running the launcher under Python older than 3.12 exits 2 with a message naming the found version, before importing the package | confirmed | — (test owed) |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -195,3 +195,4 @@ Design Decisions** below, not here.
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Scan-generated from SKILL.md, the plugin manifests, `bin/compliance-register`, their tests, commits 2162bb0 and 6233e6e, and design decisions D25, D29 |
 | 2026-09-20 | Removed BEH-264 (duplicate of SPEC-027 BEH-230, same title and locator) | verify pass |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed); --version duplicate deprecated in favour of BEH-229 | First behaviour review after the freya wrap-up |

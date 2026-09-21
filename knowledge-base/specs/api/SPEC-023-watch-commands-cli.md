@@ -6,7 +6,7 @@ tags: [api, cli, fetch, check, rescan, D16, D29, principle-4, principle-5]
 status: implemented
 certainty: 91
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/cli.py
   - compliance_register/fetch.py
@@ -24,49 +24,49 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-199
     title: 'check, fetch and rescan reject --today values that are not YYYY-MM-DD with exit 1 and a message containing YYYY-MM-DD'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_today_must_be_an_iso_date
   - behavior_id: BEH-200
     title: 'rescan on a profile that does not validate prints the reasons to stderr and exits 2'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_rescan_cli_exits_2_on_invalid_profile
   - behavior_id: BEH-201
     title: 'check on a corrupt sources.json exits 1 with the file name in stderr'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_poisoned_files_do_not_brick.py::test_corrupt_sources_json_is_a_typed_error_and_exit_1
   - behavior_id: BEH-202
     title: 'check exits 2 and makes no request when a chosen source fails validation'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_validation_problem_exits_2_before_any_request
   - behavior_id: BEH-203
     title: 'check exits 1 when at least one source is unreachable and 0 when every source is fresh or moved'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_unreachable_source_exits_1
   - behavior_id: BEH-204
     title: 'fetch exits 2 when a refuse-tier source is named with --source'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_fetch.py::test_fetch_refuses_refuse_tier
   - behavior_id: BEH-205
     title: 'fetch exits 1 and writes one source-unreachable entry when a guard refuses a page'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_fetch.py::test_guard_refusal_writes_one_source_unreachable_and_exits_1
   - behavior_id: BEH-206
     title: 'check text output ends with ''see: compliance-register pending'' only when moved or unreachable is non-zero'
-    state: proposed
+    state: confirmed
     level: component
     adapter: pytest
 ---
@@ -99,14 +99,14 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-199 check, fetch and rescan reject --today values that are not YYYY-MM-DD with exit 1 and a message containing YYYY-MM-DD | proposed | `tests/test_cli.py::test_today_must_be_an_iso_date` |
-| BEH-200 rescan on a profile that does not validate prints the reasons to stderr and exits 2 | proposed | `tests/test_cli.py::test_rescan_cli_exits_2_on_invalid_profile` |
-| BEH-201 check on a corrupt sources.json exits 1 with the file name in stderr | proposed | `tests/test_poisoned_files_do_not_brick.py::test_corrupt_sources_json_is_a_typed_error_and_exit_1` |
-| BEH-202 check exits 2 and makes no request when a chosen source fails validation | proposed | `tests/test_check.py::test_validation_problem_exits_2_before_any_request` |
-| BEH-203 check exits 1 when at least one source is unreachable and 0 when every source is fresh or moved | proposed | `tests/test_check.py::test_unreachable_source_exits_1` |
-| BEH-204 fetch exits 2 when a refuse-tier source is named with --source | proposed | `tests/test_fetch.py::test_fetch_refuses_refuse_tier` |
-| BEH-205 fetch exits 1 and writes one source-unreachable entry when a guard refuses a page | proposed | `tests/test_fetch.py::test_guard_refusal_writes_one_source_unreachable_and_exits_1` |
-| BEH-206 check text output ends with 'see: compliance-register pending' only when moved or unreachable is non-zero | proposed | — (test owed) |
+| BEH-199 check, fetch and rescan reject --today values that are not YYYY-MM-DD with exit 1 and a message containing YYYY-MM-DD | accepted | `tests/test_cli.py::test_today_must_be_an_iso_date` |
+| BEH-200 rescan on a profile that does not validate prints the reasons to stderr and exits 2 | accepted | `tests/test_cli.py::test_rescan_cli_exits_2_on_invalid_profile` |
+| BEH-201 check on a corrupt sources.json exits 1 with the file name in stderr | accepted | `tests/test_poisoned_files_do_not_brick.py::test_corrupt_sources_json_is_a_typed_error_and_exit_1` |
+| BEH-202 check exits 2 and makes no request when a chosen source fails validation | accepted | `tests/test_check.py::test_validation_problem_exits_2_before_any_request` |
+| BEH-203 check exits 1 when at least one source is unreachable and 0 when every source is fresh or moved | accepted | `tests/test_check.py::test_unreachable_source_exits_1` |
+| BEH-204 fetch exits 2 when a refuse-tier source is named with --source | accepted | `tests/test_fetch.py::test_fetch_refuses_refuse_tier` |
+| BEH-205 fetch exits 1 and writes one source-unreachable entry when a guard refuses a page | accepted | `tests/test_fetch.py::test_guard_refusal_writes_one_source_unreachable_and_exits_1` |
+| BEH-206 check text output ends with 'see: compliance-register pending' only when moved or unreachable is non-zero | confirmed | — (test owed) |
 
 ## Intentional Design Decisions
 
@@ -156,3 +156,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

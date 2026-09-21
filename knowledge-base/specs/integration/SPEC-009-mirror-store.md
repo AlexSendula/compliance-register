@@ -6,7 +6,7 @@ tags: [integration, mirror, store, manifest, licence, gitignore, paths]
 status: implemented
 certainty: 92
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/mirror/store.py
   - compliance_register/paths.py
@@ -22,61 +22,61 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-093
     title: "a redistributable source maps to mirror/<jur>/<id>; a non-redistributable one to mirror/.private/<jur>/<id>"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_store.py::test_source_dir_public_and_private
   - behavior_id: BEH-094
     title: "write_page adds source, content_hash, licence, licence_name and attribution to the frontmatter"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_store.py::test_write_page_adds_provenance
   - behavior_id: BEH-095
     title: "licence_name is None when the licence dict has no name"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_store.py::test_write_page_licence_name_is_optional
   - behavior_id: BEH-096
     title: "a relpath that escapes the source directory raises UnsafePath and writes nothing"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_store.py::test_write_page_refuses_escape
   - behavior_id: BEH-097
     title: "a manifest round-trips through save_manifest/load_manifest and is {} when absent"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_store.py::test_manifest_roundtrip
   - behavior_id: BEH-098
     title: "needs_refresh follows the hash-first, then both-lastmod rule"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_store.py::test_needs_refresh_rules
   - behavior_id: BEH-099
     title: "content_hash is identical for texts that differ only in whitespace"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_store.py::test_content_hash_ignores_whitespace
   - behavior_id: BEH-100
     title: "writing a private page ensures mirror/.gitignore lists .private/ exactly once and preserves existing lines; a public page does not touch it"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_store.py::test_private_page_ensures_mirror_gitignore
   - behavior_id: BEH-101
     title: "manifest rows that are not dicts are dropped on load and treated as needing refresh"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_poisoned_files_do_not_brick.py::test_manifest_rows_that_are_not_dicts_are_dropped
   - behavior_id: BEH-102
     title: "a jurisdiction or source id that is not a safe path component raises UnsafePath"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
 ---
@@ -103,16 +103,16 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-093 a redistributable source maps to mirror/<jur>/<id>; a non-redistributable one to mirror/.private/<jur>/<id> | proposed | `tests/test_store.py::test_source_dir_public_and_private` |
-| BEH-094 write_page adds source, content_hash, licence, licence_name and attribution to the frontmatter | proposed | `tests/test_store.py::test_write_page_adds_provenance` |
-| BEH-095 licence_name is None when the licence dict has no name | proposed | `tests/test_store.py::test_write_page_licence_name_is_optional` |
-| BEH-096 a relpath that escapes the source directory raises UnsafePath and writes nothing | proposed | `tests/test_store.py::test_write_page_refuses_escape` |
-| BEH-097 a manifest round-trips through save_manifest/load_manifest and is {} when absent | proposed | `tests/test_store.py::test_manifest_roundtrip` |
-| BEH-098 needs_refresh follows the hash-first, then both-lastmod rule | proposed | `tests/test_store.py::test_needs_refresh_rules` |
-| BEH-099 content_hash is identical for texts that differ only in whitespace | proposed | `tests/test_store.py::test_content_hash_ignores_whitespace` |
-| BEH-100 writing a private page ensures mirror/.gitignore lists .private/ exactly once and preserves existing lines; a public page does not touch it | proposed | `tests/test_store.py::test_private_page_ensures_mirror_gitignore` |
-| BEH-101 manifest rows that are not dicts are dropped on load and treated as needing refresh | proposed | `tests/test_poisoned_files_do_not_brick.py::test_manifest_rows_that_are_not_dicts_are_dropped` |
-| BEH-102 a jurisdiction or source id that is not a safe path component raises UnsafePath | proposed | — (test owed) |
+| BEH-093 a redistributable source maps to mirror/<jur>/<id>; a non-redistributable one to mirror/.private/<jur>/<id> | accepted | `tests/test_store.py::test_source_dir_public_and_private` |
+| BEH-094 write_page adds source, content_hash, licence, licence_name and attribution to the frontmatter | accepted | `tests/test_store.py::test_write_page_adds_provenance` |
+| BEH-095 licence_name is None when the licence dict has no name | accepted | `tests/test_store.py::test_write_page_licence_name_is_optional` |
+| BEH-096 a relpath that escapes the source directory raises UnsafePath and writes nothing | accepted | `tests/test_store.py::test_write_page_refuses_escape` |
+| BEH-097 a manifest round-trips through save_manifest/load_manifest and is {} when absent | accepted | `tests/test_store.py::test_manifest_roundtrip` |
+| BEH-098 needs_refresh follows the hash-first, then both-lastmod rule | accepted | `tests/test_store.py::test_needs_refresh_rules` |
+| BEH-099 content_hash is identical for texts that differ only in whitespace | accepted | `tests/test_store.py::test_content_hash_ignores_whitespace` |
+| BEH-100 writing a private page ensures mirror/.gitignore lists .private/ exactly once and preserves existing lines; a public page does not touch it | accepted | `tests/test_store.py::test_private_page_ensures_mirror_gitignore` |
+| BEH-101 manifest rows that are not dicts are dropped on load and treated as needing refresh | accepted | `tests/test_poisoned_files_do_not_brick.py::test_manifest_rows_that_are_not_dicts_are_dropped` |
+| BEH-102 a jurisdiction or source id that is not a safe path component raises UnsafePath | confirmed | — (test owed) |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -176,3 +176,4 @@ Design Decisions** below, not here.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Inferred from code, tests and design repo (D20, D23); certainty 92 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

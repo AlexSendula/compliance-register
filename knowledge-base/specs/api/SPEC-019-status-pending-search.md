@@ -6,7 +6,7 @@ tags: [api, cli, status, pending, search, principle-10, principle-9]
 status: implemented
 certainty: 90
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/cli.py
   - compliance_register/status.py
@@ -22,49 +22,49 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-179
     title: 'status --json returns a report object with profile.present true and regimes.binds 0 on a fresh project'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_status_json
   - behavior_id: BEH-180
     title: 'pending --json lists an added entry and, after resolve, an empty list'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_resolve_and_pending
   - behavior_id: BEH-181
     title: 'pending text output escapes ESC in a summary as \x1b[2J and never emits a raw ESC byte'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_pending_output_escapes_terminal_controls
   - behavior_id: BEH-182
     title: 'pending still lists the readable entry and exits 0 when pending.jsonl contains rows without kind or severity'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_poisoned_files_do_not_brick.py::test_pending_entry_without_kind_or_severity_is_unreadable
   - behavior_id: BEH-183
     title: 'search --json returns hits whose path ends with the matching regime file'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_search_cli
   - behavior_id: BEH-184
     title: 'search text output escapes ESC and U+202E found in a regime body as \x1b and \u202e'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_search_output_escapes_terminal_controls
   - behavior_id: BEH-185
     title: 'status text mode prints ''pending: N unreadable lines'' when pending.jsonl has corrupt rows'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_poisoned_files_do_not_brick.py::test_pending_skips_unreadable_lines_and_status_counts_them
   - behavior_id: BEH-186
     title: 'pending prints ''no pending changes'' and search prints the ''no hits'' hint on empty results, both exit 0'
-    state: proposed
+    state: confirmed
     level: component
     adapter: pytest
 ---
@@ -95,14 +95,14 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-179 status --json returns a report object with profile.present true and regimes.binds 0 on a fresh project | proposed | `tests/test_cli.py::test_status_json` |
-| BEH-180 pending --json lists an added entry and, after resolve, an empty list | proposed | `tests/test_cli.py::test_resolve_and_pending` |
-| BEH-181 pending text output escapes ESC in a summary as \x1b[2J and never emits a raw ESC byte | proposed | `tests/test_cli.py::test_pending_output_escapes_terminal_controls` |
-| BEH-182 pending still lists the readable entry and exits 0 when pending.jsonl contains rows without kind or severity | proposed | `tests/test_poisoned_files_do_not_brick.py::test_pending_entry_without_kind_or_severity_is_unreadable` |
-| BEH-183 search --json returns hits whose path ends with the matching regime file | proposed | `tests/test_cli.py::test_search_cli` |
-| BEH-184 search text output escapes ESC and U+202E found in a regime body as \x1b and \u202e | proposed | `tests/test_cli.py::test_search_output_escapes_terminal_controls` |
-| BEH-185 status text mode prints 'pending: N unreadable lines' when pending.jsonl has corrupt rows | proposed | `tests/test_poisoned_files_do_not_brick.py::test_pending_skips_unreadable_lines_and_status_counts_them` |
-| BEH-186 pending prints 'no pending changes' and search prints the 'no hits' hint on empty results, both exit 0 | proposed | — (test owed) |
+| BEH-179 status --json returns a report object with profile.present true and regimes.binds 0 on a fresh project | accepted | `tests/test_cli.py::test_status_json` |
+| BEH-180 pending --json lists an added entry and, after resolve, an empty list | accepted | `tests/test_cli.py::test_resolve_and_pending` |
+| BEH-181 pending text output escapes ESC in a summary as \x1b[2J and never emits a raw ESC byte | accepted | `tests/test_cli.py::test_pending_output_escapes_terminal_controls` |
+| BEH-182 pending still lists the readable entry and exits 0 when pending.jsonl contains rows without kind or severity | accepted | `tests/test_poisoned_files_do_not_brick.py::test_pending_entry_without_kind_or_severity_is_unreadable` |
+| BEH-183 search --json returns hits whose path ends with the matching regime file | accepted | `tests/test_cli.py::test_search_cli` |
+| BEH-184 search text output escapes ESC and U+202E found in a regime body as \x1b and \u202e | accepted | `tests/test_cli.py::test_search_output_escapes_terminal_controls` |
+| BEH-185 status text mode prints 'pending: N unreadable lines' when pending.jsonl has corrupt rows | accepted | `tests/test_poisoned_files_do_not_brick.py::test_pending_skips_unreadable_lines_and_status_counts_them` |
+| BEH-186 pending prints 'no pending changes' and search prints the 'no hits' hint on empty results, both exit 0 | confirmed | — (test owed) |
 
 ## Intentional Design Decisions
 
@@ -145,3 +145,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

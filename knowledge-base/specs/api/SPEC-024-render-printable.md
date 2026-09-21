@@ -6,7 +6,7 @@ tags: [api, render, escape-at-sink, principle-10, ADR-008]
 status: implemented
 certainty: 94
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/render.py
   - compliance_register/cli.py
@@ -20,30 +20,30 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-207
     title: 'ESC (U+001B) in a printed regime body is rendered as the four characters \x1b and no raw ESC byte reaches stdout'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_search_output_escapes_terminal_controls
   - behavior_id: BEH-208
     title: 'U+202E in a printed body is rendered as \u202e'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_search_output_escapes_terminal_controls
   - behavior_id: BEH-209
     title: 'A pending summary containing ESC is printed with \x1b[2J and exits 0'
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_pending_output_escapes_terminal_controls
   - behavior_id: BEH-210
     title: 'printable returns printable non-ASCII text (e.g. ''café'', ''日本語'') unchanged and the same object identity'
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-211
     title: 'printable maps \t, \n, \r to their mnemonics and codepoints above U+FFFF to \U followed by eight hex digits'
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
 ---
@@ -72,11 +72,11 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-207 ESC (U+001B) in a printed regime body is rendered as the four characters \x1b and no raw ESC byte reaches stdout | proposed | `tests/test_cli.py::test_search_output_escapes_terminal_controls` |
-| BEH-208 U+202E in a printed body is rendered as \u202e | proposed | `tests/test_cli.py::test_search_output_escapes_terminal_controls` |
-| BEH-209 A pending summary containing ESC is printed with \x1b[2J and exits 0 | proposed | `tests/test_cli.py::test_pending_output_escapes_terminal_controls` |
-| BEH-210 printable returns printable non-ASCII text (e.g. 'café', '日本語') unchanged and the same object identity | proposed | — (test owed) |
-| BEH-211 printable maps \t, \n, \r to their mnemonics and codepoints above U+FFFF to \U followed by eight hex digits | proposed | — (test owed) |
+| BEH-207 ESC (U+001B) in a printed regime body is rendered as the four characters \x1b and no raw ESC byte reaches stdout | accepted | `tests/test_cli.py::test_search_output_escapes_terminal_controls` |
+| BEH-208 U+202E in a printed body is rendered as \u202e | accepted | `tests/test_cli.py::test_search_output_escapes_terminal_controls` |
+| BEH-209 A pending summary containing ESC is printed with \x1b[2J and exits 0 | accepted | `tests/test_cli.py::test_pending_output_escapes_terminal_controls` |
+| BEH-210 printable returns printable non-ASCII text (e.g. 'café', '日本語') unchanged and the same object identity | confirmed | — (test owed) |
+| BEH-211 printable maps \t, \n, \r to their mnemonics and codepoints above U+FFFF to \U followed by eight hex digits | confirmed | — (test owed) |
 
 ## Intentional Design Decisions
 
@@ -125,3 +125,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

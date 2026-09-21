@@ -26,152 +26,152 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-061
     title: "a 200 response returns status, body and final URL"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_get_ok
   - behavior_id: BEH-062
     title: "a redirect to a host in allowed_hosts is followed and the final URL is reported"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_follows_same_host_redirect
   - behavior_id: BEH-063
     title: "a redirect to a host not in allowed_hosts raises HttpRefused"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_refuses_cross_host_redirect
   - behavior_id: BEH-064
     title: "a redirect from https to http raises HttpRefused"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_refuses_scheme_downgrade
   - behavior_id: BEH-065
     title: "a body larger than the budget raises HttpRefused instead of being truncated"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_refuses_over_budget
   - behavior_id: BEH-066
     title: "a per-call max_bytes lowers, never raises, the client budget"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_per_call_max_bytes_overrides_client_budget
   - behavior_id: BEH-067
     title: "a 5xx is retried twice (three requests total) then raised as HttpUnreachable"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_retries_then_unreachable
   - behavior_id: BEH-068
     title: "a URL disallowed by the host's robots.txt raises HttpRefused before it is requested"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_robots_disallow_refuses
   - behavior_id: BEH-069
     title: "Http exposes no constructor parameter that bypasses robots.txt"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_robots_has_no_bypass_switch
   - behavior_id: BEH-070
     title: "robots.txt is fetched from scheme://hostname[:port]/robots.txt, dropping userinfo from the netloc"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_robots_url_from_hostname_and_port_not_netloc
   - behavior_id: BEH-071
     title: "a second request to the same host sleeps delay_seconds first"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_delay_between_same_host_requests
   - behavior_id: BEH-072
     title: "the politeness clock applies across different Http instances for the same host"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_politeness_clock_is_shared_across_clients
   - behavior_id: BEH-073
     title: "a Location with CRLF, NUL or an unparseable host raises HttpRefused, not a traceback"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_hostile_location_is_refused_not_raised
   - behavior_id: BEH-074
     title: "an http.client.HTTPException from the server side becomes HttpUnreachable"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_server_side_http_exception_is_unreachable
   - behavior_id: BEH-075
     title: "the three User-Agent policies resolve to the documented strings and default carries version and contact"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_user_agent_strings
   - behavior_id: BEH-076
     title: "a robots.txt opener that raises makes the source unreachable and the run still completes"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_robots_opener_raising_is_unreachable_and_run_completes
   - behavior_id: BEH-276
     title: "a redirected robots.txt is followed and its rules applied"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_robots_redirect_is_followed_and_rules_applied
   - behavior_id: BEH-277
     title: "a 5xx on robots.txt makes the host unreachable and the page is never requested"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_robots_5xx_is_unreachable_not_fetched
   - behavior_id: BEH-278
     title: "a 4xx on robots.txt means no rules"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_robots_4xx_means_no_rules
   - behavior_id: BEH-279
     title: "a Disallow for the compliance-register product token holds under every User-Agent policy"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_robots_disallow_for_our_product_token_holds_under_browser_ua
   - behavior_id: BEH-077
     title: "more than MAX_HOPS (5) redirects raises HttpRefused"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-078
     title: "a redirect without a Location header raises HttpRefused"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-079
     title: "a non-http(s) scheme (file:, ftp:) raises HttpRefused before any request"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-080
     title: "a 429 is retried like a 5xx"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-081
     title: "response header keys are title-cased so Content-Type lookups are case-insensitive"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-287
     title: "a plaintext http URL is refused before any request, wherever it came from"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_http.py::test_plain_http_is_refused_even_when_a_listing_asks_for_it
@@ -199,32 +199,32 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-061 a 200 response returns status, body and final URL | proposed | `tests/test_http.py::test_get_ok` |
-| BEH-062 a redirect to a host in allowed_hosts is followed and the final URL is reported | proposed | `tests/test_http.py::test_follows_same_host_redirect` |
-| BEH-063 a redirect to a host not in allowed_hosts raises HttpRefused | proposed | `tests/test_http.py::test_refuses_cross_host_redirect` |
-| BEH-064 a redirect from https to http raises HttpRefused | proposed | `tests/test_http.py::test_refuses_scheme_downgrade` |
-| BEH-065 a body larger than the budget raises HttpRefused instead of being truncated | proposed | `tests/test_http.py::test_refuses_over_budget` |
-| BEH-066 a per-call max_bytes lowers, never raises, the client budget | proposed | `tests/test_http.py::test_per_call_max_bytes_overrides_client_budget` |
-| BEH-067 a 5xx is retried twice (three requests total) then raised as HttpUnreachable | proposed | `tests/test_http.py::test_retries_then_unreachable` |
-| BEH-068 a URL disallowed by the host's robots.txt raises HttpRefused before it is requested | proposed | `tests/test_http.py::test_robots_disallow_refuses` |
-| BEH-069 Http exposes no constructor parameter that bypasses robots.txt | proposed | `tests/test_http.py::test_robots_has_no_bypass_switch` |
-| BEH-070 robots.txt is fetched from scheme://hostname[:port]/robots.txt, dropping userinfo from the netloc | proposed | `tests/test_http.py::test_robots_url_from_hostname_and_port_not_netloc` |
-| BEH-071 a second request to the same host sleeps delay_seconds first | proposed | `tests/test_http.py::test_delay_between_same_host_requests` |
-| BEH-072 the politeness clock applies across different Http instances for the same host | proposed | `tests/test_http.py::test_politeness_clock_is_shared_across_clients` |
-| BEH-073 a Location with CRLF, NUL or an unparseable host raises HttpRefused, not a traceback | proposed | `tests/test_http.py::test_hostile_location_is_refused_not_raised` |
-| BEH-074 an http.client.HTTPException from the server side becomes HttpUnreachable | proposed | `tests/test_http.py::test_server_side_http_exception_is_unreachable` |
-| BEH-075 the three User-Agent policies resolve to the documented strings and default carries version and contact | proposed | `tests/test_http.py::test_user_agent_strings` |
-| BEH-076 a robots.txt opener that raises makes the source unreachable and the run still completes | proposed | `tests/test_check.py::test_robots_opener_raising_is_unreachable_and_run_completes` |
-| BEH-276 a redirected robots.txt is followed and its rules applied | proposed | `tests/test_http.py::test_robots_redirect_is_followed_and_rules_applied` |
-| BEH-277 a 5xx on robots.txt makes the host unreachable and the page is never requested | proposed | `tests/test_http.py::test_robots_5xx_is_unreachable_not_fetched` |
-| BEH-278 a 4xx on robots.txt means no rules | proposed | `tests/test_http.py::test_robots_4xx_means_no_rules` |
-| BEH-279 a Disallow for the compliance-register product token holds under every User-Agent policy | proposed | `tests/test_http.py::test_robots_disallow_for_our_product_token_holds_under_browser_ua` |
-| BEH-077 more than MAX_HOPS (5) redirects raises HttpRefused | proposed | — (test owed) |
-| BEH-078 a redirect without a Location header raises HttpRefused | proposed | — (test owed) |
-| BEH-079 a non-http(s) scheme (file:, ftp:) raises HttpRefused before any request | proposed | — (test owed) |
-| BEH-080 a 429 is retried like a 5xx | proposed | — (test owed) |
-| BEH-081 response header keys are title-cased so Content-Type lookups are case-insensitive | proposed | — (test owed) |
-| BEH-287 a plaintext http URL is refused before any request, wherever it came from | proposed | `tests/test_http.py::test_plain_http_is_refused_even_when_a_listing_asks_for_it` |
+| BEH-061 a 200 response returns status, body and final URL | accepted | `tests/test_http.py::test_get_ok` |
+| BEH-062 a redirect to a host in allowed_hosts is followed and the final URL is reported | accepted | `tests/test_http.py::test_follows_same_host_redirect` |
+| BEH-063 a redirect to a host not in allowed_hosts raises HttpRefused | accepted | `tests/test_http.py::test_refuses_cross_host_redirect` |
+| BEH-064 a redirect from https to http raises HttpRefused | accepted | `tests/test_http.py::test_refuses_scheme_downgrade` |
+| BEH-065 a body larger than the budget raises HttpRefused instead of being truncated | accepted | `tests/test_http.py::test_refuses_over_budget` |
+| BEH-066 a per-call max_bytes lowers, never raises, the client budget | accepted | `tests/test_http.py::test_per_call_max_bytes_overrides_client_budget` |
+| BEH-067 a 5xx is retried twice (three requests total) then raised as HttpUnreachable | accepted | `tests/test_http.py::test_retries_then_unreachable` |
+| BEH-068 a URL disallowed by the host's robots.txt raises HttpRefused before it is requested | accepted | `tests/test_http.py::test_robots_disallow_refuses` |
+| BEH-069 Http exposes no constructor parameter that bypasses robots.txt | accepted | `tests/test_http.py::test_robots_has_no_bypass_switch` |
+| BEH-070 robots.txt is fetched from scheme://hostname[:port]/robots.txt, dropping userinfo from the netloc | accepted | `tests/test_http.py::test_robots_url_from_hostname_and_port_not_netloc` |
+| BEH-071 a second request to the same host sleeps delay_seconds first | accepted | `tests/test_http.py::test_delay_between_same_host_requests` |
+| BEH-072 the politeness clock applies across different Http instances for the same host | accepted | `tests/test_http.py::test_politeness_clock_is_shared_across_clients` |
+| BEH-073 a Location with CRLF, NUL or an unparseable host raises HttpRefused, not a traceback | accepted | `tests/test_http.py::test_hostile_location_is_refused_not_raised` |
+| BEH-074 an http.client.HTTPException from the server side becomes HttpUnreachable | accepted | `tests/test_http.py::test_server_side_http_exception_is_unreachable` |
+| BEH-075 the three User-Agent policies resolve to the documented strings and default carries version and contact | accepted | `tests/test_http.py::test_user_agent_strings` |
+| BEH-076 a robots.txt opener that raises makes the source unreachable and the run still completes | accepted | `tests/test_check.py::test_robots_opener_raising_is_unreachable_and_run_completes` |
+| BEH-276 a redirected robots.txt is followed and its rules applied | accepted | `tests/test_http.py::test_robots_redirect_is_followed_and_rules_applied` |
+| BEH-277 a 5xx on robots.txt makes the host unreachable and the page is never requested | accepted | `tests/test_http.py::test_robots_5xx_is_unreachable_not_fetched` |
+| BEH-278 a 4xx on robots.txt means no rules | accepted | `tests/test_http.py::test_robots_4xx_means_no_rules` |
+| BEH-279 a Disallow for the compliance-register product token holds under every User-Agent policy | accepted | `tests/test_http.py::test_robots_disallow_for_our_product_token_holds_under_browser_ua` |
+| BEH-077 more than MAX_HOPS (5) redirects raises HttpRefused | confirmed | — (test owed) |
+| BEH-078 a redirect without a Location header raises HttpRefused | confirmed | — (test owed) |
+| BEH-079 a non-http(s) scheme (file:, ftp:) raises HttpRefused before any request | confirmed | — (test owed) |
+| BEH-080 a 429 is retried like a 5xx | confirmed | — (test owed) |
+| BEH-081 response header keys are title-cased so Content-Type lookups are case-insensitive | confirmed | — (test owed) |
+| BEH-287 a plaintext http URL is refused before any request, wherever it came from | accepted | `tests/test_http.py::test_plain_http_is_refused_even_when_a_listing_asks_for_it` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -323,3 +323,4 @@ Design Decisions** below, not here.
 | 2026-09-20 | Initial spec | Inferred from code, tests and design repo (D21, D24); certainty 93 |
 | 2026-09-21 | robots.txt now per RFC 9309 (redirects followed, 5xx/network → unreachable) and evaluated against our product token under every UA policy; BEH-076 retitled, BEH-276..279 added; two NEEDS CLARIFICATION closed | G2 principle checkpoint, principle 8 |
 | 2026-09-21 | Client is https-only (plaintext refused at every hop, not just on downgrade); BEH-287 added | Security scan SEC-001 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

@@ -6,7 +6,7 @@ tags: [api, launcher, preflight, D29, principle-4, principle-11]
 status: implemented
 certainty: 90
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - bin/compliance-register
   - compliance_register/preflight.py
@@ -21,35 +21,35 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-229
     title: 'The launcher, run via subprocess with --version, exits 0 and prints ''compliance-register <version>'''
-    state: proposed
+    state: accepted
     level: component
     adapter: pytest
     locator: tests/test_launcher.py::test_launcher_prints_version
   - behavior_id: BEH-230
     title: 'bin/compliance-register has the executable bit set'
-    state: proposed
+    state: accepted
     level: component
     adapter: pytest
     locator: tests/test_launcher.py::test_launcher_is_executable
   - behavior_id: BEH-231
     title: 'An empty CA trust store yields a problem mentioning ''no CA certificates'' and SSL_CERT_FILE; a populated store yields none'
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_preflight.py::test_empty_trust_store_is_named
   - behavior_id: BEH-232
     title: 'A missing yaml module yields a problem containing the pip install command'
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-233
     title: 'When check_prerequisites returns problems the launcher prints ''compliance-register cannot start:'' with one ''  - '' line each and exits 2 without importing cli'
-    state: proposed
+    state: confirmed
     level: component
     adapter: pytest
   - behavior_id: BEH-234
     title: 'On Python older than 3.12 the launcher exits 2 with the found version in the message'
-    state: proposed
+    state: confirmed
     level: component
     adapter: pytest
 ---
@@ -78,12 +78,12 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-229 The launcher, run via subprocess with --version, exits 0 and prints 'compliance-register <version>' | proposed | `tests/test_launcher.py::test_launcher_prints_version` |
-| BEH-230 bin/compliance-register has the executable bit set | proposed | `tests/test_launcher.py::test_launcher_is_executable` |
-| BEH-231 An empty CA trust store yields a problem mentioning 'no CA certificates' and SSL_CERT_FILE; a populated store yields none | proposed | `tests/test_preflight.py::test_empty_trust_store_is_named` |
-| BEH-232 A missing yaml module yields a problem containing the pip install command | proposed | — (test owed) |
-| BEH-233 When check_prerequisites returns problems the launcher prints 'compliance-register cannot start:' with one '  - ' line each and exits 2 without importing cli | proposed | — (test owed) |
-| BEH-234 On Python older than 3.12 the launcher exits 2 with the found version in the message | proposed | — (test owed) |
+| BEH-229 The launcher, run via subprocess with --version, exits 0 and prints 'compliance-register <version>' | accepted | `tests/test_launcher.py::test_launcher_prints_version` |
+| BEH-230 bin/compliance-register has the executable bit set | accepted | `tests/test_launcher.py::test_launcher_is_executable` |
+| BEH-231 An empty CA trust store yields a problem mentioning 'no CA certificates' and SSL_CERT_FILE; a populated store yields none | accepted | `tests/test_preflight.py::test_empty_trust_store_is_named` |
+| BEH-232 A missing yaml module yields a problem containing the pip install command | confirmed | — (test owed) |
+| BEH-233 When check_prerequisites returns problems the launcher prints 'compliance-register cannot start:' with one '  - ' line each and exits 2 without importing cli | confirmed | — (test owed) |
+| BEH-234 On Python older than 3.12 the launcher exits 2 with the found version in the message | confirmed | — (test owed) |
 
 ## Intentional Design Decisions
 
@@ -129,3 +129,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

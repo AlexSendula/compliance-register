@@ -6,7 +6,7 @@ tags: [search, bm25, index, tokenizer, docs-mirror, containment, escape-at-sink]
 status: implemented
 certainty: 89
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/search.py
   - compliance_register/paths.py
@@ -24,65 +24,65 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-050
     title: "search ranks the regime whose obligation text matches the query first and labels it kind=regime"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_search.py::test_search_finds_the_obligation
   - behavior_id: BEH-051
     title: "editing an indexed file changes the signature and the next search rebuilds the index and finds the new text"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_search.py::test_index_rebuilds_when_file_changes
   - behavior_id: BEH-052
     title: "tokenize drops stop words and terms shorter than 2 characters"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_search.py::test_stop_words_dropped
   - behavior_id: BEH-053
     title: "tokenize keeps accented and non-Latin words intact"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_search.py::test_tokenize_keeps_accented_words
   - behavior_id: BEH-054
     title: "pages under mirror/.private/ are searchable while dot-files are excluded"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_search.py::test_private_mirror_pages_are_searchable
   - behavior_id: BEH-055
     title: "a hit whose indexed path resolves outside the compliance dir is dropped before its file is read"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_search.py::test_poisoned_index_path_outside_cdir_is_skipped
   - behavior_id: BEH-056
     title: "`search <query> --json` exits 0 and returns hits with absolute paths"
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_search_cli
   - behavior_id: BEH-057
     title: "`search` terminal output escapes ESC and U+202E in snippets and paths"
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_search_output_escapes_terminal_controls
   - behavior_id: BEH-058
     title: "a query that tokenizes to nothing returns no hits"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-059
     title: "--kind filters hits to profile, regime or mirror documents"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-060
     title: "a corrupt or wrong-version .search-index.json is rebuilt rather than reported"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
 ---
@@ -113,17 +113,17 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-050 search ranks the regime whose obligation text matches the query first and labels it kind=regime | proposed | `tests/test_search.py::test_search_finds_the_obligation` |
-| BEH-051 editing an indexed file changes the signature and the next search rebuilds the index and finds the new text | proposed | `tests/test_search.py::test_index_rebuilds_when_file_changes` |
-| BEH-052 tokenize drops stop words and terms shorter than 2 characters | proposed | `tests/test_search.py::test_stop_words_dropped` |
-| BEH-053 tokenize keeps accented and non-Latin words intact | proposed | `tests/test_search.py::test_tokenize_keeps_accented_words` |
-| BEH-054 pages under mirror/.private/ are searchable while dot-files are excluded | proposed | `tests/test_search.py::test_private_mirror_pages_are_searchable` |
-| BEH-055 a hit whose indexed path resolves outside the compliance dir is dropped before its file is read | proposed | `tests/test_search.py::test_poisoned_index_path_outside_cdir_is_skipped` |
-| BEH-056 `search <query> --json` exits 0 and returns hits with absolute paths | proposed | `tests/test_cli.py::test_search_cli` |
-| BEH-057 `search` terminal output escapes ESC and U+202E in snippets and paths | proposed | `tests/test_cli.py::test_search_output_escapes_terminal_controls` |
-| BEH-058 a query that tokenizes to nothing returns no hits | proposed | — (test owed) |
-| BEH-059 --kind filters hits to profile, regime or mirror documents | proposed | — (test owed) |
-| BEH-060 a corrupt or wrong-version .search-index.json is rebuilt rather than reported | proposed | — (test owed) |
+| BEH-050 search ranks the regime whose obligation text matches the query first and labels it kind=regime | accepted | `tests/test_search.py::test_search_finds_the_obligation` |
+| BEH-051 editing an indexed file changes the signature and the next search rebuilds the index and finds the new text | accepted | `tests/test_search.py::test_index_rebuilds_when_file_changes` |
+| BEH-052 tokenize drops stop words and terms shorter than 2 characters | accepted | `tests/test_search.py::test_stop_words_dropped` |
+| BEH-053 tokenize keeps accented and non-Latin words intact | accepted | `tests/test_search.py::test_tokenize_keeps_accented_words` |
+| BEH-054 pages under mirror/.private/ are searchable while dot-files are excluded | accepted | `tests/test_search.py::test_private_mirror_pages_are_searchable` |
+| BEH-055 a hit whose indexed path resolves outside the compliance dir is dropped before its file is read | accepted | `tests/test_search.py::test_poisoned_index_path_outside_cdir_is_skipped` |
+| BEH-056 `search <query> --json` exits 0 and returns hits with absolute paths | accepted | `tests/test_cli.py::test_search_cli` |
+| BEH-057 `search` terminal output escapes ESC and U+202E in snippets and paths | accepted | `tests/test_cli.py::test_search_output_escapes_terminal_controls` |
+| BEH-058 a query that tokenizes to nothing returns no hits | confirmed | — (test owed) |
+| BEH-059 --kind filters hits to profile, regime or mirror documents | confirmed | — (test owed) |
+| BEH-060 a corrupt or wrong-version .search-index.json is rebuilt rather than reported | confirmed | — (test owed) |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -192,3 +192,4 @@ Design Decisions** below, not here.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan; certainty 89 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

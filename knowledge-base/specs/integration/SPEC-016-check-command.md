@@ -27,107 +27,107 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-153
     title: "a moved source yields one source-moved entry with affects and source, last_status moved, last_version None, and .last-check dated today"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_check_records_moved_with_affects
   - behavior_id: BEH-154
     title: "an unreachable source yields a source-unreachable info entry and last_status unreachable, never fresh"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_check_unreachable_is_info_never_fresh
   - behavior_id: BEH-155
     title: "profile-stale is added once across two runs after a move"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_check_adds_profile_stale_once
   - behavior_id: BEH-156
     title: "an adapter exception is unreachable naming the exception and the next source is still checked"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_adapter_exception_is_unreachable_and_run_continues
   - behavior_id: BEH-157
     title: "a validation problem exits 2 before any request with no pending entry and no .last-check"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_validation_problem_exits_2_before_any_request
   - behavior_id: BEH-158
     title: "a named unconfirmed source is refused with exit 2 and no request"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_named_unconfirmed_source_is_refused
   - behavior_id: BEH-159
     title: "an open source-moved entry is not duplicated by a second run"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_moved_entry_is_not_duplicated_while_open
   - behavior_id: BEH-160
     title: "source-next is recorded once per (source, to) and next_version is stored on the source"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_source_next_recorded_once_and_on_source
   - behavior_id: BEH-161
     title: "date-passed is emitted once per watched regime whose review_by has arrived, not for future or no-longer-applies regimes"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_date_passed_for_review_by_once
   - behavior_id: BEH-162
     title: "with no confirmed sources check exits 2 and still emits date-passed"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_date_passed_runs_even_with_nothing_to_check
   - behavior_id: BEH-163
     title: "_affects lists only binds/undetermined regimes referencing the source"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_affects_skips_ruled_out_and_no_longer_applies
   - behavior_id: BEH-164
     title: "exit is 1 when any source was unreachable and 0 when sources only moved"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_unreachable_source_exits_1
   - behavior_id: BEH-165
     title: "a regime with wrong-shaped sources/applies does not break _affects or the run"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_poisoned_files_do_not_brick.py::test_regime_with_wrong_shaped_sources_and_applies_is_reported_not_fatal
   - behavior_id: BEH-166
     title: "check --today rejects a non-ISO date with exit 1"
-    state: proposed
-    level: component
+    state: accepted
+    level: unit
     adapter: pytest
     locator: tests/test_cli.py::test_today_must_be_an_iso_date
   - behavior_id: BEH-167
     title: "check --json prints the report as JSON with the three counts and details"
-    state: proposed
+    state: confirmed
     level: component
     adapter: pytest
   - behavior_id: BEH-168
     title: "a tier: refuse source is silently excluded from selection and does not affect the exit code"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-284
     title: "an unreadable profile.md becomes a detail line and never denies the check report"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_corrupt_profile_does_not_deny_the_check_report
   - behavior_id: BEH-286
     title: "a moved row truncated to 20 changed URLs records the full count in changed_total"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_moved_row_records_the_full_changed_count_when_truncated
@@ -157,24 +157,24 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-153 a moved source yields one source-moved entry with affects and source, last_status moved, last_version None, and .last-check dated today | proposed | `tests/test_check.py::test_check_records_moved_with_affects` |
-| BEH-154 an unreachable source yields a source-unreachable info entry and last_status unreachable, never fresh | proposed | `tests/test_check.py::test_check_unreachable_is_info_never_fresh` |
-| BEH-155 profile-stale is added once across two runs after a move | proposed | `tests/test_check.py::test_check_adds_profile_stale_once` |
-| BEH-156 an adapter exception is unreachable naming the exception and the next source is still checked | proposed | `tests/test_check.py::test_adapter_exception_is_unreachable_and_run_continues` |
-| BEH-157 a validation problem exits 2 before any request with no pending entry and no .last-check | proposed | `tests/test_check.py::test_validation_problem_exits_2_before_any_request` |
-| BEH-158 a named unconfirmed source is refused with exit 2 and no request | proposed | `tests/test_check.py::test_named_unconfirmed_source_is_refused` |
-| BEH-159 an open source-moved entry is not duplicated by a second run | proposed | `tests/test_check.py::test_moved_entry_is_not_duplicated_while_open` |
-| BEH-160 source-next is recorded once per (source, to) and next_version is stored on the source | proposed | `tests/test_check.py::test_source_next_recorded_once_and_on_source` |
-| BEH-161 date-passed is emitted once per watched regime whose review_by has arrived, not for future or no-longer-applies regimes | proposed | `tests/test_check.py::test_date_passed_for_review_by_once` |
-| BEH-162 with no confirmed sources check exits 2 and still emits date-passed | proposed | `tests/test_check.py::test_date_passed_runs_even_with_nothing_to_check` |
-| BEH-163 _affects lists only binds/undetermined regimes referencing the source | proposed | `tests/test_check.py::test_affects_skips_ruled_out_and_no_longer_applies` |
-| BEH-164 exit is 1 when any source was unreachable and 0 when sources only moved | proposed | `tests/test_check.py::test_unreachable_source_exits_1` |
-| BEH-165 a regime with wrong-shaped sources/applies does not break _affects or the run | proposed | `tests/test_poisoned_files_do_not_brick.py::test_regime_with_wrong_shaped_sources_and_applies_is_reported_not_fatal` |
-| BEH-166 check --today rejects a non-ISO date with exit 1 | proposed | `tests/test_cli.py::test_today_must_be_an_iso_date` |
-| BEH-167 check --json prints the report as JSON with the three counts and details | proposed | — (test owed) |
-| BEH-168 a tier: refuse source is silently excluded from selection and does not affect the exit code | proposed | — (test owed) |
-| BEH-284 an unreadable profile.md becomes a detail line and never denies the check report | proposed | `tests/test_check.py::test_corrupt_profile_does_not_deny_the_check_report` |
-| BEH-286 a moved row truncated to 20 changed URLs records the full count in changed_total | proposed | `tests/test_check.py::test_moved_row_records_the_full_changed_count_when_truncated` |
+| BEH-153 a moved source yields one source-moved entry with affects and source, last_status moved, last_version None, and .last-check dated today | accepted | `tests/test_check.py::test_check_records_moved_with_affects` |
+| BEH-154 an unreachable source yields a source-unreachable info entry and last_status unreachable, never fresh | accepted | `tests/test_check.py::test_check_unreachable_is_info_never_fresh` |
+| BEH-155 profile-stale is added once across two runs after a move | accepted | `tests/test_check.py::test_check_adds_profile_stale_once` |
+| BEH-156 an adapter exception is unreachable naming the exception and the next source is still checked | accepted | `tests/test_check.py::test_adapter_exception_is_unreachable_and_run_continues` |
+| BEH-157 a validation problem exits 2 before any request with no pending entry and no .last-check | accepted | `tests/test_check.py::test_validation_problem_exits_2_before_any_request` |
+| BEH-158 a named unconfirmed source is refused with exit 2 and no request | accepted | `tests/test_check.py::test_named_unconfirmed_source_is_refused` |
+| BEH-159 an open source-moved entry is not duplicated by a second run | accepted | `tests/test_check.py::test_moved_entry_is_not_duplicated_while_open` |
+| BEH-160 source-next is recorded once per (source, to) and next_version is stored on the source | accepted | `tests/test_check.py::test_source_next_recorded_once_and_on_source` |
+| BEH-161 date-passed is emitted once per watched regime whose review_by has arrived, not for future or no-longer-applies regimes | accepted | `tests/test_check.py::test_date_passed_for_review_by_once` |
+| BEH-162 with no confirmed sources check exits 2 and still emits date-passed | accepted | `tests/test_check.py::test_date_passed_runs_even_with_nothing_to_check` |
+| BEH-163 _affects lists only binds/undetermined regimes referencing the source | accepted | `tests/test_check.py::test_affects_skips_ruled_out_and_no_longer_applies` |
+| BEH-164 exit is 1 when any source was unreachable and 0 when sources only moved | accepted | `tests/test_check.py::test_unreachable_source_exits_1` |
+| BEH-165 a regime with wrong-shaped sources/applies does not break _affects or the run | accepted | `tests/test_poisoned_files_do_not_brick.py::test_regime_with_wrong_shaped_sources_and_applies_is_reported_not_fatal` |
+| BEH-166 check --today rejects a non-ISO date with exit 1 | accepted | `tests/test_cli.py::test_today_must_be_an_iso_date` |
+| BEH-167 check --json prints the report as JSON with the three counts and details | confirmed | — (test owed) |
+| BEH-168 a tier: refuse source is silently excluded from selection and does not affect the exit code | confirmed | — (test owed) |
+| BEH-284 an unreadable profile.md becomes a detail line and never denies the check report | accepted | `tests/test_check.py::test_corrupt_profile_does_not_deny_the_check_report` |
+| BEH-286 a moved row truncated to 20 changed URLs records the full count in changed_total | accepted | `tests/test_check.py::test_moved_row_records_the_full_changed_count_when_truncated` |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -252,3 +252,4 @@ Design Decisions** below, not here.
 | 2026-09-20 | profile-stale requires a profile and is deduped against an open entry | Cross-check against `check.run` |
 | 2026-09-21 | An unreadable profile.md is a `details['profile.md']` line, not an abort; BEH-284 added | G2 principle checkpoint, principle 9 |
 | 2026-09-21 | `changed_total` added beside the truncated `changed` list; BEH-286 added | G3 contradiction check, principle 9 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

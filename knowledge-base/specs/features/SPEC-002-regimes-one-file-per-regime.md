@@ -6,7 +6,7 @@ tags: [regimes, obligations, frontmatter, validation, three-valued-applicability
 status: implemented
 certainty: 91
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/regimes.py
   - compliance_register/frontmatter.py
@@ -24,64 +24,64 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-012
     title: "load_all parses `### ID · title` headings and `- **Key:** value` bullets into obligations with id, title and fields"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_regimes.py::test_load_all_parses_obligations
   - behavior_id: BEH-013
     title: "validate reports each missing required key and a status outside the four allowed values"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_regimes.py::test_validate_requires_fields
   - behavior_id: BEH-014
     title: "validate requires exempt.reason and forbids obligations when status is ruled-out"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_regimes.py::test_validate_ruled_out_needs_reason_and_no_obligations
   - behavior_id: BEH-015
     title: "validate requires applies.quote and applies.cite when status is binds"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-016
     title: "validate reports duplicate obligation ids and bullet keys outside the six known ones"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-017
     title: "counts returns per-status totals plus obligations and obligations_unclear (missing You must or It says)"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_regimes.py::test_counts
   - behavior_id: BEH-018
     title: "a file whose stem differs from its frontmatter id gets a filename problem"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_regimes.py::test_filename_must_match_id
   - behavior_id: BEH-019
     title: "a regime file with unterminated or invalid frontmatter becomes a placeholder row with an unreadable problem while sibling files load normally"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_poisoned_files_do_not_brick.py::test_regime_with_bad_frontmatter_is_reported_not_fatal
   - behavior_id: BEH-020
     title: "a regime whose sources, applies or exempt are not the expected shape is reported as problems and still counted"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_poisoned_files_do_not_brick.py::test_regime_with_wrong_shaped_sources_and_applies_is_reported_not_fatal
   - behavior_id: BEH-021
     title: "load_all returns an empty list when regimes/ does not exist"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
   - behavior_id: BEH-022
     title: "`regimes validate` prints `<id>: <problem>` lines and exits 1 when any regime has problems"
-    state: proposed
+    state: confirmed
     level: component
     adapter: pytest
 ---
@@ -112,17 +112,17 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-012 load_all parses `### ID · title` headings and `- **Key:** value` bullets into obligations with id, title and fields | proposed | `tests/test_regimes.py::test_load_all_parses_obligations` |
-| BEH-013 validate reports each missing required key and a status outside the four allowed values | proposed | `tests/test_regimes.py::test_validate_requires_fields` |
-| BEH-014 validate requires exempt.reason and forbids obligations when status is ruled-out | proposed | `tests/test_regimes.py::test_validate_ruled_out_needs_reason_and_no_obligations` |
-| BEH-015 validate requires applies.quote and applies.cite when status is binds | proposed | — (test owed) |
-| BEH-016 validate reports duplicate obligation ids and bullet keys outside the six known ones | proposed | — (test owed) |
-| BEH-017 counts returns per-status totals plus obligations and obligations_unclear (missing You must or It says) | proposed | `tests/test_regimes.py::test_counts` |
-| BEH-018 a file whose stem differs from its frontmatter id gets a filename problem | proposed | `tests/test_regimes.py::test_filename_must_match_id` |
-| BEH-019 a regime file with unterminated or invalid frontmatter becomes a placeholder row with an unreadable problem while sibling files load normally | proposed | `tests/test_poisoned_files_do_not_brick.py::test_regime_with_bad_frontmatter_is_reported_not_fatal` |
-| BEH-020 a regime whose sources, applies or exempt are not the expected shape is reported as problems and still counted | proposed | `tests/test_poisoned_files_do_not_brick.py::test_regime_with_wrong_shaped_sources_and_applies_is_reported_not_fatal` |
-| BEH-021 load_all returns an empty list when regimes/ does not exist | proposed | — (test owed) |
-| BEH-022 `regimes validate` prints `<id>: <problem>` lines and exits 1 when any regime has problems | proposed | — (test owed) |
+| BEH-012 load_all parses `### ID · title` headings and `- **Key:** value` bullets into obligations with id, title and fields | accepted | `tests/test_regimes.py::test_load_all_parses_obligations` |
+| BEH-013 validate reports each missing required key and a status outside the four allowed values | accepted | `tests/test_regimes.py::test_validate_requires_fields` |
+| BEH-014 validate requires exempt.reason and forbids obligations when status is ruled-out | accepted | `tests/test_regimes.py::test_validate_ruled_out_needs_reason_and_no_obligations` |
+| BEH-015 validate requires applies.quote and applies.cite when status is binds | confirmed | — (test owed) |
+| BEH-016 validate reports duplicate obligation ids and bullet keys outside the six known ones | confirmed | — (test owed) |
+| BEH-017 counts returns per-status totals plus obligations and obligations_unclear (missing You must or It says) | accepted | `tests/test_regimes.py::test_counts` |
+| BEH-018 a file whose stem differs from its frontmatter id gets a filename problem | accepted | `tests/test_regimes.py::test_filename_must_match_id` |
+| BEH-019 a regime file with unterminated or invalid frontmatter becomes a placeholder row with an unreadable problem while sibling files load normally | accepted | `tests/test_poisoned_files_do_not_brick.py::test_regime_with_bad_frontmatter_is_reported_not_fatal` |
+| BEH-020 a regime whose sources, applies or exempt are not the expected shape is reported as problems and still counted | accepted | `tests/test_poisoned_files_do_not_brick.py::test_regime_with_wrong_shaped_sources_and_applies_is_reported_not_fatal` |
+| BEH-021 load_all returns an empty list when regimes/ does not exist | confirmed | — (test owed) |
+| BEH-022 `regimes validate` prints `<id>: <problem>` lines and exits 1 when any regime has problems | confirmed | — (test owed) |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -185,3 +185,4 @@ Design Decisions** below, not here.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Generated from codebase scan; certainty 91 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |

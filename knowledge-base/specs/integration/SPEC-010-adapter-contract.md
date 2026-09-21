@@ -6,7 +6,7 @@ tags: [integration, mirror, adapters, registry, prefetch, xml, dtd]
 status: implemented
 certainty: 91
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-21
 related_code:
   - compliance_register/mirror/adapters/__init__.py
   - compliance_register/sources.py
@@ -20,49 +20,49 @@ intentional_decisions:
 behaviors:
   - behavior_id: BEH-103
     title: "get('sitemap') returns the sitemap module"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_sitemap.py::test_registry
   - behavior_id: BEH-104
     title: "a sitemap listing with a DTD is reported unreachable with 'DTD' in the detail"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_sitemap.py::test_sitemap_with_dtd_is_unreachable
   - behavior_id: BEH-105
     title: "a feed listing with a DTD is reported unreachable with 'DTD' in the detail"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_feed.py::test_feed_with_dtd_is_unreachable
   - behavior_id: BEH-106
     title: "a listing over 5 MB is refused and reported unreachable"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_sitemap.py::test_listing_is_capped_at_5mb
   - behavior_id: BEH-107
     title: "prefetch resolves the whole eurlex basket with one SPARQL request and feeds check() and fetch()"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_eurlex.py::test_prefetch_resolves_whole_basket_in_one_request
   - behavior_id: BEH-108
     title: "a failed prefetch surfaces per source as unreachable/refused, never raised"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_adapter_eurlex.py::test_prefetch_failure_is_unreachable_per_source_not_raised
   - behavior_id: BEH-109
     title: "an oversized CSV field (csv.Error) inside prefetch is unreachable and the run still writes .last-check"
-    state: proposed
+    state: accepted
     level: unit
     adapter: pytest
     locator: tests/test_check.py::test_oversized_csv_field_in_resolve_is_unreachable_and_run_completes
   - behavior_id: BEH-110
     title: "prefetch returns {} when no eurlex source is chosen and makes no request"
-    state: proposed
+    state: confirmed
     level: unit
     adapter: pytest
 ---
@@ -89,14 +89,14 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 
 | Behavior | State | Verified by |
 |----------|-------|-------------|
-| BEH-103 get('sitemap') returns the sitemap module | proposed | `tests/test_adapter_sitemap.py::test_registry` |
-| BEH-104 a sitemap listing with a DTD is reported unreachable with 'DTD' in the detail | proposed | `tests/test_adapter_sitemap.py::test_sitemap_with_dtd_is_unreachable` |
-| BEH-105 a feed listing with a DTD is reported unreachable with 'DTD' in the detail | proposed | `tests/test_adapter_feed.py::test_feed_with_dtd_is_unreachable` |
-| BEH-106 a listing over 5 MB is refused and reported unreachable | proposed | `tests/test_adapter_sitemap.py::test_listing_is_capped_at_5mb` |
-| BEH-107 prefetch resolves the whole eurlex basket with one SPARQL request and feeds check() and fetch() | proposed | `tests/test_adapter_eurlex.py::test_prefetch_resolves_whole_basket_in_one_request` |
-| BEH-108 a failed prefetch surfaces per source as unreachable/refused, never raised | proposed | `tests/test_adapter_eurlex.py::test_prefetch_failure_is_unreachable_per_source_not_raised` |
-| BEH-109 an oversized CSV field (csv.Error) inside prefetch is unreachable and the run still writes .last-check | proposed | `tests/test_check.py::test_oversized_csv_field_in_resolve_is_unreachable_and_run_completes` |
-| BEH-110 prefetch returns {} when no eurlex source is chosen and makes no request | proposed | — (test owed) |
+| BEH-103 get('sitemap') returns the sitemap module | accepted | `tests/test_adapter_sitemap.py::test_registry` |
+| BEH-104 a sitemap listing with a DTD is reported unreachable with 'DTD' in the detail | accepted | `tests/test_adapter_sitemap.py::test_sitemap_with_dtd_is_unreachable` |
+| BEH-105 a feed listing with a DTD is reported unreachable with 'DTD' in the detail | accepted | `tests/test_adapter_feed.py::test_feed_with_dtd_is_unreachable` |
+| BEH-106 a listing over 5 MB is refused and reported unreachable | accepted | `tests/test_adapter_sitemap.py::test_listing_is_capped_at_5mb` |
+| BEH-107 prefetch resolves the whole eurlex basket with one SPARQL request and feeds check() and fetch() | accepted | `tests/test_adapter_eurlex.py::test_prefetch_resolves_whole_basket_in_one_request` |
+| BEH-108 a failed prefetch surfaces per source as unreachable/refused, never raised | accepted | `tests/test_adapter_eurlex.py::test_prefetch_failure_is_unreachable_per_source_not_raised` |
+| BEH-109 an oversized CSV field (csv.Error) inside prefetch is unreachable and the run still writes .last-check | accepted | `tests/test_check.py::test_oversized_csv_field_in_resolve_is_unreachable_and_run_completes` |
+| BEH-110 prefetch returns {} when no eurlex source is chosen and makes no request | confirmed | — (test owed) |
 
 Declarative decisions that are *not* executable are recorded under **Intentional
 Design Decisions** below, not here.
@@ -144,3 +144,4 @@ Design Decisions** below, not here.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-09-20 | Initial spec | Inferred from code, tests and design repo (D21, D29); certainty 91 |
+| 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
