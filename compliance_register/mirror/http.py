@@ -149,8 +149,8 @@ class Http:
         current = url
         for _ in range(MAX_HOPS + 1):
             parts = urlsplit(current)
-            if parts.scheme not in ("http", "https"):
-                raise HttpRefused(f"{current}: scheme not allowed")
+            if parts.scheme != "https":  # a listing or config may name http://; legal text is never read in the clear
+                raise HttpRefused(f"{current}: scheme not allowed (https only)")
             if parts.hostname not in allowed_hosts:
                 raise HttpRefused(f"{current}: host {parts.hostname} not in allowed_hosts {allowed_hosts}")
             if robots and not self._allowed_by_robots(current, allowed_hosts):

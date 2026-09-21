@@ -169,3 +169,10 @@ def test_robots_disallow_for_our_product_token_holds_under_browser_ua():
         c = http.Http(user_agent=http.user_agent(policy), delay_seconds=0, opener=FakeOpener(routes), sleep=lambda s: None)
         with pytest.raises(http.HttpRefused, match="robots"):
             c.get("https://a.test/x", allowed_hosts=["a.test"])
+
+
+def test_plain_http_is_refused_even_when_a_listing_asks_for_it():
+    """Legal text over plaintext can be altered on the path; the client speaks https only."""
+    c = client({"http://a.test/x": (200, HTML, "ok")})
+    with pytest.raises(http.HttpRefused, match="scheme"):
+        c.get("http://a.test/x", allowed_hosts=["a.test"])
