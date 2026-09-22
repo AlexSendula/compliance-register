@@ -6,7 +6,7 @@ tags: [infra, references, method, template, principle-2]
 status: implemented
 certainty: 85
 created: 2026-09-20
-updated: 2026-09-21
+updated: 2026-09-22
 related_code:
   - references/dimensions-checklist.md
   - references/regime-template.md
@@ -144,9 +144,9 @@ Design Decisions** below, not here.
 
 ### Method files forbid the agent from setting confirmed status and from using repo name, README or marketing copy as evidence
 
-**Decision**: `method-profile.md` states that `status: confirmed`, `confirmed_by` and `confirmed_at` are written only after the human answers, that `unknown` stays `value: null` (and `profile validate` will report it), and that repository name/README/marketing copy are never evidence for any answer; locale files are indicia to surface under question 2 only.
+**Decision**: `method-profile.md` and `method-discover-regimes.md` state that `status: confirmed`, `confirmed_by` and `confirmed_at` are written only after the human answers, and never with a name the human did not give; that stage 1 is done only when all fifteen are confirmed, not when `validate` exits 0 on a file of proposals; that `unknown` stays `value: null` (and `profile validate` reports it as `confirmed but value is null`, which never clears and keeps `rescan` shut); and that repository name/README/marketing copy are never evidence for any answer; locale files are indicia to surface under question 2 only.
 
-**Rationale**: Principle 3 and D7 (code proposes, humans decide), D9 (language ≠ jurisdiction). A `null` that blocks is preferred to an invented value that passes validation.
+**Rationale**: Principle 3 and D7 (code proposes, humans decide), D9 (language ≠ jurisdiction). A `null` that blocks is preferred to an invented value that passes validation. The attestation wording was tightened after a live trial: `method-profile.md` said imperatively "Set `confirmed_by` and `confirmed_at`" while SKILL.md said "Do not set … yourself", and the agent followed the method file.
 
 **Security Scan Note**: Not enforceable by code beyond `profile validate`; it is a documented instruction to the agent, which is why it is tested as text. This is intentional — see SPEC-031.
 
@@ -175,3 +175,4 @@ Design Decisions** below, not here.
 | 2026-09-20 | Initial spec | Scan-generated from `references/`, `tests/test_skill_md.py`, commits e0b28a4, 4c139a8, bb06b9d and design decisions D4, D5, D17, D18, D19, D28 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
 | 2026-09-21 | Tests written for BEH-273, BEH-274, BEH-275; promoted confirmed → accepted | tests owed |
+| 2026-09-22 | method-profile.md and method-discover-regimes.md: "done" defined as all fifteen confirmed, the attestation never written with a name the human did not give, the `unknown`/`rescan` dead end disclosed; method-discover-sources.md: test each `user_agent` policy before recording a non-default one | viva-croatia trial: exit 0 read as "stage 1 complete", `confirmed_by` written while nine answers were proposals |

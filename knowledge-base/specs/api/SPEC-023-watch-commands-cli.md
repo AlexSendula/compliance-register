@@ -6,7 +6,7 @@ tags: [api, cli, fetch, check, rescan, D16, D29, principle-4, principle-5]
 status: implemented
 certainty: 91
 created: 2026-09-20
-updated: 2026-09-21
+updated: 2026-09-22
 related_code:
   - compliance_register/cli.py
   - compliance_register/fetch.py
@@ -29,7 +29,7 @@ behaviors:
     adapter: pytest
     locator: tests/test_cli.py::test_today_must_be_an_iso_date
   - behavior_id: BEH-200
-    title: 'rescan on a profile that does not validate prints the reasons to stderr and exits 2'
+    title: 'rescan on a profile with a blocking problem prints the reasons to stderr and exits 2'
     state: accepted
     level: unit
     adapter: pytest
@@ -101,7 +101,7 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | Behavior | State | Verified by |
 |----------|-------|-------------|
 | BEH-199 check, fetch and rescan reject --today values that are not YYYY-MM-DD with exit 1 and a message containing YYYY-MM-DD | accepted | `tests/test_cli.py::test_today_must_be_an_iso_date` |
-| BEH-200 rescan on a profile that does not validate prints the reasons to stderr and exits 2 | accepted | `tests/test_cli.py::test_rescan_cli_exits_2_on_invalid_profile` |
+| BEH-200 rescan on a profile with a blocking problem prints the reasons to stderr and exits 2 | accepted | `tests/test_cli.py::test_rescan_cli_exits_2_on_invalid_profile` |
 | BEH-201 check on a corrupt sources.json exits 1 with the file name in stderr | accepted | `tests/test_poisoned_files_do_not_brick.py::test_corrupt_sources_json_is_a_typed_error_and_exit_1` |
 | BEH-202 check exits 2 and makes no request when a chosen source fails validation | accepted | `tests/test_check.py::test_validation_problem_exits_2_before_any_request` |
 | BEH-203 check exits 1 when at least one source is unreachable and 0 when every source is fresh or moved | accepted | `tests/test_check.py::test_unreachable_source_exits_1` |
@@ -159,3 +159,4 @@ truth). Add one row per `BEH-NNN` in the frontmatter `behaviors:` list.
 | 2026-09-20 | Initial spec | Generated from codebase scan by freya-spec-manager |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
 | 2026-09-21 | Tests written for BEH-206; promoted confirmed → accepted | tests owed |
+| 2026-09-22 | BEH-200 retitled: `rescan` gates on `profile.blocking`, a narrower list than `profile validate` prints | SPEC-001 split the report from the gate |

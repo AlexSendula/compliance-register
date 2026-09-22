@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-> Last updated: 2026-09-21
+> Last updated: 2026-09-22
 
 Every message below is quoted from the code as it prints. Read the exit code first: `0` done · `1` failure (bad input, a validator found problems, a guard or HTTP refused something during `fetch`, an unreachable source during `check`) · `2` refused (the tool did not start, or made no request on purpose). The mapping lives in `compliance_register/cli.py:224-243` and `bin/compliance-register:9-26`. Everything untrusted that reaches the terminal passes through `printable()` (`compliance_register/render.py:48`), so a message showing `\x1b` or `‮` is a source that tried to repaint your terminal, not a display bug.
 
@@ -43,7 +43,14 @@ Preflight lists every problem it finds in one run (`bin/compliance-register:21-2
 | `config.celex must be a base CELEX number (e.g. 32016R0679)` / `config.language must be one of […]` | eurlex adapter shape checks | `compliance_register/sources.py:94-100` |
 | `required confirmation missing (status proposed)` | you named it with `--source` but no human set `status: confirmed` | `compliance_register/sources.py:111-112` |
 
-`profile validate` (`compliance_register/profile.py:53-77`): `<slug>: missing`, `<slug>: unanswered`, `<slug>: status must be one of ('unanswered', 'proposed', 'confirmed')`, `<slug>: confirmed but value is null`, `<extra>: not a known dimension`, and once all fifteen are confirmed, `confirmed_by is required …` / `confirmed_at is required …`. The 15 slugs are fixed at `compliance_register/profile.py:12-28`; `rescan` refuses (exit 2, `profile does not validate: …`) until this list is empty (`compliance_register/rescan.py:35-37`).
+`profile validate` (`compliance_register/profile.py:62-108`): `<slug>: missing`, `<slug>: unanswered`, `<slug>: proposed, not confirmed`, `<slug>: status must be one of ('unanswered', 'proposed', 'confirmed')`, `<slug>: confirmed but value is null`, `<extra>: not a known dimension`, `confirmed_by and confirmed_at set while N answer(s) are not confirmed` (only the fields actually set are named, so also `confirmed_by set while …`), and once all fifteen are confirmed, `confirmed_by is required …` / `confirmed_at is required …`. The 15 slugs are fixed at `compliance_register/profile.py:12-28`.
+
+Exit 0 means stage 1 is finished — all fifteen confirmed and signed off. Two lines are worth reading closely:
+
+- `<slug>: proposed, not confirmed` — code wrote that value and no human has kept it. It is the one problem an agent creates for itself, so a profile of fifteen proposals must not pass (Principle 3).
+- `<slug>: confirmed but value is null` — this one is **not** a to-do. It is an answered `unknown` (`references/method-profile.md`), it never clears, and on such a profile exit 1 is the finished state.
+
+`rescan` gates on the narrower `profile.blocking()` list, not on everything `validate` prints (`compliance_register/rescan.py:35-38`, `compliance_register/profile.py:111-117`): an unreadable file, a missing/unanswered/`unknown` answer, a bad status, an unknown key, or a `confirmed_by`/`confirmed_at` still missing once all fifteen are confirmed blocks a baseline. A `proposed` answer, and an attestation set *early*, are reported and let through, because neither can move the snapshot: a dimension that is not confirmed keeps its last confirmed value.
 
 `regimes validate` (`compliance_register/regimes.py:59-91`): `<key>: required` for any of `id, title, status, jurisdiction, sources, confirmed_by, confirmed_at`; `status: must be one of ('binds', 'ruled-out', 'undetermined', 'no-longer-applies')`; `sources: must be a list of {id, version, retrieved}`; `applies: quote and cite are required when status is binds`; `exempt.reason: required when status is ruled-out`; `obligations: a ruled-out regime must not list obligations`; `obligations: duplicate id X`; `<obl>: unknown field 'Y'` (only `When, You must, How often, It says, You'd know by, Note` are allowed, `compliance_register/regimes.py:14`); `filename x.md does not match id y` (`compliance_register/regimes.py:109-110`). `status` repeats them as `problem:` lines (`compliance_register/status.py:43`, `:66-67`).
 
@@ -111,6 +118,8 @@ Output: `written N · skipped N · refused N` then one line per source with the 
 
 **robots.txt** is read once per host per client — redirects followed, even to another public host (publications.europa.eu sends its file to op.europa.eu), 4xx = no rules, 5xx or a network failure = `robots.txt unreadable, rules unknown`, which makes the host unreachable for that run (`compliance_register/mirror/http.py:160-189`) — matched per RFC 9309 (longest pattern wins, allow on a tie) and consulted on every hop against both our product token and the user agent the source configured (`headers.user_agent` picks `default`, `neutral` or `browser` at `compliance_register/mirror/http.py:29-37`). A `Disallow` for our path is `HttpRefused` — `check` reports it unreachable, `fetch` refuses. There is no allow-list and no override flag, and adding one is the design decision D24 says no to. The correct record is `tier: refuse` in `sources.json`: the regime is still discovered and cites the URL, and its `review_by` becomes the only watch signal (`SKILL.md:134-137`).
 
+**HTTP 403 is not a robots problem, and rarely a User-Agent problem.** Only 429 and 5xx are retried and reported as `HTTP <status>` (`compliance_register/mirror/http.py:237-238`); a 403 is handed to the adapter as a body, so it surfaces as `G1: not an HTML 200`, `https://…: not html`, or `listing is an HTML page, not XML (a bot challenge or error page served as 200?)`. Before reaching for `headers.user_agent`, test the host with each policy. A CDN that fingerprints TLS and header order reads the `browser` string as a claim this client cannot back up, and challenges it where it lets the self-identified `default` through — observed on Cloudflare-fronted hosts, `default` 200 against `browser` 403. Record a non-default policy only with the test result in `evidence`, and never expect any of them to change which robots rules apply (`compliance_register/mirror/http.py:166-198`). A 403 that survives all three on a path robots.txt allows is a `tier: refuse` source or a mail to the host.
+
 **`tier: refuse — licence or robots forbid fetching`** (`compliance_register/fetch.py:31-36`): named with `--source` → exit 2, no request; unnamed in a plain `fetch` → skipped, exit unaffected.
 
 **Sitemap caps** (`compliance_register/mirror/adapters/sitemap.py:12-14`, `:30-31`, `:40-43`): `listing: listing exceeds 2000 pages, capped — set config.include to narrow it` or `index lists 87 sitemaps, capped at 50`. The fetch ran on what fit; narrow `config.include` (URL prefixes) so the register holds the section you actually cite.
@@ -129,11 +138,11 @@ There is no "stale index" state to fix by hand. `.search-index.json` stores a SH
 
 ## Profile snapshot and rescan
 
-- `rescan` on a project with no `profile.snapshot.json` **writes the baseline and reports nothing** (`compliance_register/rescan.py:42-43`, `:58`; output `changed: nothing · pending entries written: 0`). Deleting the snapshot therefore silently resets the baseline — commit it.
-- Only `status: confirmed` answers enter the snapshot (`compliance_register/rescan.py:41`); a `proposed` change never triggers `regime-new` / `regime-gone`. Confirm it first.
-- `no profile.md` → exit 1; `profile does not validate: …` → exit 2, no snapshot written (`compliance_register/rescan.py:33-37`, `compliance_register/cli.py:163-168`).
+- `rescan` on a project with no `profile.snapshot.json` **writes the baseline and reports nothing** (`compliance_register/rescan.py:41`, `:55-56`, `:71`; output `changed: nothing · pending entries written: 0`). Deleting the snapshot therefore silently resets the baseline — commit it.
+- Only `status: confirmed` answers enter the snapshot (`compliance_register/rescan.py:51-54`); a `proposed` change never triggers `regime-new` / `regime-gone`. A dimension put back to `proposed` keeps its last confirmed value, so re-proposing an answer files nothing — "not yet confirmed" is never reported as "no longer true" (Principle 4). Confirm it first.
+- `no profile.md` → exit 1; `profile does not validate: …` → exit 2, no snapshot written (`compliance_register/rescan.py:33-38`, `compliance_register/cli.py:163-168`). Only the blocking problems get there — see the `profile validate` list above; `rescan` on a profile that still has proposals is allowed on purpose.
 - A `profile-stale` (info) row `a source moved since the profile was confirmed — run rescan` appears when `check` sees a move and `confirmed_at` is older than today (`compliance_register/check.py:83-87`). It is advice, not a fault: run `rescan`, then `resolve` the row.
-- `status` → `profile: valid, not yet confirmed`: `confirmed_at` is empty or not a date (`compliance_register/status.py:14-21`, `:53`).
+- `status` → `profile: valid, not yet confirmed`: `confirmed_at` is set but not a date (`compliance_register/status.py:14-21`, `:53`).
 
 ## Related
 

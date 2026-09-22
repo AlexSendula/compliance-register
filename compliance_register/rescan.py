@@ -32,17 +32,15 @@ def run(cdir: Path, *, today: str) -> dict:
     p = profile.load(cdir)
     if p is None:
         return {"changed": [], "entries": 0, "error": "no profile.md"}
-    problems = profile.validate(p.meta, p.problems)
+    # the blocking subset only: a proposed answer cannot move the baseline either way (D7)
+    problems = profile.blocking(p.meta, p.problems)
     if problems:
         return {"changed": [], "entries": 0, "error": "profile does not validate: " + "; ".join(problems), "exit": 2}
     snap_path = cdir / SNAPSHOT
     answers = p.meta["answers"]
-    # only confirmed answers count (D7): a proposed value must not advance the baseline
-    current = {s: (answers[s].get("value") if answers[s].get("status") == "confirmed" else None) for s in profile.DIMENSIONS}
     first = not snap_path.is_file()
-    if first:
-        previous = current
-    else:
+    previous: dict = {}
+    if not first:
         try:
             previous = json.loads(snap_path.read_text(encoding="utf-8"))
             if not isinstance(previous, dict):
@@ -50,6 +48,12 @@ def run(cdir: Path, *, today: str) -> dict:
         except (OSError, UnicodeDecodeError, ValueError) as exc:
             # refuse by name rather than silently resetting the baseline
             return {"changed": [], "entries": 0, "error": f"{SNAPSHOT} is unreadable: {exc}", "exit": 1}
+    # only confirmed answers count (D7): a value that is back to `proposed` carries its last
+    # confirmed value forward, so "not yet confirmed" is never reported as "no longer true"
+    # (Principle 4) — re-proposing an answer must not file a regime-gone
+    current = {s: (answers[s].get("value") if answers[s].get("status") == "confirmed" else previous.get(s)) for s in profile.DIMENSIONS}
+    if first:
+        previous = current
     changed = [s for s in profile.DIMENSIONS if previous.get(s) != current.get(s)]
     entries = 0
     if not first:

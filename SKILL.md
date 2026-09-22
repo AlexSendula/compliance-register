@@ -17,7 +17,7 @@ license: MIT
 compatibility: Requires Python 3.12+ and PyYAML. No network needed except for fetch and check.
 metadata:
   author: AlexSendula
-  version: "1.0.1"
+  version: "1.1.0"
 ---
 
 # Compliance register
@@ -61,7 +61,7 @@ gives a verdict:
 | `pending [--json]` | open detected changes |
 | `resolve <id> --action applied\|dismissed\|deferred --by <name> [--note]` | record what a human did; exit 1 on an unknown id |
 | `search "<query>" [-k N] [--kind regime\|mirror\|profile] [--json]` | ranked keyword search over regimes, mirror and profile |
-| `profile validate` | exit 1 with the list of unanswered or null answers |
+| `profile validate` | exit 1 listing every problem: an answer `unanswered` or still `proposed`, a confirmed `unknown` (value null), a `confirmed_by` set before all fifteen are confirmed, and a missing one once they are |
 | `profile diff --against <file or git ref>` | dimensions whose value changed against an older profile |
 | `regimes validate` | exit 1 with problems per regime file |
 | `sources validate` | exit 1 with problems per source — `check` and `fetch` run this first and make no request while it fails |
@@ -88,7 +88,11 @@ precisely:
   for by `--source`, validation failed, or a named source is not confirmed —
   no request was made. An unnamed `refuse`-tier source is skipped, not an error.
 - `rescan` → `0` done (the first run only writes the snapshot) · `1` no
-  profile · `2` the profile does not validate — no snapshot is written.
+  profile · `2` the profile has a problem that makes a baseline meaningless
+  (unreadable, an answer `unanswered` or `unknown`, or the attestation still
+  missing once all fifteen are confirmed) — no snapshot is written.
+  An answer still `proposed` is reported by `profile validate` but does not
+  block: the snapshot takes confirmed values only.
 
 ## Rules
 

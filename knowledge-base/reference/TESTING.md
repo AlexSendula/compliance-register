@@ -1,10 +1,10 @@
 # Testing Guide
 
-> Last updated: 2026-09-21
+> Last updated: 2026-09-22
 
 ## Overview
 
-The suite is **307 pytest tests, no network, no DNS, under a second** (`python3 -m pytest -q` → `307 passed in 0.7s`). Every HTTP call goes through an injected opener, every clock through an injected `today`, every sleep through an injected callable, and every project through a `tmp_path`. Nothing in `tests/` reaches the internet, reads the real date, or touches a real project.
+The suite is **315 pytest tests, no network, no DNS, under a second** (`python3 -m pytest -q` → `315 passed in 0.8s`). Every HTTP call goes through an injected opener, every clock through an injected `today`, every sleep through an injected callable, and every project through a `tmp_path`. Nothing in `tests/` reaches the internet, reads the real date, or touches a real project.
 
 Two things are deliberately outside the suite: live endpoints (EUR-Lex CELLAR, regulator sitemaps, real `robots.txt`) and the agent-driven Discover stage. Both are covered by the supervised first trial on viva-croatia, not by pytest — see "What is not tested".
 

@@ -53,10 +53,22 @@ below, and `check` and `fetch` make no request while it does.
   cannot find the terms, `redistribute: false` until a human says otherwise.
 - `allowed_hosts`: the hostnames a fetch may touch, including redirect
   targets. Defaults to the host of `url`. Never a local or private address.
-- `headers`: `{"user_agent": ...}` — the `user_agent` policy the host
-  needs, one of `default`, `neutral`, `browser`. `default` identifies this tool;
-  `neutral` is a bare generic client; `browser` is for hosts that refuse
-  anything else. Say in `evidence` why you chose a non-default one.
+- `headers`: `{"user_agent": ...}` — the `user_agent` policy, one of
+  `default`, `neutral`, `browser`.
+  `default` names this tool and a contact address, `neutral` is a bare
+  generic client, `browser` claims to be Firefox. Try `default` first and
+  leave the key out when it works.
+  A 403 does not mean "this host needs a browser UA". Behind a CDN that
+  fingerprints TLS and header order, a Firefox string this client cannot back
+  up is a contradiction — the signature of an evasive scraper — and gets
+  challenged where the self-identified bot is let through. Observed on
+  Cloudflare-fronted hosts: `default` returned 200, the browser string 403.
+  So test the host with each policy before recording a non-default one, and
+  put what each returned in `evidence`. A 403 that survives all three, on a
+  path robots.txt allows, is a `tier: refuse` source or a mail to the host —
+  not a string to keep guessing at.
+  Whichever you record, robots.txt is still read against this tool's own
+  name: a user_agent buys transport, never permission.
 - `delay_seconds`: seconds between requests to the same host (default 10).
   The engine does not read `Crawl-delay`: if robots.txt states a larger
   one, write it here.

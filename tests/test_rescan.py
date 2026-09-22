@@ -58,6 +58,23 @@ def test_snapshot_holds_only_confirmed_values(project: Path):
     assert rep["changed"] == ["sector"]
 
 
+def test_re_proposing_a_confirmed_answer_neither_moves_the_snapshot_nor_files_an_entry(project: Path):
+    """"Not yet confirmed" is never "no longer true" (Principle 4): a proposal carries
+    the last confirmed value forward instead of reading as the answer going away."""
+    import json
+    cdir = paths.compliance_dir(project); cdir.mkdir()
+    fm.save(cdir / "profile.md", confirmed_profile(personal_data={"categories": ["contact"]}), "")
+    write(cdir, dict(META, id="GDPR", applies={"quote": "q", "cite": "Art. 2", "triggered_by": [{"personal_data": True}]}))
+    rescan.run(cdir, today="2026-09-20")
+    meta = confirmed_profile(personal_data={"categories": ["contact"]})
+    meta["answers"]["personal_data"]["status"] = "proposed"  # agent re-proposes; human has not spoken
+    fm.save(cdir / "profile.md", meta, "")
+    rep = rescan.run(cdir, today="2026-10-01")
+    assert rep["changed"] == [] and rep["entries"] == 0
+    assert pending.list_open(cdir) == []
+    assert json.loads((cdir / "profile.snapshot.json").read_text())["personal_data"] == {"categories": ["contact"]}
+
+
 def test_invalid_profile_is_refused_with_exit_2(project: Path):
     cdir = paths.compliance_dir(project); cdir.mkdir()
     fm.save(cdir / "profile.md", profile.empty(), "")

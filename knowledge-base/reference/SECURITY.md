@@ -1,6 +1,6 @@
 # Security
 
-> Last updated: 2026-09-21
+> Last updated: 2026-09-22
 
 ## Overview
 
@@ -87,7 +87,7 @@ One runtime dependency, PyYAML, used only through its safe API. TLS verification
 
 - **Resolve-then-connect window (TTL-0 rebinding).** Every hop is resolved and vetted (`compliance_register/mirror/http.py:200-226`), but urllib resolves again to connect; a name answering public then private between the two lookups reaches the private address at the TCP/TLS level. Not practically exploitable: the client is https-only with certificate verification, so the private target must present a certificate valid for the confirmed name before any HTTP is sent. Pinning the connection to the vetted address would close it.
 - **Proxy environments are out of scope.** urllib honours `https_proxy`; the resolution check assumes direct DNS and direct connections. Behind a mandatory proxy the tool reports names it cannot resolve locally as unreachable.
-- **Per-source User-Agent policy.** `headers.user_agent` may select `neutral` (curl) or `browser` (Firefox) strings (`compliance_register/mirror/http.py:29-33`); robots.txt is evaluated against that string *and* against our own product token, so a site that names `compliance-register` is honoured under every policy. The default discloses; a human choosing otherwise is on record in `sources.json`.
+- **Per-source User-Agent policy.** `headers.user_agent` may select `neutral` (curl) or `browser` (Firefox) strings (`compliance_register/mirror/http.py:29-33`); robots.txt is evaluated against that string *and* against our own product token, so a site that names `compliance-register` is honoured under every policy. The default discloses; a human choosing otherwise is on record in `sources.json`. Note that `browser` is not a way through a bot wall: a CDN that fingerprints TLS and header order reads it as a claim this client cannot back up, and challenges it where it admits the self-identified default (TROUBLESHOOTING, "HTTP 403").
 - **Mirrored text is data an agent will read.** Nothing in the tool stops an agent from following instructions embedded in a fetched page. `printable` protects the terminal, not the reader.
 - **Redirect budget is per `get`, not per run.** A listing with thousands of redirecting entries costs a request each, bounded only by the page caps and the politeness clock.
 - **`profile diff` prints git's stderr unescaped** (`compliance_register/cli.py:120`); the input is the local user's own ref, not remote content.

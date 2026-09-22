@@ -1,6 +1,6 @@
 # Developer Guide
 
-> Last updated: 2026-09-20
+> Last updated: 2026-09-22
 
 How to work on the `compliance-register` skill: get it running, test it, install it into Claude Code from a checkout, and extend it (adapters, subcommands) without breaking the design invariants. For what the tool does and why, see [Architecture](./ARCHITECTURE.md); for the design rationale, see the sibling design repo (below).
 
@@ -10,7 +10,7 @@ How to work on the `compliance-register` skill: get it running, test it, install
 git clone https://github.com/AlexSendula/compliance-register   # not yet published — use the local checkout for now
 cd compliance-register
 python3 -m pip install -r requirements-dev.txt                    # pytest + PyYAML
-python3 -m pytest -q                                              # 307 passed, no network
+python3 -m pytest -q                                              # 315 passed, no network
 
 # run the launcher against a scratch project: any directory with a knowledge-base/ inside it
 mkdir -p /tmp/scratch/knowledge-base && cd /tmp/scratch

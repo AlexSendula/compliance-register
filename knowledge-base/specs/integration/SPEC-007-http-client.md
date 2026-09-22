@@ -6,7 +6,7 @@ tags: [integration, mirror, http, robots, redirects, politeness, ssrf]
 status: implemented
 certainty: 93
 created: 2026-09-20
-updated: 2026-09-21
+updated: 2026-09-22
 related_code:
   - compliance_register/mirror/http.py
   - compliance_register/__init__.py
@@ -398,7 +398,7 @@ Design Decisions** below, not here.
 
 **Decision**: `user_agent('browser')` returns a Firefox string; the source's `headers.user_agent` selects it. robots.txt is evaluated against both our product token and that string.
 
-**Rationale**: workflow.md: some gazettes refuse non-browser clients outright; the policy is set per source in sources.json by the confirming human (principle 3), not chosen by code to evade a refusal.
+**Rationale**: workflow.md: some gazettes refuse non-browser clients outright; the policy is set per source in sources.json by the confirming human (principle 3), not chosen by code to evade a refusal. It is not a way through a bot wall, and reaching for it on a 403 is usually wrong: a CDN that fingerprints TLS and header order reads the Firefox string as a claim this client cannot back up and challenges it, where it admits the self-identified default (observed on Cloudflare-fronted hosts: `default` 200, `browser` 403). `references/method-discover-sources.md` now tells the agent to test each policy and record what it returned.
 
 **Security Scan Note**: Not a robots bypass: the robots check runs unchanged and also against our own product token (see the decision above). Principle 8 forbids impersonation "to get around a refusal" — a UA-based block is not a refusal in robots.txt terms, and a robots.txt refusal cannot be gotten around by any UA.
 
@@ -434,3 +434,4 @@ Design Decisions** below, not here.
 | 2026-09-21 | Trial fixes (fix/trial-findings): robots.txt redirects may leave allowed_hosts; RFC 9309 matcher replaces urllib.robotparser; http:// redirects upgraded to https, not refused (BEH-064 re-titled under INTENT-001); get() takes headers; BEH-288..292 added | nieuwbouw-tracker trial review |
 | 2026-09-21 | SEC-003: every hop resolved and refused if not globally routable (353e668); NEEDS CLARIFICATION closed; BEH-297..303 added | security finding SEC-003 |
 | 2026-09-21 | Tests written for BEH-077, BEH-078, BEH-079, BEH-080, BEH-081; promoted confirmed → accepted | tests owed |
+| 2026-09-22 | The browser-UA decision records the counter-case: on a fingerprinting CDN a browser string is likelier to be challenged than the honest default; no code change | viva-croatia trial measured `default` 200 against `browser` 403 |

@@ -33,8 +33,21 @@ Record the unselected categories in the body under `## Not selected` — they
 are what rules out whole regimes later.
 
 ## When done
-- Set `confirmed_by` and `confirmed_at`.
-- Run `python3 "$SKILL_DIR/bin/compliance-register" profile validate`.
+Done is all fifteen `status: confirmed`. Fifteen proposals is not done.
+
+- The human confirms every answer first. Only then ask whose name goes in
+  `confirmed_by`, and write it with today's date in `confirmed_at` — never a
+  name they did not give, and never while an answer is still `proposed`
+  (SKILL.md, "Humans confirm"). `profile validate` reports an attestation
+  set early; it cannot tell whether the human actually said it.
+- Run `python3 "$SKILL_DIR/bin/compliance-register" profile validate` and
+  read every line. `<slug>: proposed, not confirmed` means stage 1 is not
+  finished. The one line that is not a to-do is `<slug>: confirmed but value
+  is null` — that is an answered `unknown`, and it stays for good, so on a
+  profile with one, exit 1 is the finished state. Tell the human when you
+  record it: `rescan` refuses on an answered `unknown` (exit 2), so the
+  profile-change loop in stage 4 stays shut for this project until that
+  answer is known. `check` is unaffected.
 - Commit `profile.md`.
 
 ## When the profile changes later

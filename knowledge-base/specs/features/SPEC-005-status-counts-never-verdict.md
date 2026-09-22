@@ -6,7 +6,7 @@ tags: [status, report, counts, router-not-oracle, D1, D15]
 status: implemented
 certainty: 91
 created: 2026-09-20
-updated: 2026-09-21
+updated: 2026-09-22
 related_code:
   - compliance_register/status.py
   - compliance_register/profile.py
@@ -156,3 +156,4 @@ Design Decisions** below, not here.
 | 2026-09-21 | `profile.load` absorbs an unreadable file into `Profile.problems`; status reports and renders it; BEH-283 added | G2 principle checkpoint, principle 9 |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed) | First behaviour review after the freya wrap-up |
 | 2026-09-21 | Tests written for BEH-049; promoted confirmed → accepted | tests owed |
+| 2026-09-22 | The profile line now counts `proposed` answers and a premature attestation as problems, so a mid-stage-1 project renders `profile: N problem(s)` plus one line per unconfirmed dimension instead of `profile: valid` | `status` reports whatever `profile.validate` returns (SPEC-001) |

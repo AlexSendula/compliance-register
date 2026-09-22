@@ -6,7 +6,7 @@ tags: [infra, packaging, skill-md, plugin, launcher, version]
 status: implemented
 certainty: 88
 created: 2026-09-20
-updated: 2026-09-21
+updated: 2026-09-22
 related_code:
   - SKILL.md
   - README.md
@@ -94,6 +94,7 @@ behaviors:
     level: unit
     adapter: pytest
     locator: tests/test_skill_md.py::test_version_is_identical_in_all_four_places
+    entry: pyproject.toml
   - behavior_id: BEH-267
     title: "Running the launcher under Python older than 3.12 exits 2 with a message naming the found version, before importing the package"
     state: accepted
@@ -199,3 +200,4 @@ Design Decisions** below, not here.
 | 2026-09-20 | Removed BEH-264 (duplicate of SPEC-027 BEH-230, same title and locator) | verify pass |
 | 2026-09-21 | Behaviours promoted by Alex: tested → accepted, untested → confirmed (test owed); --version duplicate deprecated in favour of BEH-229 | First behaviour review after the freya wrap-up |
 | 2026-09-21 | Tests written for BEH-266, BEH-267; promoted confirmed → accepted | tests owed |
+| 2026-09-22 | BEH-266 declares `entry: pyproject.toml` — the file it asserts on, which no import closure can reach, so coverage fingerprints could never name it | it stood as a permanent coverage gap in BACKLOG.md |

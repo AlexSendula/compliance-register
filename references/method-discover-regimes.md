@@ -43,8 +43,12 @@ checklist only with that provenance.
 
 ## Present and confirm
 Show the human three lists: binds, ruled out (with reasons), undetermined
-(with what would decide each). They confirm or correct. Set `confirmed_by`
-and `confirmed_at` on each file. Run
+(with what would decide each). They confirm or correct each one first. Only
+then ask whose name goes in `confirmed_by`, and write it with today's date in
+`confirmed_at` on the files they confirmed — never a name they did not give,
+and never on a regime they have not seen (SKILL.md, "Humans confirm").
+`regimes validate` only checks that the field is filled; it cannot tell
+whether the human said it. Run
 `python3 "$SKILL_DIR/bin/compliance-register" regimes validate`. Commit.
 
 ## When re-run after a profile change

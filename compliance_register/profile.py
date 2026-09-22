@@ -51,40 +51,77 @@ def empty() -> dict:
     }
 
 
-def validate(meta: dict, problems: list[str] | None = None) -> list[str]:
-    problems = list(problems or [])
-    if problems:  # unreadable: nothing below can be judged
-        return problems
+def _answer(meta: dict, slug: str) -> dict:
+    """The answer mapping, or `{}` when the file holds something else there: a
+    hand-written `size: small` is reported, never raised (Principle 9)."""
+    answers = meta.get("answers")
+    a = answers.get(slug) if isinstance(answers, dict) else None
+    return a if isinstance(a, dict) else {}
+
+
+def _checks(meta: dict, problems: list[str] | None) -> list[tuple[bool, str]]:
+    """Every problem, each flagged True when it also stops `rescan` writing a
+    baseline. An answer still `proposed`, and a `confirmed_by` set before the
+    human has confirmed all fifteen, are reported but do not block: the snapshot
+    holds the last confirmed value and a proposal moves it in neither direction
+    (D7, rescan.py)."""
+    out: list[tuple[bool, str]] = [(True, p) for p in (problems or [])]
+    if out:  # unreadable: nothing below can be judged
+        return out
     answers = meta.get("answers")
     if not isinstance(answers, dict):
-        return ["profile has no answers mapping"]
+        return [(True, "profile has no answers mapping")]
     for slug in DIMENSIONS:
         a = answers.get(slug)
         if not isinstance(a, dict):
-            problems.append(f"{slug}: missing")
+            out.append((True, f"{slug}: missing"))
             continue
         status = a.get("status")
         if status not in STATUSES:
-            problems.append(f"{slug}: status must be one of {STATUSES}")
+            out.append((True, f"{slug}: status must be one of {STATUSES}"))
         if status == "unanswered":
-            problems.append(f"{slug}: unanswered")
+            out.append((True, f"{slug}: unanswered"))
+        if status == "proposed":
+            # code wrote this value; until a human confirms it, it is an inference
+            # presented as fact (Principle 3) and stage 1 is not done
+            out.append((False, f"{slug}: proposed, not confirmed"))
         if status == "confirmed" and a.get("value") is None:
-            problems.append(f"{slug}: confirmed but value is null")
-    for extra in set(answers) - set(DIMENSIONS):
-        problems.append(f"{extra}: not a known dimension")
-    if all(answers.get(s, {}).get("status") == "confirmed" for s in DIMENSIONS):
-        if not meta.get("confirmed_by"):
-            problems.append("confirmed_by is required once every answer is confirmed")
-        if not meta.get("confirmed_at"):
-            problems.append("confirmed_at is required once every answer is confirmed")
-    return problems
+            out.append((True, f"{slug}: confirmed but value is null"))
+    for extra in sorted(set(answers) - set(DIMENSIONS)):
+        out.append((True, f"{extra}: not a known dimension"))
+    unconfirmed = [s for s in DIMENSIONS if _answer(meta, s).get("status") != "confirmed"]
+    if not unconfirmed:
+        for field_name in ("confirmed_by", "confirmed_at"):
+            if not meta.get(field_name):
+                out.append((True, f"{field_name} is required once every answer is confirmed"))
+    else:
+        # the attestation claims a human signed the whole profile off; the answers say otherwise
+        attested = [f for f in ("confirmed_by", "confirmed_at") if meta.get(f)]
+        if attested:
+            out.append((False, f"{' and '.join(attested)} set while {len(unconfirmed)} answer(s) are not confirmed"))
+    return out
+
+
+def validate(meta: dict, problems: list[str] | None = None) -> list[str]:
+    """Everything wrong with the profile, in dimension order. Empty means all
+    fifteen are confirmed and a human signed them off."""
+    return [text for _, text in _checks(meta, problems)]
+
+
+def blocking(meta: dict, problems: list[str] | None = None) -> list[str]:
+    """The subset `rescan` refuses on: the file is unreadable or has no answers
+    mapping, a dimension is missing, `unanswered`, confirmed `unknown` (D29) or
+    carries a status outside STATUSES, a key is not a dimension, or — once all
+    fifteen are confirmed — `confirmed_by`/`confirmed_at` is still missing.
+    Only a `proposed` answer and an attestation set early are let through."""
+    return [text for blocks, text in _checks(meta, problems) if blocks]
 
 
 def diff(old: dict, new: dict) -> list[str]:
     changed = []
     for slug in DIMENSIONS:
-        ov = (old.get("answers") or {}).get(slug, {}).get("value")
-        nv = (new.get("answers") or {}).get(slug, {}).get("value")
+        ov = _answer(old, slug).get("value")
+        nv = _answer(new, slug).get("value")
         if ov != nv:
             changed.append(slug)
     return changed

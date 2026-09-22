@@ -1,6 +1,6 @@
 # Architecture
 
-> Last updated: 2026-09-21
+> Last updated: 2026-09-22
 
 ## Overview
 
@@ -69,7 +69,7 @@ graph TD
 
 ### Data files
 - `compliance_register/frontmatter.py` — the only reader/writer of the YAML frontmatter block (`compliance_register/frontmatter.py:1-2`); atomic save via temp file + `os.replace` (`compliance_register/frontmatter.py:64-73`); YAML dates normalised to ISO strings once (`compliance_register/frontmatter.py:43-52`).
-- `compliance_register/profile.py` — the 15 fixed dimensions in order (`compliance_register/profile.py:12-28`), each answer `{value, status, evidence}` with status `unanswered | proposed | confirmed` (`compliance_register/profile.py:30`, `compliance_register/profile.py:41-50`); `validate` and `diff` (`compliance_register/profile.py:53`, `compliance_register/profile.py:80`).
+- `compliance_register/profile.py` — the 15 fixed dimensions in order (`compliance_register/profile.py:12-28`), each answer `{value, status, evidence}` with status `unanswered | proposed | confirmed` (`compliance_register/profile.py:30`, `compliance_register/profile.py:42-51`); `validate` (everything wrong with the file), `blocking` (the subset `rescan` refuses on) and `diff` (`compliance_register/profile.py:105`, `compliance_register/profile.py:111`, `compliance_register/profile.py:120`).
 - `compliance_register/regimes.py` — one `regimes/<id>.md` per regime with status `binds | ruled-out | undetermined | no-longer-applies` (`compliance_register/regimes.py:12`); obligations parsed from `### <ID> · <title>` blocks of `- **Key:** value` bullets (`compliance_register/regimes.py:16-17`, `compliance_register/regimes.py:42-56`); a `binds` regime needs `applies.quote` and `applies.cite`, a `ruled-out` one needs `exempt.reason` and may list no obligations (`compliance_register/regimes.py:75-82`).
 - `compliance_register/sources.py` — `sources.json`, the `Source` dataclass with tier, adapter, licence, `allowed_hosts`, freshness fields (`compliance_register/sources.py:28-49`); tiers `api | sitemap | feed | page-hash | refuse` (`compliance_register/sources.py:17`); `validate` requires https and refuses private/loopback hosts (`compliance_register/sources.py:86-93`, `compliance_register/sources.py:118-125`); `refusals` blocks a command-line-named source that no human confirmed (`compliance_register/sources.py:104-115`).
 - `compliance_register/pending.py` — `pending.jsonl` and `resolutions.jsonl`, both append-only, state derived by replay (`compliance_register/pending.py:1-4`); kinds, severities and resolve actions (`compliance_register/pending.py:11-13`); ids `chg-NNNN` allocated from the max seen in both files (`compliance_register/pending.py:64-67`).
@@ -79,7 +79,7 @@ graph TD
 - `compliance_register/search.py` — BM25 over whole files, index at `.search-index.json` rebuilt when the `(relpath, size, mtime_ns)` signature changes (`compliance_register/search.py:3-6`, `compliance_register/search.py:73-107`); tokenizer copied from docs-mirror so query and document share one rule (`compliance_register/search.py:24-44`).
 - `compliance_register/fetch.py` — acquire/refresh confirmed sources into the mirror; builds the per-source `Http` client (`compliance_register/fetch.py:10-14`).
 - `compliance_register/check.py` — three-valued freshness per source; writes pending entries and stops; never writes `last_version` (`compliance_register/check.py:1-3`).
-- `compliance_register/rescan.py` — profile drift against `profile.snapshot.json`, confirmed answers only (`compliance_register/rescan.py:1-4`, `compliance_register/rescan.py:41`).
+- `compliance_register/rescan.py` — profile drift against `profile.snapshot.json`, confirmed answers only (`compliance_register/rescan.py:1-4`, `compliance_register/rescan.py:51-54`).
 
 ### Mirror engine (`compliance_register/mirror/`)
 - `http.py` — `Http.get` judges every redirect hop before taking it, upgrades an `http://` Location to https (never a plaintext request), caps body bytes, retries transient failures then raises `HttpUnreachable` (never "no change"), honours robots.txt per host with no allowlist (`compliance_register/mirror/http.py:1-5`, `compliance_register/mirror/http.py:142-176`). One process-wide politeness clock per host (`compliance_register/mirror/http.py:25-27`, `compliance_register/mirror/http.py:82-86`).
@@ -124,11 +124,11 @@ Written by `init` (`compliance_register/cli.py:22-40`) and the commands; everyth
 5. After the loop: regimes whose `review_by` has passed get a `date-passed` (major) entry (`compliance_register/check.py:28-34`); `.last-check` is written; if anything moved and the profile was confirmed before today, one `profile-stale` entry asks for a rescan (`compliance_register/check.py:81-87`).
 
 ### `rescan`
-1. Load and validate the profile; missing profile is exit 1, invalid is exit 2, and no snapshot is written (`compliance_register/rescan.py:32-37`, `compliance_register/cli.py:163-168`).
-2. Build `current` from confirmed answers only — a proposed value never advances the baseline (`compliance_register/rescan.py:41`).
-3. First run: write the snapshot and report nothing (`compliance_register/rescan.py:42-46`).
-4. Otherwise, per changed dimension, find regimes whose `applies.triggered_by` names it (`compliance_register/rescan.py:19-28`): a now-falsy value appends `regime-gone` (major) per touched `binds`/`undetermined` regime; any other change appends one `regime-new` (info) (`compliance_register/rescan.py:49-57`).
-5. Write the new snapshot; no regime file is edited (`compliance_register/rescan.py:58`).
+1. Load the profile and check `profile.blocking`; missing profile is exit 1, a blocking problem is exit 2, and no snapshot is written (`compliance_register/rescan.py:32-38`, `compliance_register/cli.py:163-168`).
+2. Build `current` from confirmed answers only; a dimension that is not confirmed keeps its last confirmed value, so a proposal moves the baseline in neither direction (`compliance_register/rescan.py:51-54`).
+3. First run: write the snapshot and report nothing (`compliance_register/rescan.py:41`, `compliance_register/rescan.py:55-56`).
+4. Otherwise, per changed dimension, find regimes whose `applies.triggered_by` names it (`compliance_register/rescan.py:19-28`): a now-falsy value appends `regime-gone` (major) per touched `binds`/`undetermined` regime; any other change appends one `regime-new` (info) (`compliance_register/rescan.py:59-70`).
+5. Write the new snapshot; no regime file is edited (`compliance_register/rescan.py:71`).
 
 ### `resolve`
 `resolve <id> --action applied|dismissed|deferred --by <who> [--note]` appends one line to `resolutions.jsonl` after checking the id exists in `pending.jsonl` and is not already resolved (`compliance_register/pending.py:87-96`). `pending` lists entries whose id has no resolution (`compliance_register/pending.py:82-84`). Nothing is ever edited in place.

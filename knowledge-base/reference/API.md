@@ -1,6 +1,6 @@
 # CLI Reference
 
-> Last updated: 2026-09-20
+> Last updated: 2026-09-22
 > Entry point: `bin/compliance-register` (Python >= 3.12 + PyYAML; no install step, the launcher puts the repo on `sys.path` — `bin/compliance-register:16-17`)
 
 All commands run **inside a project**: the tool walks upward from the current directory until it finds a `knowledge-base/` directory and works only under `<root>/knowledge-base/compliance/` (`compliance_register/paths.py:26-35`). Terminal I/O lives in `compliance_register/cli.py`; every sink passes through `render.printable` so mirrored or hand-written text cannot repaint the terminal (`compliance_register/render.py:48`, `tests/test_cli.py:88-105`).
@@ -60,11 +60,11 @@ BM25 over every non-dotfile `*.md` under the compliance directory, including `mi
 
 ### `profile validate`
 
-Prints one line per problem: missing or unknown dimension, bad status, `unanswered`, `confirmed but value is null`, and `confirmed_by`/`confirmed_at` required once every answer is confirmed (`compliance_register/profile.py:53-77`). Exit 1 if any problem or no `profile.md`, else 0 (`compliance_register/cli.py:91-99`).
+Prints one line per problem: missing or unknown dimension, bad status, `unanswered`, `proposed, not confirmed`, `confirmed but value is null`, `confirmed_by and confirmed_at set while N answer(s) are not confirmed` (only the fields actually set are named), and `confirmed_by`/`confirmed_at` required once every answer is confirmed (`compliance_register/profile.py:62-108`). Exit 1 if any problem or no `profile.md`, else 0 (`compliance_register/cli.py:91-99`). Exit 0 therefore means stage 1 is finished, not merely started — except on a profile holding an answered `unknown`, whose `confirmed but value is null` line never clears. `profile.blocking(meta, problems)` returns the subset `rescan` refuses on (`compliance_register/profile.py:111-117`).
 
 ### `profile diff --against <file-or-git-ref>`
 
-Prints the dimension slugs whose `value` differs between the current `profile.md` and either a file path or `git show <ref>:knowledge-base/compliance/profile.md` (`compliance_register/cli.py:102-124`, `compliance_register/profile.py:80-87`). The ref is passed after `--end-of-options`, so a ref that looks like a git flag is never interpreted as one (`compliance_register/cli.py:107`, `tests/test_cli.py:126-135`). Exit 1 when git fails or there is no profile, else 0.
+Prints the dimension slugs whose `value` differs between the current `profile.md` and either a file path or `git show <ref>:knowledge-base/compliance/profile.md` (`compliance_register/cli.py:102-124`, `compliance_register/profile.py:120-127`). The ref is passed after `--end-of-options`, so a ref that looks like a git flag is never interpreted as one (`compliance_register/cli.py:107`, `tests/test_cli.py:126-135`). Exit 1 when git fails or there is no profile, else 0.
 
 ### `regimes validate`
 
@@ -88,7 +88,7 @@ Exit: **2** with `nothing to check — no confirmed sources`, or when validation
 
 ### `rescan [--today YYYY-MM-DD]`
 
-Compares the **confirmed** answers in `profile.md` to `profile.snapshot.json`; a proposed value never advances the baseline (`compliance_register/rescan.py:38-44`). First run writes the snapshot and reports nothing. Afterwards, per changed dimension: if the new value is falsy, every `binds`/`undetermined` regime whose `applies.triggered_by` names that dimension gets a `regime-gone` (major) entry; otherwise one `regime-new` (info) entry names the touched regimes (`compliance_register/rescan.py:46-57`). Output: `changed: a, b · pending entries written: N`. Exit **2** with `profile does not validate: …` when `profile validate` would fail; **1** with `no profile.md`; else 0 (`compliance_register/cli.py:163-168`).
+Compares the **confirmed** answers in `profile.md` to `profile.snapshot.json`; a dimension that is not confirmed keeps its last confirmed value, so a proposal moves the baseline in neither direction (`compliance_register/rescan.py:51-54`). First run writes the snapshot and reports nothing. Afterwards, per changed dimension: if the new value is falsy, every `binds`/`undetermined` regime whose `applies.triggered_by` names that dimension gets a `regime-gone` (major) entry; otherwise one `regime-new` (info) entry names the touched regimes (`compliance_register/rescan.py:59-70`). Output: `changed: a, b · pending entries written: N`. Exit **2** with `profile does not validate: …` when a *blocking* problem remains — unreadable file, missing/unanswered/`unknown` answer, bad status, unknown key, or `confirmed_by`/`confirmed_at` still missing once all fifteen are confirmed (`profile.blocking`, `compliance_register/profile.py:111-117`); an answer still `proposed`, and an attestation set *early*, are reported by `profile validate` but never block, since neither can move the snapshot; **1** with `no profile.md`; else 0 (`compliance_register/cli.py:163-168`).
 
 ### Shared options
 
@@ -103,7 +103,7 @@ YAML frontmatter + free-text body. `answers` has exactly the 15 dimension slugs,
 
 ```yaml
 schema: 1
-confirmed_by: null        # required once every answer is confirmed
+confirmed_by: null        # required once every answer is confirmed; reported if set before
 confirmed_at: null        # YYYY-MM-DD; status uses it for age, check for profile-stale
 answers:
   establishment: {value: null, status: unanswered, evidence: []}   # status: unanswered | proposed | confirmed
@@ -129,7 +129,7 @@ Obligations sit under `## Obligations` as `### <ID> · <title>` headings (`-` al
 | `change_signal` | `""` | prose |
 | `licence` | `{redistribute: false, attribution: null}` | `redistribute` must be a bool; `false` routes the mirror to `mirror/.private/` |
 | `allowed_hosts` | defaults to the url's host | redirects judged per hop; no localhost/private/link-local addresses |
-| `headers` | `{user_agent: "default"}` | |
+| `headers` | `{user_agent: "default"}` | `default \| neutral \| browser`; test the host before recording a non-default policy — a browser string can be *worse* on a fingerprinting CDN (TROUBLESHOOTING, "HTTP 403") |
 | `delay_seconds` | `10` | per-host politeness |
 | `status` | `proposed \| confirmed \| unresolved`, default `proposed` | only `confirmed` is fetched/checked by default |
 | `last_checked`, `last_status`, `last_version`, `next_version`, `last_fetched` | `null` | written by `check`/`fetch` |
@@ -152,7 +152,7 @@ Pages live at `mirror/[.private/]<jurisdiction-lowercase>/<source id>/<relpath>.
 
 ### Derived files
 
-`.last-check` holds one `YYYY-MM-DDTHH:MM:SSZ` line (`compliance_register/check.py:82`); `profile.snapshot.json` holds the confirmed answers by slug (`compliance_register/rescan.py:58`); `.search-index.json` is git-ignored and regenerated on demand.
+`.last-check` holds one `YYYY-MM-DDTHH:MM:SSZ` line (`compliance_register/check.py:82`); `profile.snapshot.json` holds the confirmed answers by slug (`compliance_register/rescan.py:71`); `.search-index.json` is git-ignored and regenerated on demand.
 
 ## Related Documentation
 

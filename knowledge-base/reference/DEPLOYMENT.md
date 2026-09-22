@@ -1,6 +1,6 @@
 # Publishing & Release
 
-> Last updated: 2026-09-20
+> Last updated: 2026-09-22
 
 compliance-register is a Claude Code skill, not a service. There are no
 environments, servers, containers, environment variables, health checks or
@@ -103,7 +103,7 @@ Keep all four identical — nothing checks that they agree.
 
 ```bash
 # 1. green
-python3 -m pytest -q                     # 307 passed, no network (pyproject.toml:13-15)
+python3 -m pytest -q                     # 315 passed, no network (pyproject.toml:13-15)
 
 # 2. skill shape (Agent Skills spec)
 npx -y skills-ref validate .

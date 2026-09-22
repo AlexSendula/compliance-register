@@ -53,6 +53,25 @@ def test_profile_validate_fails_on_fresh_profile(project: Path):
     assert code == 1 and "unanswered" in (out + err)
 
 
+def test_profile_validate_fails_while_any_answer_is_still_proposed(project: Path):
+    """The seam that made exit 0 read as "stage 1 done": a profile of agent
+    proposals nobody has confirmed must not pass."""
+    run(["init"], project)
+    cdir = paths.compliance_dir(project)
+    meta, body = fm.load(cdir / "profile.md")
+    for slug in profile.DIMENSIONS:
+        meta["answers"][slug] = {"value": "x", "status": "confirmed", "evidence": []}
+    meta["answers"]["size"] = {"value": "guess", "status": "proposed", "evidence": ["pyproject.toml"]}
+    meta["confirmed_by"], meta["confirmed_at"] = "Alex", "2026-09-22"
+    fm.save(cdir / "profile.md", meta, body)
+    code, out, err = run(["profile", "validate"], project)
+    assert code == 1
+    assert "size: proposed, not confirmed" in out
+    assert "confirmed_by and confirmed_at set while 1 answer(s) are not confirmed" in out
+    # and rescan still runs: the snapshot never took the proposed value anyway
+    assert run(["rescan"], project)[0] == 0
+
+
 def test_resolve_and_pending(project: Path):
     run(["init"], project)
     from compliance_register import pending
